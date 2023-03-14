@@ -1,9 +1,8 @@
 # History files
 .Rhistory
-.Rapp.history
 
 # Session Data files
-.RData
+*.RData
 
 # User-specific files
 .Ruserdata
@@ -21,6 +20,18 @@
 
 # R Environment Variables
 .Renviron
+
+# Rate and presim files (created with script 0)
+rates/*
+presim*
+
+# Graphs 
+Graphs/*
+
+# Simulation results
+*.rda
+sim_results*
+socsim_clustercall.log
 
 # Work in progress 
 progress/*
