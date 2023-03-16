@@ -90,7 +90,8 @@ yearly_birth_by_age_socsim <- function(df, year_range, age_breaks_fert) {
   
   out <- df %>% 
     left_join(df %>% select(mom = pid, mother_birth = birth_year), 
-              by = "mom") %>% 
+              # multiple = "any" to return only one "mom" match for each (children) id
+              by = "mom", multiple = "any") %>% 
     select(birth_year, mother_birth) %>% 
     filter(birth_year %in% year_range) %>% 
     mutate(birth_year_factor = factor(birth_year, levels = year_range),
