@@ -264,7 +264,7 @@ ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=400)
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(SocsimM$age)
 
-## Ploting ASFR and ASMR (for females) from HFD/HMD vs SOCSIM 
+## Plotting ASFR and ASMR (for females) from HFD/HMD vs SOCSIM 
 bind_rows(HFD0 %>% rename(Estimate = ASFR), 
             SocsimF0 %>% rename(Estimate = ASFR)) %>% 
     mutate(Sex = "Female") %>%   
@@ -374,7 +374,7 @@ save(asmr_10_1, file = "asmr_10_1.RData")
 
 load("asmr_10_1.RData")
 
-# The code below is an adaptation of Tim Riffe's code from BSSD2021Module2
+# This code was inspired by Tim Riffe's BSSD2021Module2 code to calculate life tables
 # https://github.com/timriffe/BSSD2021Module2/blob/master/02_tuesday/02_tuesday.Rmd 
 
 lt_sim <- asmr_10_1 %>% 
@@ -399,7 +399,7 @@ lt_sim <- asmr_10_1 %>%
                         TRUE ~ n/2),
          qx = (mx * n) / (1 + (n - ax) * mx), 
          qx = case_when(Age == max(Age) ~ 1, 
-                       qx > 1 ~ 1, TRUE ~ qx)) %>%  
+                        qx > 1 ~ 1, TRUE ~ qx)) %>%  
   # Filter data frame until minimum row with qx == 1, to avoid having more than one qx = 1
   filter(between(rn, 1, min(which(qx ==1)))) %>%
   mutate(px = 1 - qx,
@@ -409,7 +409,6 @@ lt_sim <- asmr_10_1 %>%
          Tx = Lx %>% rev() %>% cumsum() %>% rev(),
          ex = Tx / lx)  %>% 
   ungroup() 
-
 save(lt_sim, file = "lt_sim.RData")
 
 
