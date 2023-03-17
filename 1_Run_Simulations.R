@@ -6,7 +6,7 @@
 ## and read the output into R. 
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 08-03-2023
+# Last modified by Liliana Calderon on 17-03-2023
 
 # NB: Some functions are based on external code and repositories specified under each section.
 #------------------------------------------------------------------------------------------------------
@@ -61,21 +61,21 @@ folder <- getwd()
 # Otherwise, the working directory must be specified after "folder <- "
 
 # Name of the supervisory file stored in the above folder:
-supfile <- "socsim_SWE_marr.sup"
+supfile <- "socsim_SWE.sup"
 # Sup file for rates retrieved from HFD and HMD (1751-2021), created with the 0_Write_Input_Rates.R,  
 # assuming demographic stability for fertility over 1751-1891 and using random father allocation
-# and marriage rates from US 1950 
+# supfile <- "socsim_SWE_marr.sup" # using marriage rates from US 1950 
 
 # Random number generator seed:
 sims_seeds <- as.character(sample(1:99999, 6, replace = F))
-# sims_seeds <- as.character(c(7710, 20944, 26740, 67684)) # 63905 without log
+seed <- "13486"
 
 ## Run the simulations for the random seeds. 
 for(seed in sims_seeds) {
   
   ### Run a single SOCSIM-simulation with a given folder and supervisory file,
   # using the "clustercall" process method, which allow to run several simulations. 
-  rsocsim::socsim(folder, supfile, seed, process_method = "clustercall")
+  rsocsim::socsim(folder, supfile, seed, process_method = "inprocess")
   
 }
 
