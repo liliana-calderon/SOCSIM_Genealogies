@@ -1,8 +1,8 @@
 #------------------------------------------------------------------------------------------------------
-# SOCSIM - SOCSIM Genealogies - Trace and compare subset of ancestors of a given ego(s) 
+# SOCSIM - SOCSIM Genealogies - Trace and compare subset of direct ancestors of a given ego(s) 
 # U:/SOCSIM/SOCSIM_Genealogies/3_Compare_Ancestors.R
 
-## Trace ancestors of a given ego(s) from a SOCSIM microsimulation for Sweden (1751-2021)
+## Trace direct ancestors of a given ego(s) from a SOCSIM microsimulation for Sweden (1751-2021)
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
@@ -12,7 +12,8 @@
 
 #------------------------------------------------------------------------------------------------------
 ## General settings ----
-## We use only one of the 10 simulations. 
+
+# Prevent scientific notation (useful for the rate calculation)
 options(scipen=999999)
 
 ## Load packages 
@@ -21,49 +22,57 @@ library(ggh4x)  # To facet scales-
 library(questionr)
 
 ## Read the output .opop file ----
+## We use only one of the 10 simulations.
 
 # Load read_opop() function to read the .opop file (written by Diego Alburez-Gutierrez)
 # Once this is integrated into the rsocsim package the function might be just called
 source("read_opop.R")
 
 # Name of the supervisory file used for the simulation (if not set in the GlobalEnv)
-supfile <- "socsim_SWE_marr.sup"
-
+supfile <- "socsim_SWE.sup"
+ 
 ## Randomly choose the simulation seed to use 
 load("sims_seeds.rda")
 seed <- "13486"
 # seed <-  sample(sims_seeds, 1, replace = F) 
 
-# Path of the folder where the simulation results have been saved. 
-path_opop <- paste0("sim_results_s",supfile,"_",seed,"/result.opop")
+# Path of the simulation results .opop file
+#path_opop <- paste0("sim_results_s",supfile,"_",seed,"_/result.opop")
+path_opop <- paste0("sim_results_",supfile,"_",seed,"_/result.opop")
 
 # Read SOCSIM output, using read_opop function. 
 opop <- read_opop(path_opop)
 
 #------------------------------------------------------------------------------------------------------
-## Trace ancestors of people alive in 2022 as a proxy of current genealogists 
+## Trace direct ancestors of people alive in 2022 as a proxy of current genealogists 
 
-## Load functions to get ancestors
+## Load functions to recover age-specific fertility and mortality rates 
+# and covert SOCSIM time to calendar time
+source("Functions_Retrieve_Rates.R")
+
+## Load functions to get direct ancestors
 source("Functions_Ancestors.R")
 
 # Pids of people alive at the end of the simulation, i.e. dod == 0, 
 # who are older than 18 years old on 01-01-2022, i,e. dob 1913-2003 
 egos2022 <- opop %>% 
-  mutate(Generation = asYr(dob, last_month, final_sim_year)) %>% 
+  mutate(last_month = max(dob),
+         final_sim_year = 2021, ## Change if necessary
+         Generation = asYr(dob, last_month, final_sim_year)) %>% 
   filter(dod == 0 & Generation <= final_sim_year-18) %>% 
   pull(pid)
 
 # Get a sample of 1% of people alive in 2022. 
-# To be increased after
-sample_size <- round(length(egos2022)/100)
+sample_size <- round(length(egos2022)/10)
 egos2022_samp <-  sample(egos2022, sample_size, replace = F)
 save(egos2022_samp, file = "egos2022_samp.RData")
 
 ## Map the function to get the ancestors of a sample of individuals alive in 2022 (older than 18 years)
 start <- Sys.time()
-ancestors_egos2022 <- map_dfr(egos2022_samp, get_ancestors)
+ancestors_egos2022d <- map_dfr(egos2022_samp2, get_ancestors) %>%
+  left_join(select(opop, c(pid, fem, dob, dod, mom, marid, mstat)), by = "pid")
 end <- Sys.time()
-print(end-start) # Time difference of 7.810757 hours
+print(end-start)
 
 # Save the data frame
 save(ancestors_egos2022, file = "ancestors_egos2022.RData")
@@ -75,9 +84,6 @@ save(ancestors_egos2022, file = "ancestors_egos2022.RData")
 
 # Prevent scientific notation (useful for the rate calculation)
 options(scipen=999999)
-
-## Load functions to recover input age-specific fertility and mortality rates 
-source("Functions_Retrieve_Rates.R")
 
 ## Calculate ASFR and ASMR for the Whole simulation (seed "13486")
 
