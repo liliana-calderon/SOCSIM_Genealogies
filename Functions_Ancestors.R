@@ -1,7 +1,8 @@
 #----------------------------------------------------------------------------------------------------
-# Functions to trace direct ancestors of a given ego(s) 
+# Function to get pids of direct ancestors up to the 9th generation of a given ego(s)
+# from SOCSIM microsimulation outputs
 
-# To run the functions, .opop file (and omar) must be set in the GlobalEnv
+# To run the functions, .opop file must be set in the GlobalEnv
 
 # Created by Liliana Calderon on 23-09-2022
 # Last modified by Liliana Calderon on 14-03-2023
@@ -21,44 +22,44 @@ ze_na <- function(x) {
   return(x) 
 }
 
-## Function to get pids and opop information of relevant kin from a given ego ----
+## Function to get pids of direct ancestors from a given ego ----
+# It takes as input a vector of ego's pids
 
 get_ancestors <- function(egos) {
   
-  # 1. Select pid of ego
+  # 0. Select pid of ego
   ego <- egos
   
-  ### Find pid for relevant kin of ego
+  ### Find pid for relevant kin of ego.
+  # NB: Each generation backwards is added to the right of the most recent generation
   
-  ## 2. Parents
+  ## 1. Parents
   m <- opop %>% filter(pid == ego) %>% pull(mom) %>% ze_na()
   f <- opop %>% filter(pid == ego) %>% pull(pop) %>% ze_na()
   
-  # NB: Each generation backwards is added to the right of the most recent generation
-  
-  ## 3. Maternal grandparents
+  ## 2. Maternal grandparents
   mm <- opop %>% filter(pid == m) %>% pull(mom) %>% ze_na()
   mf <- opop %>% filter(pid == m) %>% pull(pop) %>% ze_na()
   
-  ## 3. Paternal grandparents
+  ## 2. Paternal grandparents
   fm <- opop %>% filter(pid == f) %>% pull(mom) %>% ze_na()
   ff <- opop %>% filter(pid == f) %>% pull(pop) %>% ze_na()
   
   
-  ## 4. Maternal (1x) great-grandparents
+  ## 3. Maternal (1x) great-grandparents
   mmm <- opop %>% filter(pid == mm) %>% pull(mom) %>% ze_na()
   mmf <- opop %>% filter(pid == mm) %>% pull(pop) %>% ze_na()
   mfm <- opop %>% filter(pid == mf) %>% pull(mom) %>% ze_na()
   mff <- opop %>% filter(pid == mf) %>% pull(pop) %>% ze_na()
   
-  ## 4. Paternal (1x) great-grandparents
+  ## 3. Paternal (1x) great-grandparents
   fmm <- opop %>% filter(pid == fm) %>% pull(mom) %>% ze_na()
   fmf <- opop %>% filter(pid == fm) %>% pull(pop) %>% ze_na()
   ffm <- opop %>% filter(pid == ff) %>% pull(mom) %>% ze_na() 
   fff <- opop %>% filter(pid == ff) %>% pull(pop) %>% ze_na()
   
   
-  ## 5. Maternal (2x) great-great-grandparents
+  ## 4. Maternal (2x) great-great-grandparents
   mmmm <- opop %>% filter(pid == mmm) %>% pull(mom) %>% ze_na()
   mmmf <- opop %>% filter(pid == mmm) %>% pull(pop) %>% ze_na()
   mmfm <- opop %>% filter(pid == mmf) %>% pull(mom) %>% ze_na()
@@ -68,7 +69,7 @@ get_ancestors <- function(egos) {
   mffm <- opop %>% filter(pid == mff) %>% pull(mom) %>% ze_na()
   mfff <- opop %>% filter(pid == mff) %>% pull(pop) %>% ze_na()
   
-  ## 5. Paternal (2x) great-great-grandparents
+  ## 4. Paternal (2x) great-great-grandparents
   fmmm <- opop %>% filter(pid == fmm) %>% pull(mom) %>% ze_na()
   fmmf <- opop %>% filter(pid == fmm) %>% pull(pop) %>% ze_na()
   fmfm <- opop %>% filter(pid == fmf) %>% pull(mom) %>% ze_na()
@@ -79,7 +80,7 @@ get_ancestors <- function(egos) {
   ffff <- opop %>% filter(pid == fff) %>% pull(pop) %>% ze_na()
   
   
-  ## 6. Maternal (3x) great-great-great-grandparents
+  ## 5. Maternal (3x) great-great-great-grandparents
   mmmmm <- opop %>% filter(pid == mmmm) %>% pull(mom) %>% ze_na()
   mmmmf <- opop %>% filter(pid == mmmm) %>% pull(pop) %>% ze_na()
   mmmfm <- opop %>% filter(pid == mmmf) %>% pull(mom) %>% ze_na()
@@ -97,7 +98,7 @@ get_ancestors <- function(egos) {
   mfffm <- opop %>% filter(pid == mfff) %>% pull(mom) %>% ze_na()
   mffff <- opop %>% filter(pid == mfff) %>% pull(pop) %>% ze_na()
   
-  ## 6. Paternal (3x) great-great-great-grandparents
+  ## 5. Paternal (3x) great-great-great-grandparents
   fmmmm <- opop %>% filter(pid == fmmm) %>% pull(mom) %>% ze_na()
   fmmmf <- opop %>% filter(pid == fmmm) %>% pull(pop) %>% ze_na()
   fmmfm <- opop %>% filter(pid == fmmf) %>% pull(mom) %>% ze_na()
@@ -116,7 +117,7 @@ get_ancestors <- function(egos) {
   fffff <- opop %>% filter(pid == ffff) %>% pull(pop) %>% ze_na()
   
   
-  ## 7. Maternal (4x) great-great-great-great-grandparents
+  ## 6. Maternal (4x) great-great-great-great-grandparents
   mmmmmm <- opop %>% filter(pid == mmmmm) %>% pull(mom) %>% ze_na()
   mmmmmf <- opop %>% filter(pid == mmmmm) %>% pull(pop) %>% ze_na()
   mmmmfm <- opop %>% filter(pid == mmmmf) %>% pull(mom) %>% ze_na()
@@ -151,7 +152,7 @@ get_ancestors <- function(egos) {
   mfffff <- opop %>% filter(pid == mffff) %>% pull(pop) %>% ze_na()
   
   
-  ## 7. Paternal (4x) great-great-great-great-grandparents
+  ## 6. Paternal (4x) great-great-great-great-grandparents
   fmmmmm <- opop %>% filter(pid == fmmmm) %>% pull(mom) %>% ze_na()
   fmmmmf <- opop %>% filter(pid == fmmmm) %>% pull(pop) %>% ze_na()
   fmmmfm <- opop %>% filter(pid == fmmmf) %>% pull(mom) %>% ze_na()
@@ -186,7 +187,7 @@ get_ancestors <- function(egos) {
   ffffff <- opop %>% filter(pid == fffff) %>% pull(pop) %>% ze_na()
   
   
-  ## 8. Maternal (5x) great-great-great-great-great-grandparents
+  ## 7. Maternal (5x) great-great-great-great-great-grandparents
   mmmmmmm <- opop %>% filter(pid == mmmmmm) %>% pull(mom) %>% ze_na()
   mmmmmmf <- opop %>% filter(pid == mmmmmm) %>% pull(pop) %>% ze_na()
   mmmmmfm <- opop %>% filter(pid == mmmmmf) %>% pull(mom) %>% ze_na()
@@ -253,7 +254,7 @@ get_ancestors <- function(egos) {
   mffffff <- opop %>% filter(pid == mfffff) %>% pull(pop) %>% ze_na()
   
   
-  ## 8. Paternal (5x) great-great-great-great-great-grandparents
+  ## 7. Paternal (5x) great-great-great-great-great-grandparents
   fmmmmmm <- opop %>% filter(pid == fmmmmm) %>% pull(mom) %>% ze_na()
   fmmmmmf <- opop %>% filter(pid == fmmmmm) %>% pull(pop) %>% ze_na()
   fmmmmfm <- opop %>% filter(pid == fmmmmf) %>% pull(mom) %>% ze_na()
@@ -584,148 +585,146 @@ get_ancestors <- function(egos) {
   
   ## Bind all ego's direct ancestors in a tibble and include their information from .opop
   
-  ancestors_opop <- tibble(kin_type = c("ego", # 1 
-                                        "m", "f", # 2 
-                                        "mm", "mf", "fm", "ff", # 3 
-                                        "mmm", "mmf", "mfm", "mff", # 4
-                                        "fmm", "fmf", "ffm", "fff", # 4
-                                        "mmmm", "mmmf", "mmfm", "mmff", "mfmm", "mfmf", "mffm", "mfff", # 5
-                                        "fmmm", "fmmf", "fmfm", "fmff", "ffmm", "ffmf", "fffm", "ffff", # 5
-                                        "mmmmm", "mmmmf", "mmmfm", "mmmff", "mmfmm", "mmfmf", "mmffm", "mmfff", # 6
-                                        "mfmmm", "mfmmf", "mfmfm", "mfmff", "mffmm", "mffmf", "mfffm", "mffff", # 6
-                                        "fmmmm", "fmmmf", "fmmfm", "fmmff", "fmfmm", "fmfmf", "fmffm", "fmfff", # 6
-                                        "ffmmm", "ffmmf", "ffmfm", "ffmff", "fffmm", "fffmf", "ffffm", "fffff", # 6
-                                        "mmmmmm", "mmmmmf", "mmmmfm", "mmmmff", "mmmfmm", "mmmfmf", "mmmffm", "mmmfff", # 7
-                                        "mmfmmm", "mmfmmf", "mmfmfm", "mmfmff", "mmffmm", "mmffmf", "mmfffm", "mmffff", # 7
-                                        "mfmmmm", "mfmmmf", "mfmmfm", "mfmmff", "mfmfmm", "mfmfmf", "mfmffm", "mfmfff", # 7
-                                        "mffmmm", "mffmmf", "mffmfm", "mffmff", "mfffmm", "mfffmf", "mffffm", "mfffff", # 7
-                                        "fmmmmm", "fmmmmf", "fmmmfm", "fmmmff", "fmmfmm", "fmmfmf", "fmmffm", "fmmfff", # 7
-                                        "fmfmmm", "fmfmmf", "fmfmfm", "fmfmff", "fmffmm", "fmffmf", "fmfffm", "fmffff", # 7
-                                        "ffmmmm", "ffmmmf", "ffmmfm", "ffmmff", "ffmfmm", "ffmfmf", "ffmffm", "ffmfff", # 7
-                                        "fffmmm", "fffmmf", "fffmfm", "fffmff", "ffffmm", "ffffmf", "fffffm", "ffffff",  # 7
-                                        "mmmmmmm", "mmmmmmf", "mmmmmfm", "mmmmmff", "mmmmfmm", "mmmmfmf", "mmmmffm", "mmmmfff", # 8
-                                        "mmmfmmm", "mmmfmmf", "mmmfmfm", "mmmfmff", "mmmffmm", "mmmffmf", "mmmfffm", "mmmffff", # 8 
-                                        "mmfmmmm", "mmfmmmf", "mmfmmfm", "mmfmmff", "mmfmfmm", "mmfmfmf", "mmfmffm", "mmfmfff", # 8 
-                                        "mmffmmm", "mmffmmf", "mmffmfm", "mmffmff", "mmfffmm", "mmfffmf", "mmffffm", "mmfffff", # 8 
-                                        "mfmmmmm", "mfmmmmf", "mfmmmfm", "mfmmmff", "mfmmfmm", "mfmmfmf", "mfmmffm", "mfmmfff", # 8 
-                                        "mfmfmmm", "mfmfmmf", "mfmfmfm", "mfmfmff", "mfmffmm", "mfmffmf", "mfmfffm", "mfmffff", # 8
-                                        "mffmmmm", "mffmmmf", "mffmmfm", "mffmmff", "mffmfmm", "mffmfmf", "mffmffm", "mffmfff", # 8
-                                        "mfffmmm", "mfffmmf", "mfffmfm", "mfffmff", "mffffmm", "mffffmf", "mfffffm", "mffffff", # 8
-                                        "fmmmmmm", "fmmmmmf", "fmmmmfm", "fmmmmff", "fmmmfmm", "fmmmfmf", "fmmmffm", "fmmmfff", # 8
-                                        "fmmfmmm", "fmmfmmf", "fmmfmfm", "fmmfmff", "fmmffmm", "fmmffmf", "fmmfffm", "fmmffff", # 8
-                                        "fmfmmmm", "fmfmmmf", "fmfmmfm", "fmfmmff", "fmfmfmm", "fmfmfmf", "fmfmffm", "fmfmfff", # 8
-                                        "fmffmmm", "fmffmmf", "fmffmfm", "fmffmff", "fmfffmm", "fmfffmf", "fmffffm", "fmfffff", # 8 
-                                        "ffmmmmm", "ffmmmmf", "ffmmmfm", "ffmmmff", "ffmmfmm", "ffmmfmf", "ffmmffm", "ffmmfff", # 8
-                                        "ffmfmmm", "ffmfmmf", "ffmfmfm", "ffmfmff", "ffmffmm", "ffmffmf", "ffmfffm", "ffmffff", # 8
-                                        "fffmmmm", "fffmmmf", "fffmmfm", "fffmmff", "fffmfmm", "fffmfmf", "fffmffm", "fffmfff", # 8
-                                        "ffffmmm", "ffffmmf", "ffffmfm", "ffffmff", "fffffmm", "fffffmf", "ffffffm", "fffffff",  # 8
-                                        "mmmmmmmm", "mmmmmmmf", "mmmmmmfm", "mmmmmmff", "mmmmmfmm", "mmmmmfmf", "mmmmmffm", "mmmmmfff", # 9
-                                        "mmmmfmmm", "mmmmfmmf", "mmmmfmfm", "mmmmfmff", "mmmmffmm", "mmmmffmf", "mmmmfffm", "mmmmffff", # 9
-                                        "mmmfmmmm", "mmmfmmmf", "mmmfmmfm", "mmmfmmff", "mmmfmfmm", "mmmfmfmf", "mmmfmffm", "mmmfmfff", # 9
-                                        "mmmffmmm", "mmmffmmf", "mmmffmfm", "mmmffmff", "mmmfffmm", "mmmfffmf", "mmmffffm", "mmmfffff", # 9
-                                        "mmfmmmmm", "mmfmmmmf", "mmfmmmfm", "mmfmmmff", "mmfmmfmm", "mmfmmfmf", "mmfmmffm", "mmfmmfff", # 9
-                                        "mmfmfmmm", "mmfmfmmf", "mmfmfmfm", "mmfmfmff", "mmfmffmm", "mmfmffmf", "mmfmfffm", "mmfmffff", # 9
-                                        "mmffmmmm", "mmffmmmf", "mmffmmfm", "mmffmmff", "mmffmfmm", "mmffmfmf", "mmffmffm", "mmffmfff", # 9
-                                        "mmfffmmm", "mmfffmmf", "mmfffmfm", "mmfffmff", "mmffffmm", "mmffffmf", "mmfffffm", "mmffffff", # 9
-                                        "mfmmmmmm", "mfmmmmmf", "mfmmmmfm", "mfmmmmff", "mfmmmfmm", "mfmmmfmf", "mfmmmffm", "mfmmmfff", # 9
-                                        "mfmmfmmm", "mfmmfmmf", "mfmmfmfm", "mfmmfmff", "mfmmffmm", "mfmmffmf", "mfmmfffm", "mfmmffff", # 9
-                                        "mfmfmmmm", "mfmfmmmf", "mfmfmmfm", "mfmfmmff", "mfmfmfmm", "mfmfmfmf", "mfmfmffm", "mfmfmfff", # 9
-                                        "mfmffmmm", "mfmffmmf", "mfmffmfm", "mfmffmff", "mfmfffmm", "mfmfffmf", "mfmffffm", "mfmfffff", # 9
-                                        "mffmmmmm", "mffmmmmf", "mffmmmfm", "mffmmmff", "mffmmfmm", "mffmmfmf", "mffmmffm", "mffmmfff", # 9
-                                        "mffmfmmm", "mffmfmmf", "mffmfmfm", "mffmfmff", "mffmffmm", "mffmffmf", "mffmfffm", "mffmffff", # 9
-                                        "mfffmmmm", "mfffmmmf", "mfffmmfm", "mfffmmff", "mfffmfmm", "mfffmfmf", "mfffmffm", "mfffmfff", # 9
-                                        "mffffmmm", "mffffmmf", "mffffmfm", "mffffmff", "mfffffmm", "mfffffmf", "mffffffm", "mfffffff", # 9
-                                        "fmmmmmmm", "fmmmmmmf", "fmmmmmfm", "fmmmmmff", "fmmmmfmm", "fmmmmfmf", "fmmmmffm", "fmmmmfff", # 9
-                                        "fmmmfmmm", "fmmmfmmf", "fmmmfmfm", "fmmmfmff", "fmmmffmm", "fmmmffmf", "fmmmfffm", "fmmmffff", # 9
-                                        "fmmfmmmm", "fmmfmmmf", "fmmfmmfm", "fmmfmmff", "fmmfmfmm", "fmmfmfmf", "fmmfmffm", "fmmfmfff", # 9
-                                        "fmmffmmm", "fmmffmmf", "fmmffmfm", "fmmffmff", "fmmfffmm", "fmmfffmf", "fmmffffm", "fmmfffff", # 9
-                                        "fmfmmmmm", "fmfmmmmf", "fmfmmmfm", "fmfmmmff", "fmfmmfmm", "fmfmmfmf", "fmfmmffm", "fmfmmfff", # 9
-                                        "fmfmfmmm", "fmfmfmmf", "fmfmfmfm", "fmfmfmff", "fmfmffmm", "fmfmffmf", "fmfmfffm", "fmfmffff", # 9
-                                        "fmffmmmm", "fmffmmmf", "fmffmmfm", "fmffmmff", "fmffmfmm", "fmffmfmf", "fmffmffm", "fmffmfff", # 9
-                                        "fmfffmmm", "fmfffmmf", "fmfffmfm", "fmfffmff", "fmffffmm", "fmffffmf", "fmfffffm", "fmffffff", # 9
-                                        "ffmmmmmm", "ffmmmmmf", "ffmmmmfm", "ffmmmmff", "ffmmmfmm", "ffmmmfmf", "ffmmmffm", "ffmmmfff", # 9
-                                        "ffmmfmmm", "ffmmfmmf", "ffmmfmfm", "ffmmfmff", "ffmmffmm", "ffmmffmf", "ffmmfffm", "ffmmffff", # 9
-                                        "ffmfmmmm", "ffmfmmmf", "ffmfmmfm", "ffmfmmff", "ffmfmfmm", "ffmfmfmf", "ffmfmffm", "ffmfmfff", # 9
-                                        "ffmffmmm", "ffmffmmf", "ffmffmfm", "ffmffmff", "ffmfffmm", "ffmfffmf", "ffmffffm", "ffmfffff", # 9
-                                        "fffmmmmm", "fffmmmmf", "fffmmmfm", "fffmmmff", "fffmmfmm", "fffmmfmf", "fffmmffm", "fffmmfff", # 9
-                                        "fffmfmmm", "fffmfmmf", "fffmfmfm", "fffmfmff", "fffmffmm", "fffmffmf", "fffmfffm", "fffmffff", # 9
-                                        "ffffmmmm", "ffffmmmf", "ffffmmfm", "ffffmmff", "ffffmfmm", "ffffmfmf", "ffffmffm", "ffffmfff", # 9
-                                        "fffffmmm", "fffffmmf", "fffffmfm", "fffffmff", "ffffffmm", "ffffffmf", "fffffffm", "ffffffff"  # 9
+  ancestors_opop <- tibble(kin_type = c("ego", # 0 
+                                        "m", "f", # 1 
+                                        "mm", "mf", "fm", "ff", # 2 
+                                        "mmm", "mmf", "mfm", "mff", # 3
+                                        "fmm", "fmf", "ffm", "fff", # 3
+                                        "mmmm", "mmmf", "mmfm", "mmff", "mfmm", "mfmf", "mffm", "mfff", # 4
+                                        "fmmm", "fmmf", "fmfm", "fmff", "ffmm", "ffmf", "fffm", "ffff", # 4
+                                        "mmmmm", "mmmmf", "mmmfm", "mmmff", "mmfmm", "mmfmf", "mmffm", "mmfff", # 5
+                                        "mfmmm", "mfmmf", "mfmfm", "mfmff", "mffmm", "mffmf", "mfffm", "mffff", # 5
+                                        "fmmmm", "fmmmf", "fmmfm", "fmmff", "fmfmm", "fmfmf", "fmffm", "fmfff", # 5
+                                        "ffmmm", "ffmmf", "ffmfm", "ffmff", "fffmm", "fffmf", "ffffm", "fffff", # 5
+                                        "mmmmmm", "mmmmmf", "mmmmfm", "mmmmff", "mmmfmm", "mmmfmf", "mmmffm", "mmmfff", # 6
+                                        "mmfmmm", "mmfmmf", "mmfmfm", "mmfmff", "mmffmm", "mmffmf", "mmfffm", "mmffff", # 6
+                                        "mfmmmm", "mfmmmf", "mfmmfm", "mfmmff", "mfmfmm", "mfmfmf", "mfmffm", "mfmfff", # 6
+                                        "mffmmm", "mffmmf", "mffmfm", "mffmff", "mfffmm", "mfffmf", "mffffm", "mfffff", # 6
+                                        "fmmmmm", "fmmmmf", "fmmmfm", "fmmmff", "fmmfmm", "fmmfmf", "fmmffm", "fmmfff", # 6
+                                        "fmfmmm", "fmfmmf", "fmfmfm", "fmfmff", "fmffmm", "fmffmf", "fmfffm", "fmffff", # 6
+                                        "ffmmmm", "ffmmmf", "ffmmfm", "ffmmff", "ffmfmm", "ffmfmf", "ffmffm", "ffmfff", # 6
+                                        "fffmmm", "fffmmf", "fffmfm", "fffmff", "ffffmm", "ffffmf", "fffffm", "ffffff", # 6
+                                        "mmmmmmm", "mmmmmmf", "mmmmmfm", "mmmmmff", "mmmmfmm", "mmmmfmf", "mmmmffm", "mmmmfff", # 7
+                                        "mmmfmmm", "mmmfmmf", "mmmfmfm", "mmmfmff", "mmmffmm", "mmmffmf", "mmmfffm", "mmmffff", # 7 
+                                        "mmfmmmm", "mmfmmmf", "mmfmmfm", "mmfmmff", "mmfmfmm", "mmfmfmf", "mmfmffm", "mmfmfff", # 7 
+                                        "mmffmmm", "mmffmmf", "mmffmfm", "mmffmff", "mmfffmm", "mmfffmf", "mmffffm", "mmfffff", # 7 
+                                        "mfmmmmm", "mfmmmmf", "mfmmmfm", "mfmmmff", "mfmmfmm", "mfmmfmf", "mfmmffm", "mfmmfff", # 7 
+                                        "mfmfmmm", "mfmfmmf", "mfmfmfm", "mfmfmff", "mfmffmm", "mfmffmf", "mfmfffm", "mfmffff", # 7
+                                        "mffmmmm", "mffmmmf", "mffmmfm", "mffmmff", "mffmfmm", "mffmfmf", "mffmffm", "mffmfff", # 7
+                                        "mfffmmm", "mfffmmf", "mfffmfm", "mfffmff", "mffffmm", "mffffmf", "mfffffm", "mffffff", # 7
+                                        "fmmmmmm", "fmmmmmf", "fmmmmfm", "fmmmmff", "fmmmfmm", "fmmmfmf", "fmmmffm", "fmmmfff", # 7
+                                        "fmmfmmm", "fmmfmmf", "fmmfmfm", "fmmfmff", "fmmffmm", "fmmffmf", "fmmfffm", "fmmffff", # 7
+                                        "fmfmmmm", "fmfmmmf", "fmfmmfm", "fmfmmff", "fmfmfmm", "fmfmfmf", "fmfmffm", "fmfmfff", # 7
+                                        "fmffmmm", "fmffmmf", "fmffmfm", "fmffmff", "fmfffmm", "fmfffmf", "fmffffm", "fmfffff", # 7 
+                                        "ffmmmmm", "ffmmmmf", "ffmmmfm", "ffmmmff", "ffmmfmm", "ffmmfmf", "ffmmffm", "ffmmfff", # 7
+                                        "ffmfmmm", "ffmfmmf", "ffmfmfm", "ffmfmff", "ffmffmm", "ffmffmf", "ffmfffm", "ffmffff", # 7
+                                        "fffmmmm", "fffmmmf", "fffmmfm", "fffmmff", "fffmfmm", "fffmfmf", "fffmffm", "fffmfff", # 7
+                                        "ffffmmm", "ffffmmf", "ffffmfm", "ffffmff", "fffffmm", "fffffmf", "ffffffm", "fffffff", # 7
+                                        "mmmmmmmm", "mmmmmmmf", "mmmmmmfm", "mmmmmmff", "mmmmmfmm", "mmmmmfmf", "mmmmmffm", "mmmmmfff", # 8
+                                        "mmmmfmmm", "mmmmfmmf", "mmmmfmfm", "mmmmfmff", "mmmmffmm", "mmmmffmf", "mmmmfffm", "mmmmffff", # 8
+                                        "mmmfmmmm", "mmmfmmmf", "mmmfmmfm", "mmmfmmff", "mmmfmfmm", "mmmfmfmf", "mmmfmffm", "mmmfmfff", # 8
+                                        "mmmffmmm", "mmmffmmf", "mmmffmfm", "mmmffmff", "mmmfffmm", "mmmfffmf", "mmmffffm", "mmmfffff", # 8
+                                        "mmfmmmmm", "mmfmmmmf", "mmfmmmfm", "mmfmmmff", "mmfmmfmm", "mmfmmfmf", "mmfmmffm", "mmfmmfff", # 8
+                                        "mmfmfmmm", "mmfmfmmf", "mmfmfmfm", "mmfmfmff", "mmfmffmm", "mmfmffmf", "mmfmfffm", "mmfmffff", # 8
+                                        "mmffmmmm", "mmffmmmf", "mmffmmfm", "mmffmmff", "mmffmfmm", "mmffmfmf", "mmffmffm", "mmffmfff", # 8
+                                        "mmfffmmm", "mmfffmmf", "mmfffmfm", "mmfffmff", "mmffffmm", "mmffffmf", "mmfffffm", "mmffffff", # 8
+                                        "mfmmmmmm", "mfmmmmmf", "mfmmmmfm", "mfmmmmff", "mfmmmfmm", "mfmmmfmf", "mfmmmffm", "mfmmmfff", # 8
+                                        "mfmmfmmm", "mfmmfmmf", "mfmmfmfm", "mfmmfmff", "mfmmffmm", "mfmmffmf", "mfmmfffm", "mfmmffff", # 8
+                                        "mfmfmmmm", "mfmfmmmf", "mfmfmmfm", "mfmfmmff", "mfmfmfmm", "mfmfmfmf", "mfmfmffm", "mfmfmfff", # 8
+                                        "mfmffmmm", "mfmffmmf", "mfmffmfm", "mfmffmff", "mfmfffmm", "mfmfffmf", "mfmffffm", "mfmfffff", # 8
+                                        "mffmmmmm", "mffmmmmf", "mffmmmfm", "mffmmmff", "mffmmfmm", "mffmmfmf", "mffmmffm", "mffmmfff", # 8
+                                        "mffmfmmm", "mffmfmmf", "mffmfmfm", "mffmfmff", "mffmffmm", "mffmffmf", "mffmfffm", "mffmffff", # 8
+                                        "mfffmmmm", "mfffmmmf", "mfffmmfm", "mfffmmff", "mfffmfmm", "mfffmfmf", "mfffmffm", "mfffmfff", # 8
+                                        "mffffmmm", "mffffmmf", "mffffmfm", "mffffmff", "mfffffmm", "mfffffmf", "mffffffm", "mfffffff", # 8
+                                        "fmmmmmmm", "fmmmmmmf", "fmmmmmfm", "fmmmmmff", "fmmmmfmm", "fmmmmfmf", "fmmmmffm", "fmmmmfff", # 8
+                                        "fmmmfmmm", "fmmmfmmf", "fmmmfmfm", "fmmmfmff", "fmmmffmm", "fmmmffmf", "fmmmfffm", "fmmmffff", # 8
+                                        "fmmfmmmm", "fmmfmmmf", "fmmfmmfm", "fmmfmmff", "fmmfmfmm", "fmmfmfmf", "fmmfmffm", "fmmfmfff", # 8
+                                        "fmmffmmm", "fmmffmmf", "fmmffmfm", "fmmffmff", "fmmfffmm", "fmmfffmf", "fmmffffm", "fmmfffff", # 8
+                                        "fmfmmmmm", "fmfmmmmf", "fmfmmmfm", "fmfmmmff", "fmfmmfmm", "fmfmmfmf", "fmfmmffm", "fmfmmfff", # 8
+                                        "fmfmfmmm", "fmfmfmmf", "fmfmfmfm", "fmfmfmff", "fmfmffmm", "fmfmffmf", "fmfmfffm", "fmfmffff", # 8
+                                        "fmffmmmm", "fmffmmmf", "fmffmmfm", "fmffmmff", "fmffmfmm", "fmffmfmf", "fmffmffm", "fmffmfff", # 8
+                                        "fmfffmmm", "fmfffmmf", "fmfffmfm", "fmfffmff", "fmffffmm", "fmffffmf", "fmfffffm", "fmffffff", # 8
+                                        "ffmmmmmm", "ffmmmmmf", "ffmmmmfm", "ffmmmmff", "ffmmmfmm", "ffmmmfmf", "ffmmmffm", "ffmmmfff", # 8
+                                        "ffmmfmmm", "ffmmfmmf", "ffmmfmfm", "ffmmfmff", "ffmmffmm", "ffmmffmf", "ffmmfffm", "ffmmffff", # 8
+                                        "ffmfmmmm", "ffmfmmmf", "ffmfmmfm", "ffmfmmff", "ffmfmfmm", "ffmfmfmf", "ffmfmffm", "ffmfmfff", # 8
+                                        "ffmffmmm", "ffmffmmf", "ffmffmfm", "ffmffmff", "ffmfffmm", "ffmfffmf", "ffmffffm", "ffmfffff", # 8
+                                        "fffmmmmm", "fffmmmmf", "fffmmmfm", "fffmmmff", "fffmmfmm", "fffmmfmf", "fffmmffm", "fffmmfff", # 8
+                                        "fffmfmmm", "fffmfmmf", "fffmfmfm", "fffmfmff", "fffmffmm", "fffmffmf", "fffmfffm", "fffmffff", # 8
+                                        "ffffmmmm", "ffffmmmf", "ffffmmfm", "ffffmmff", "ffffmfmm", "ffffmfmf", "ffffmffm", "ffffmfff", # 8
+                                        "fffffmmm", "fffffmmf", "fffffmfm", "fffffmff", "ffffffmm", "ffffffmf", "fffffffm", "ffffffff"  # 8
   ), 
-  pid = c(ego, # 1
-          m, f, # 2
-          mm, mf, fm, ff, # 3
-          mmm, mmf, mfm, mff, # 4
-          fmm, fmf, ffm, fff, # 4
-          mmmm, mmmf, mmfm, mmff, mfmm, mfmf, mffm, mfff, # 5
-          fmmm, fmmf, fmfm, fmff, ffmm, ffmf, fffm, ffff, # 5
-          mmmmm, mmmmf, mmmfm, mmmff, mmfmm, mmfmf, mmffm, mmfff, # 6
-          mfmmm, mfmmf, mfmfm, mfmff, mffmm, mffmf, mfffm, mffff, # 6
-          fmmmm, fmmmf, fmmfm, fmmff, fmfmm, fmfmf, fmffm, fmfff, # 6
-          ffmmm, ffmmf, ffmfm, ffmff, fffmm, fffmf, ffffm, fffff, # 6
-          mmmmmm, mmmmmf, mmmmfm, mmmmff, mmmfmm, mmmfmf, mmmffm, mmmfff, # 7
-          mmfmmm, mmfmmf, mmfmfm, mmfmff, mmffmm, mmffmf, mmfffm, mmffff, # 7
-          mfmmmm, mfmmmf, mfmmfm, mfmmff, mfmfmm, mfmfmf, mfmffm, mfmfff, # 7
-          mffmmm, mffmmf, mffmfm, mffmff, mfffmm, mfffmf, mffffm, mfffff, # 7
-          fmmmmm, fmmmmf, fmmmfm, fmmmff, fmmfmm, fmmfmf, fmmffm, fmmfff, # 7
-          fmfmmm, fmfmmf, fmfmfm, fmfmff, fmffmm, fmffmf, fmfffm, fmffff, # 7
-          ffmmmm, ffmmmf, ffmmfm, ffmmff, ffmfmm, ffmfmf, ffmffm, ffmfff, # 7
-          fffmmm, fffmmf, fffmfm, fffmff, ffffmm, ffffmf, fffffm, ffffff,  # 7
-          mmmmmmm, mmmmmmf, mmmmmfm, mmmmmff, mmmmfmm, mmmmfmf, mmmmffm, mmmmfff, # 8
-          mmmfmmm, mmmfmmf, mmmfmfm, mmmfmff, mmmffmm, mmmffmf, mmmfffm, mmmffff, # 8 
-          mmfmmmm, mmfmmmf, mmfmmfm, mmfmmff, mmfmfmm, mmfmfmf, mmfmffm, mmfmfff, # 8 
-          mmffmmm, mmffmmf, mmffmfm, mmffmff, mmfffmm, mmfffmf, mmffffm, mmfffff, # 8 
-          mfmmmmm, mfmmmmf, mfmmmfm, mfmmmff, mfmmfmm, mfmmfmf, mfmmffm, mfmmfff, # 8 
-          mfmfmmm, mfmfmmf, mfmfmfm, mfmfmff, mfmffmm, mfmffmf, mfmfffm, mfmffff, # 8
-          mffmmmm, mffmmmf, mffmmfm, mffmmff, mffmfmm, mffmfmf, mffmffm, mffmfff, # 8
-          mfffmmm, mfffmmf, mfffmfm, mfffmff, mffffmm, mffffmf, mfffffm, mffffff, # 8
-          fmmmmmm, fmmmmmf, fmmmmfm, fmmmmff, fmmmfmm, fmmmfmf, fmmmffm, fmmmfff, # 8
-          fmmfmmm, fmmfmmf, fmmfmfm, fmmfmff, fmmffmm, fmmffmf, fmmfffm, fmmffff, # 8
-          fmfmmmm, fmfmmmf, fmfmmfm, fmfmmff, fmfmfmm, fmfmfmf, fmfmffm, fmfmfff, # 8
-          fmffmmm, fmffmmf, fmffmfm, fmffmff, fmfffmm, fmfffmf, fmffffm, fmfffff, # 8 
-          ffmmmmm, ffmmmmf, ffmmmfm, ffmmmff, ffmmfmm, ffmmfmf, ffmmffm, ffmmfff, # 8
-          ffmfmmm, ffmfmmf, ffmfmfm, ffmfmff, ffmffmm, ffmffmf, ffmfffm, ffmffff, # 8
-          fffmmmm, fffmmmf, fffmmfm, fffmmff, fffmfmm, fffmfmf, fffmffm, fffmfff, # 8
-          ffffmmm, ffffmmf, ffffmfm, ffffmff, fffffmm, fffffmf, ffffffm, fffffff,  # 8
-          mmmmmmmm, mmmmmmmf, mmmmmmfm, mmmmmmff, mmmmmfmm, mmmmmfmf, mmmmmffm, mmmmmfff, # 9
-          mmmmfmmm, mmmmfmmf, mmmmfmfm, mmmmfmff, mmmmffmm, mmmmffmf, mmmmfffm, mmmmffff, # 9
-          mmmfmmmm, mmmfmmmf, mmmfmmfm, mmmfmmff, mmmfmfmm, mmmfmfmf, mmmfmffm, mmmfmfff, # 9
-          mmmffmmm, mmmffmmf, mmmffmfm, mmmffmff, mmmfffmm, mmmfffmf, mmmffffm, mmmfffff, # 9
-          mmfmmmmm, mmfmmmmf, mmfmmmfm, mmfmmmff, mmfmmfmm, mmfmmfmf, mmfmmffm, mmfmmfff, # 9
-          mmfmfmmm, mmfmfmmf, mmfmfmfm, mmfmfmff, mmfmffmm, mmfmffmf, mmfmfffm, mmfmffff, # 9
-          mmffmmmm, mmffmmmf, mmffmmfm, mmffmmff, mmffmfmm, mmffmfmf, mmffmffm, mmffmfff, # 9
-          mmfffmmm, mmfffmmf, mmfffmfm, mmfffmff, mmffffmm, mmffffmf, mmfffffm, mmffffff, # 9
-          mfmmmmmm, mfmmmmmf, mfmmmmfm, mfmmmmff, mfmmmfmm, mfmmmfmf, mfmmmffm, mfmmmfff, # 9
-          mfmmfmmm, mfmmfmmf, mfmmfmfm, mfmmfmff, mfmmffmm, mfmmffmf, mfmmfffm, mfmmffff, # 9
-          mfmfmmmm, mfmfmmmf, mfmfmmfm, mfmfmmff, mfmfmfmm, mfmfmfmf, mfmfmffm, mfmfmfff, # 9
-          mfmffmmm, mfmffmmf, mfmffmfm, mfmffmff, mfmfffmm, mfmfffmf, mfmffffm, mfmfffff, # 9
-          mffmmmmm, mffmmmmf, mffmmmfm, mffmmmff, mffmmfmm, mffmmfmf, mffmmffm, mffmmfff, # 9
-          mffmfmmm, mffmfmmf, mffmfmfm, mffmfmff, mffmffmm, mffmffmf, mffmfffm, mffmffff, # 9
-          mfffmmmm, mfffmmmf, mfffmmfm, mfffmmff, mfffmfmm, mfffmfmf, mfffmffm, mfffmfff, # 9
-          mffffmmm, mffffmmf, mffffmfm, mffffmff, mfffffmm, mfffffmf, mffffffm, mfffffff, # 9
-          fmmmmmmm, fmmmmmmf, fmmmmmfm, fmmmmmff, fmmmmfmm, fmmmmfmf, fmmmmffm, fmmmmfff, # 9
-          fmmmfmmm, fmmmfmmf, fmmmfmfm, fmmmfmff, fmmmffmm, fmmmffmf, fmmmfffm, fmmmffff, # 9
-          fmmfmmmm, fmmfmmmf, fmmfmmfm, fmmfmmff, fmmfmfmm, fmmfmfmf, fmmfmffm, fmmfmfff, # 9
-          fmmffmmm, fmmffmmf, fmmffmfm, fmmffmff, fmmfffmm, fmmfffmf, fmmffffm, fmmfffff, # 9
-          fmfmmmmm, fmfmmmmf, fmfmmmfm, fmfmmmff, fmfmmfmm, fmfmmfmf, fmfmmffm, fmfmmfff, # 9
-          fmfmfmmm, fmfmfmmf, fmfmfmfm, fmfmfmff, fmfmffmm, fmfmffmf, fmfmfffm, fmfmffff, # 9
-          fmffmmmm, fmffmmmf, fmffmmfm, fmffmmff, fmffmfmm, fmffmfmf, fmffmffm, fmffmfff, # 9
-          fmfffmmm, fmfffmmf, fmfffmfm, fmfffmff, fmffffmm, fmffffmf, fmfffffm, fmffffff, # 9
-          ffmmmmmm, ffmmmmmf, ffmmmmfm, ffmmmmff, ffmmmfmm, ffmmmfmf, ffmmmffm, ffmmmfff, # 9
-          ffmmfmmm, ffmmfmmf, ffmmfmfm, ffmmfmff, ffmmffmm, ffmmffmf, ffmmfffm, ffmmffff, # 9
-          ffmfmmmm, ffmfmmmf, ffmfmmfm, ffmfmmff, ffmfmfmm, ffmfmfmf, ffmfmffm, ffmfmfff, # 9
-          ffmffmmm, ffmffmmf, ffmffmfm, ffmffmff, ffmfffmm, ffmfffmf, ffmffffm, ffmfffff, # 9
-          fffmmmmm, fffmmmmf, fffmmmfm, fffmmmff, fffmmfmm, fffmmfmf, fffmmffm, fffmmfff, # 9
-          fffmfmmm, fffmfmmf, fffmfmfm, fffmfmff, fffmffmm, fffmffmf, fffmfffm, fffmffff, # 9
-          ffffmmmm, ffffmmmf, ffffmmfm, ffffmmff, ffffmfmm, ffffmfmf, ffffmffm, ffffmfff, # 9
-          fffffmmm, fffffmmf, fffffmfm, fffffmff, ffffffmm, ffffffmf, fffffffm, ffffffff  # 9
+  pid = c(ego, # 0
+          m, f, # 1
+          mm, mf, fm, ff, # 2
+          mmm, mmf, mfm, mff, # 3
+          fmm, fmf, ffm, fff, # 3
+          mmmm, mmmf, mmfm, mmff, mfmm, mfmf, mffm, mfff, # 4
+          fmmm, fmmf, fmfm, fmff, ffmm, ffmf, fffm, ffff, # 4
+          mmmmm, mmmmf, mmmfm, mmmff, mmfmm, mmfmf, mmffm, mmfff, # 5
+          mfmmm, mfmmf, mfmfm, mfmff, mffmm, mffmf, mfffm, mffff, # 5
+          fmmmm, fmmmf, fmmfm, fmmff, fmfmm, fmfmf, fmffm, fmfff, # 5
+          ffmmm, ffmmf, ffmfm, ffmff, fffmm, fffmf, ffffm, fffff, # 5
+          mmmmmm, mmmmmf, mmmmfm, mmmmff, mmmfmm, mmmfmf, mmmffm, mmmfff, # 6
+          mmfmmm, mmfmmf, mmfmfm, mmfmff, mmffmm, mmffmf, mmfffm, mmffff, # 6
+          mfmmmm, mfmmmf, mfmmfm, mfmmff, mfmfmm, mfmfmf, mfmffm, mfmfff, # 6
+          mffmmm, mffmmf, mffmfm, mffmff, mfffmm, mfffmf, mffffm, mfffff, # 6
+          fmmmmm, fmmmmf, fmmmfm, fmmmff, fmmfmm, fmmfmf, fmmffm, fmmfff, # 6
+          fmfmmm, fmfmmf, fmfmfm, fmfmff, fmffmm, fmffmf, fmfffm, fmffff, # 6
+          ffmmmm, ffmmmf, ffmmfm, ffmmff, ffmfmm, ffmfmf, ffmffm, ffmfff, # 6
+          fffmmm, fffmmf, fffmfm, fffmff, ffffmm, ffffmf, fffffm, ffffff, # 6
+          mmmmmmm, mmmmmmf, mmmmmfm, mmmmmff, mmmmfmm, mmmmfmf, mmmmffm, mmmmfff, # 7
+          mmmfmmm, mmmfmmf, mmmfmfm, mmmfmff, mmmffmm, mmmffmf, mmmfffm, mmmffff, # 7 
+          mmfmmmm, mmfmmmf, mmfmmfm, mmfmmff, mmfmfmm, mmfmfmf, mmfmffm, mmfmfff, # 7 
+          mmffmmm, mmffmmf, mmffmfm, mmffmff, mmfffmm, mmfffmf, mmffffm, mmfffff, # 7 
+          mfmmmmm, mfmmmmf, mfmmmfm, mfmmmff, mfmmfmm, mfmmfmf, mfmmffm, mfmmfff, # 7 
+          mfmfmmm, mfmfmmf, mfmfmfm, mfmfmff, mfmffmm, mfmffmf, mfmfffm, mfmffff, # 7
+          mffmmmm, mffmmmf, mffmmfm, mffmmff, mffmfmm, mffmfmf, mffmffm, mffmfff, # 7
+          mfffmmm, mfffmmf, mfffmfm, mfffmff, mffffmm, mffffmf, mfffffm, mffffff, # 7
+          fmmmmmm, fmmmmmf, fmmmmfm, fmmmmff, fmmmfmm, fmmmfmf, fmmmffm, fmmmfff, # 7
+          fmmfmmm, fmmfmmf, fmmfmfm, fmmfmff, fmmffmm, fmmffmf, fmmfffm, fmmffff, # 7
+          fmfmmmm, fmfmmmf, fmfmmfm, fmfmmff, fmfmfmm, fmfmfmf, fmfmffm, fmfmfff, # 7
+          fmffmmm, fmffmmf, fmffmfm, fmffmff, fmfffmm, fmfffmf, fmffffm, fmfffff, # 7 
+          ffmmmmm, ffmmmmf, ffmmmfm, ffmmmff, ffmmfmm, ffmmfmf, ffmmffm, ffmmfff, # 7
+          ffmfmmm, ffmfmmf, ffmfmfm, ffmfmff, ffmffmm, ffmffmf, ffmfffm, ffmffff, # 7
+          fffmmmm, fffmmmf, fffmmfm, fffmmff, fffmfmm, fffmfmf, fffmffm, fffmfff, # 7
+          ffffmmm, ffffmmf, ffffmfm, ffffmff, fffffmm, fffffmf, ffffffm, fffffff, # 7
+          mmmmmmmm, mmmmmmmf, mmmmmmfm, mmmmmmff, mmmmmfmm, mmmmmfmf, mmmmmffm, mmmmmfff, # 8
+          mmmmfmmm, mmmmfmmf, mmmmfmfm, mmmmfmff, mmmmffmm, mmmmffmf, mmmmfffm, mmmmffff, # 8
+          mmmfmmmm, mmmfmmmf, mmmfmmfm, mmmfmmff, mmmfmfmm, mmmfmfmf, mmmfmffm, mmmfmfff, # 8
+          mmmffmmm, mmmffmmf, mmmffmfm, mmmffmff, mmmfffmm, mmmfffmf, mmmffffm, mmmfffff, # 8
+          mmfmmmmm, mmfmmmmf, mmfmmmfm, mmfmmmff, mmfmmfmm, mmfmmfmf, mmfmmffm, mmfmmfff, # 8
+          mmfmfmmm, mmfmfmmf, mmfmfmfm, mmfmfmff, mmfmffmm, mmfmffmf, mmfmfffm, mmfmffff, # 8
+          mmffmmmm, mmffmmmf, mmffmmfm, mmffmmff, mmffmfmm, mmffmfmf, mmffmffm, mmffmfff, # 8
+          mmfffmmm, mmfffmmf, mmfffmfm, mmfffmff, mmffffmm, mmffffmf, mmfffffm, mmffffff, # 8
+          mfmmmmmm, mfmmmmmf, mfmmmmfm, mfmmmmff, mfmmmfmm, mfmmmfmf, mfmmmffm, mfmmmfff, # 8
+          mfmmfmmm, mfmmfmmf, mfmmfmfm, mfmmfmff, mfmmffmm, mfmmffmf, mfmmfffm, mfmmffff, # 8
+          mfmfmmmm, mfmfmmmf, mfmfmmfm, mfmfmmff, mfmfmfmm, mfmfmfmf, mfmfmffm, mfmfmfff, # 8
+          mfmffmmm, mfmffmmf, mfmffmfm, mfmffmff, mfmfffmm, mfmfffmf, mfmffffm, mfmfffff, # 8
+          mffmmmmm, mffmmmmf, mffmmmfm, mffmmmff, mffmmfmm, mffmmfmf, mffmmffm, mffmmfff, # 8
+          mffmfmmm, mffmfmmf, mffmfmfm, mffmfmff, mffmffmm, mffmffmf, mffmfffm, mffmffff, # 8
+          mfffmmmm, mfffmmmf, mfffmmfm, mfffmmff, mfffmfmm, mfffmfmf, mfffmffm, mfffmfff, # 8
+          mffffmmm, mffffmmf, mffffmfm, mffffmff, mfffffmm, mfffffmf, mffffffm, mfffffff, # 8
+          fmmmmmmm, fmmmmmmf, fmmmmmfm, fmmmmmff, fmmmmfmm, fmmmmfmf, fmmmmffm, fmmmmfff, # 8
+          fmmmfmmm, fmmmfmmf, fmmmfmfm, fmmmfmff, fmmmffmm, fmmmffmf, fmmmfffm, fmmmffff, # 8
+          fmmfmmmm, fmmfmmmf, fmmfmmfm, fmmfmmff, fmmfmfmm, fmmfmfmf, fmmfmffm, fmmfmfff, # 8
+          fmmffmmm, fmmffmmf, fmmffmfm, fmmffmff, fmmfffmm, fmmfffmf, fmmffffm, fmmfffff, # 8
+          fmfmmmmm, fmfmmmmf, fmfmmmfm, fmfmmmff, fmfmmfmm, fmfmmfmf, fmfmmffm, fmfmmfff, # 8
+          fmfmfmmm, fmfmfmmf, fmfmfmfm, fmfmfmff, fmfmffmm, fmfmffmf, fmfmfffm, fmfmffff, # 8
+          fmffmmmm, fmffmmmf, fmffmmfm, fmffmmff, fmffmfmm, fmffmfmf, fmffmffm, fmffmfff, # 8
+          fmfffmmm, fmfffmmf, fmfffmfm, fmfffmff, fmffffmm, fmffffmf, fmfffffm, fmffffff, # 8
+          ffmmmmmm, ffmmmmmf, ffmmmmfm, ffmmmmff, ffmmmfmm, ffmmmfmf, ffmmmffm, ffmmmfff, # 8
+          ffmmfmmm, ffmmfmmf, ffmmfmfm, ffmmfmff, ffmmffmm, ffmmffmf, ffmmfffm, ffmmffff, # 8
+          ffmfmmmm, ffmfmmmf, ffmfmmfm, ffmfmmff, ffmfmfmm, ffmfmfmf, ffmfmffm, ffmfmfff, # 8
+          ffmffmmm, ffmffmmf, ffmffmfm, ffmffmff, ffmfffmm, ffmfffmf, ffmffffm, ffmfffff, # 8
+          fffmmmmm, fffmmmmf, fffmmmfm, fffmmmff, fffmmfmm, fffmmfmf, fffmmffm, fffmmfff, # 8
+          fffmfmmm, fffmfmmf, fffmfmfm, fffmfmff, fffmffmm, fffmffmf, fffmfffm, fffmffff, # 8
+          ffffmmmm, ffffmmmf, ffffmmfm, ffffmmff, ffffmfmm, ffffmfmf, ffffmffm, ffffmfff, # 8
+          fffffmmm, fffffmmf, fffffmfm, fffffmff, ffffffmm, ffffffmf, fffffffm, ffffffff  # 8
   ),
   ego_id = rep(ego, length(pid))) %>% 
     filter(!is.na(pid)) %>% 
-    distinct(pid, .keep_all = TRUE) %>%
-    left_join(select(opop, c(pid, fem, dob, dod, mom, marid, mstat)),
-              by = "pid")
-  
+    distinct(pid, .keep_all = TRUE)
+
   return(ancestors_opop)
   
 }
