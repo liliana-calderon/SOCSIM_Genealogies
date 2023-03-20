@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 16-03-2023
+# Last modified by Liliana Calderon on 20-03-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 
@@ -33,8 +33,8 @@ supfile <- "socsim_SWE.sup"
  
 ## Randomly choose the simulation seed to use 
 load("sims_seeds.rda")
-seed <- "13486"
-# seed <-  sample(sims_seeds, 1, replace = F) 
+seed <-  sample(sims_seeds, 1, replace = F) # Seed chosen "13486"
+
 
 # Path of the simulation results .opop file
 #path_opop <- paste0("sim_results_s",supfile,"_",seed,"_/result.opop")
@@ -65,17 +65,17 @@ egos2022 <- opop %>%
 # Get a sample of 1% of people alive in 2022. 
 sample_size <- round(length(egos2022)/10)
 egos2022_samp <-  sample(egos2022, sample_size, replace = F)
-save(egos2022_samp, file = "egos2022_samp.RData")
+save(egos2022_samp, file = "egos2022_samp_10.RData")
 
 ## Map the function to get the ancestors of a sample of individuals alive in 2022 (older than 18 years)
 start <- Sys.time()
-ancestors_egos2022d <- map_dfr(egos2022_samp2, get_ancestors) %>%
+ancestors_egos2022_10 <- map_dfr(egos2022_samp, get_ancestors) %>%
   left_join(select(opop, c(pid, fem, dob, dod, mom, marid, mstat)), by = "pid")
 end <- Sys.time()
 print(end-start)
 
 # Save the data frame
-save(ancestors_egos2022, file = "ancestors_egos2022.RData")
+save(ancestors_egos2022_10, file = "ancestors_egos2022_10.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Recover age-specific fertility and mortality rates  -----
@@ -109,12 +109,12 @@ asmr_whole <- get_asmr_socsim(df = opop,
 save(asmr_whole, file = "asmr_whole.RData")
 
 # Load the data frame with the ancestors of 1% sample of egos alive in 2022
-load("ancestors_egos2022.RData")
+# load("ancestors_egos2022.RData")
 
 #  Calculate ASFR and ASMR for genealogical subset of direct ancestors of population alive in 01-01-2022 with duplicates 
 
 # Copy the vector of direct ancestors with duplicates. 
-ancestors_egos2022_wd <- ancestors_egos2022 
+ancestors_egos2022_wd <- ancestors_egos2022_10 
 
 # Retrieve age-specific fertility rates for the genealogical subset of direct ancestors with duplicates
 asfr_wd <- get_asfr_socsim(df = ancestors_egos2022_wd,
@@ -141,7 +141,7 @@ save(asmr_wd, file = "asmr_wd.RData")
 ## Calculate ASFR and ASMR for genealogical subset of direct ancestors without duplicates 
 
 # Ancestors without duplicates for sample 
-ancestors_egos2022_wod <- ancestors_egos2022 %>% distinct(pid, .keep_all = TRUE)
+ancestors_egos2022_wod <- ancestors_egos2022_10 %>% distinct(pid, .keep_all = TRUE)
 
 # Retrieve age-specific fertility rates for the genealogical subset of direct ancestors without duplicates
 asfr_wod <- get_asfr_socsim(df = ancestors_egos2022_wod,
@@ -493,7 +493,7 @@ save(lt_wd, file = "lt_wd.RData")
 lt_wod <- lt_socsim(asmr_wod_1)
 save(lt_wod, file = "lt_wod.RData")
 
-#CHECK
+
 # Year breaks. Extract all the unique numbers from the intervals 
 year_breaks_mort_1 <- unique(as.numeric(str_extract_all(asmr_whole_1$year, "\\d+", simplify = T)))
 
@@ -538,7 +538,7 @@ ggsave(file="Graphs/socsim_ances_e0.jpeg", width=17, height=9, dpi=400)
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
 
-## Plotting TFR and e0 (for females) from HFD/HMD vs SOCSIM 
+## Plotting TFR and e0 (for females) from whole SOCSIM simulation and genealogical subsets of direct ancestors
 
 bind_rows(TFR_whole %>% 
           rename(Estimate = TFR), 
@@ -567,3 +567,255 @@ bind_rows(TFR_whole %>%
 
 # Save the plot
 ggsave(file="Graphs/Final_Socsim_Ances_TFR_e0.jpeg", width=17, height=9, dpi=400)
+
+#----------------------------------------------------------------------------------------------------
+## Sex Ratio at Birth and Infant Mortality Rate
+# We use here the asYr() function from the Functions_Retrieve_Rates.R
+## Check if this should be included in a function
+
+## If not set in the Global Environment
+final_sim_year <- 2021 #[Jan-Dec]
+year_min <- 1750 # Closed [
+year_max <- 2020 # Open )
+
+# Year range
+year_range <- year_min:(year_max-1)
+
+# Sex Ratio at Birth by year for the whole simulation
+SRB_whole <- opop %>% 
+  mutate(Year = asYr(dob, last_month, final_sim_year),
+         Sex = ifelse(fem == 1, "Female", "Male")) %>% 
+  filter(Year %in% year_range) %>% 
+  count(Year, Sex) %>%
+  mutate(Year = factor(Year, levels = year_range), 
+         Sex = factor(Sex, levels = c("Female", "Male"))) %>% 
+  complete(Year, Sex, fill = list(n = 0)) %>% 
+  mutate(Year = as.numeric(as.character(Year)),
+         Sex = as.character(Sex)) %>% 
+  pivot_wider(names_from = Sex, values_from = n) %>% 
+  mutate(SRB = Male/Female, 
+         Measure = "SRB",
+         Dataset = "Whole_simulation") 
+
+# Sex Ratio at Birth by year for the genealogical subset of direct ancestors with duplicates
+SRB_wd <- ancestors_egos2022_wd %>% 
+  mutate(Year = asYr(dob, last_month, final_sim_year),
+         Sex = ifelse(fem == 1, "Female", "Male")) %>% 
+  filter(Year %in% year_range) %>% 
+  count(Year, Sex) %>%
+  mutate(Year = factor(Year, levels = year_range), 
+         Sex = factor(Sex, levels = c("Female", "Male"))) %>% 
+  complete(Year, Sex, fill = list(n = 0)) %>% 
+  mutate(Year = as.numeric(as.character(Year)),
+         Sex = as.character(Sex)) %>% 
+  pivot_wider(names_from = Sex, values_from = n) %>% 
+  mutate(SRB = Male/Female,         
+         Measure = "SRB",
+         Dataset = "Ancestors_w_dup") 
+
+# Sex Ratio at Birth by year for the genealogical subset of direct ancestors without duplicates
+SRB_wod <- ancestors_egos2022_wod %>% 
+  mutate(Year = asYr(dob, last_month, final_sim_year),
+         Sex = ifelse(fem == 1, "Female", "Male")) %>% 
+  filter(Year %in% year_range) %>% 
+  count(Year, Sex) %>%
+  mutate(Year = factor(Year, levels = year_range), 
+         Sex = factor(Sex, levels = c("Female", "Male"))) %>% 
+  complete(Year, Sex, fill = list(n = 0)) %>% 
+  mutate(Year = as.numeric(as.character(Year)),
+         Sex = as.character(Sex)) %>% 
+  pivot_wider(names_from = Sex, values_from = n) %>% 
+  mutate(SRB = Male/Female,         
+         Measure = "SRB",
+         Dataset = "Ancestors_wo_dup") 
+  
+
+# Plotting SRB
+bind_rows(SRB_whole, SRB_wd, SRB_wod) %>% 
+filter(Year >= 1751) %>%
+  ggplot(aes(x = Year, y = SRB, group = Dataset, color = Dataset, linetype = Dataset))+
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
+  scale_linetype_manual(values = c("11", "22", "solid")) +
+  theme_graphs()
+
+
+#### Infant Mortality Rate, both sexes
+
+# Births by year from the whole simulation
+Births_whole <- opop %>% 
+    mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
+    filter(Year %in% year_range) %>% 
+    count(Year) %>%
+    mutate(Year = factor(Year, levels = year_range)) %>% 
+    complete(Year, fill = list(n = 0))  %>%
+    mutate(Year = as.numeric(as.character(Year)),
+           Dataset = "Whole_simulation", 
+           Event = "Births")
+  
+# Births by year from genealogical subset of direct ancestors with duplicates
+Births_wd <- ancestors_egos2022_wd %>% 
+    mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
+    filter(Year %in% year_range) %>% 
+    count(Year) %>%
+    mutate(Year = factor(Year, levels = year_range)) %>% 
+    complete(Year, fill = list(n = 0))  %>%
+    mutate(Year = as.numeric(as.character(Year)),
+           Dataset = "Ancestors_w_dup", 
+           Event = "Births")
+  
+# Births by year from genealogical subset of direct ancestors without duplicates
+Births_wod <- ancestors_egos2022_wod %>% 
+    mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
+    filter(Year %in% year_range) %>% 
+    count(Year) %>%
+    mutate(Year = factor(Year, levels = year_range)) %>% 
+    complete(Year, fill = list(n = 0))  %>%
+    mutate(Year = as.numeric(as.character(Year)),
+           Dataset = "Ancestors_wo_dup", 
+           Event = "Births")
+  
+# Deaths below age 1 (0-11 months) by year from the whole simulation
+Deaths_0_whole <- opop %>% 
+  filter(dod != 0) %>% 
+  mutate(age_death_months = dod-dob,
+         Year = asYr(dod, last_month, final_sim_year)) %>% 
+  filter(age_death_months < 12 & Year %in% year_range) %>% 
+  count(Year) %>%
+  mutate(Year = factor(Year, levels = year_range)) %>% 
+  complete(Year, fill = list(n = 0))  %>%
+  mutate(Year = as.numeric(as.character(Year)),
+         Dataset = "Whole_simulation", 
+         Event = "Deaths")
+
+# Deaths below age 1 (0-11 months) from genealogical subset of direct ancestors with duplicates
+Deaths_0_wd <- ancestors_egos2022_wd %>% 
+  filter(dod != 0) %>% 
+  mutate(age_death_months = dod-dob,
+         Year = asYr(dod, last_month, final_sim_year)) %>% 
+  filter(age_death_months < 12 & Year %in% year_range) %>% 
+  count(Year) %>%
+  mutate(Year = factor(Year, levels = year_range)) %>% 
+  complete(Year, fill = list(n = 0))  %>%
+  mutate(Year = as.numeric(as.character(Year)),
+         Dataset = "Ancestors_w_dup", 
+         Event = "Deaths")
+
+# Deaths below age 1 (0-11 months) from genealogical subset of direct ancestors without duplicates
+Deaths_0_wod <- ancestors_egos2022_wod %>% 
+  filter(dod != 0) %>% 
+  mutate(age_death_months = dod-dob,
+         Year = asYr(dod, last_month, final_sim_year)) %>% 
+  filter(age_death_months < 12 & Year %in% year_range) %>% 
+  count(Year) %>%
+  mutate(Year = factor(Year, levels = year_range)) %>% 
+  complete(Year, fill = list(n = 0))  %>%
+  mutate(Year = as.numeric(as.character(Year)),
+         Dataset = "Ancestors_wo_dup", 
+         Event = "Deaths")
+
+# Calculate and Plot Infant Mortality Rate (IMR)
+IMR <- bind_rows(Births_whole, Births_wd, Births_wod, Deaths_0_whole, Deaths_0_wd, Deaths_0_wod) %>%
+  pivot_wider(names_from = Event, values_from = n) %>% 
+  mutate(IMR = Deaths/Births,
+         Measure = "IMR") 
+
+IMR %>% 
+  filter(Year >= 1751) %>% 
+  ggplot(aes(x = Year, y = IMR, group = Dataset, color = Dataset))+
+  geom_line(linewidth = 1)+
+  scale_color_viridis(option = "C", discrete = T, direction = -1) +
+  theme_graphs()
+
+## We cannot measure Infant Mortality from these datasets
+
+# Plot SRB and IMR together
+
+# Plotting SRB and IMR together
+bind_rows(SRB_whole, SRB_wd, SRB_wod, IMR) %>% 
+  filter(Year >= 1751) %>%
+  ggplot(aes(x = Year, y = SRB, ))+
+  
+
+## Check this!!! 
+  
+  bind_rows(SRB_whole, SRB_wd, SRB_wod, IMR) %>% 
+  select(Year, Dataset, SRB) %>% 
+  full_join(IMR %>% select(Year, Dataset, IMR), by = c("Year", "Dataset")) %>% 
+  filter(Year >= 1751) %>%
+  pivot_longer(SRB:IMR, names_to = "Measure", values_to = "Value") %>% 
+  mutate(Measure = factor(Measure, levels = c("SRB", "IMR"))) %>%
+  ggplot(aes(x = Year, y = Value, group = Dataset, color = Dataset, linetype = Dataset))+
+  facet_wrap(. ~ Measure) + 
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
+  scale_linetype_manual(values = c("11", "22", "solid")) +
+  theme_graphs() +
+  facetted_pos_scales(y = list(SRB = scale_y_continuous(limits=c(0.75, 1.25)),
+                               IMR =  scale_y_continuous()))
+
+ggsave(file="Graphs/Socsim_SRB_IMR.jpeg", width=17, height=9, dpi=400)
+
+
+#----------------------------------------------------------------------------------------------------
+## Births and Deaths by year from whole simulation and genealogical subsets of direct ancestors -----
+
+last_month <- max(opop$dob)
+
+## If not set in the Global Environment
+final_sim_year <- 2021 #[Jan-Dec]
+year_min <- 1750 # Closed [
+year_max <- 2020 # Open )
+
+# Year range
+year_range <- year_min:(year_max-1)
+
+# For the Birth counts we use the same df calculated before
+
+# Death counts by year from the whole simulation
+Deaths_whole <- opop %>% 
+  filter(dod != 0) %>% 
+  mutate(Year = asYr(dod, last_month, final_sim_year)) %>% 
+  filter(Year %in% year_range) %>% 
+  count(Year) %>%
+  mutate(Year = factor(Year, levels = year_range)) %>%
+  complete(Year, fill = list(n = 0))  %>%
+  mutate(Year = as.numeric(as.character(Year)),
+         Dataset = "Whole_simulation", 
+         Event = "Deaths")
+
+# Death counts by year from genealogical subset of direct ancestors with duplicates
+Deaths_wd <- ancestors_egos2022_wd %>% 
+  filter(dod != 0) %>% 
+  mutate(Year = asYr(dod, last_month, final_sim_year)) %>% 
+  filter(Year %in% year_range) %>% 
+  count(Year) %>%
+  mutate(Year = factor(Year, levels = year_range)) %>%
+  complete(Year, fill = list(n = 0))  %>%
+  mutate(Year = as.numeric(as.character(Year)),
+         Dataset = "Ancestors_w_dup", 
+         Event = "Deaths")
+
+# Death counts by year from genealogical subset of direct ancestors without duplicates
+Deaths_wod <- ancestors_egos2022_wod %>% 
+  filter(dod != 0) %>% 
+  mutate(Year = asYr(dod, last_month, final_sim_year)) %>% 
+  filter(Year %in% year_range) %>% 
+  count(Year) %>%
+  mutate(Year = factor(Year, levels = year_range)) %>%
+  complete(Year, fill = list(n = 0))  %>%
+  mutate(Year = as.numeric(as.character(Year)),
+         Dataset = "Ancestors_wo_dup", 
+         Event = "Deaths")
+
+# Plotting birth and death counts together. 
+bind_rows(Births_whole, Births_wd, Births_wod, Deaths_whole, Deaths_wd, Deaths_wod) %>% 
+  filter(Year >= 1751) %>%
+  ggplot(aes(x = Year, y = n, group = Dataset, color = Dataset, linetype = Dataset))+
+  facet_wrap(. ~ Event) + 
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
+  scale_linetype_manual(values = c("11", "22", "solid")) +
+  theme_graphs()
+ggsave(file="Graphs/Socsim_Ances_Births_Deaths.jpeg", width=17, height=9, dpi=400)
+# The absolute values are meaningless
