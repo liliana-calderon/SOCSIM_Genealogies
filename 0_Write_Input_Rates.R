@@ -7,7 +7,7 @@
 # Create a initial population file and empty marriage file for the simulations
 
 # Created by Liliana Calderon on 08-06-2022
-# Last modified by Liliana Calderon on 08-03-2023
+# Last modified by Liliana Calderon on 20-03-2023
 
 #----------------------------------------------------------------------------------------------------
 # Rate files format (Cf. Socsim oversimplified, p. 26):
@@ -155,6 +155,6 @@ presim.omar <- data.frame()
 write.table(presim.omar, "presim.omar", row.names = F, col.names = F)
 
 
-## Copy the marriage rates file to the rates folder. 
-# Not necessary once the rsocsim version without marriage rates is implemented
-file.copy(from = "SWEmarr", to = "rates/SWEmarr")
+## Copy the marriage rates file to the rates folder
+# This is not necessary with the marry_after_childbirth directive
+# file.copy(from = "SWEmarr", to = "rates/SWEmarr") 
