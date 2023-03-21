@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 20-03-2023
+# Last modified by Liliana Calderon on 21-03-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 
@@ -20,7 +20,24 @@ options(scipen=999999)
 library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(questionr)
+library(svglite) # To save svg files
+library(viridis)
 
+## Load functions to recover age-specific fertility and mortality rates 
+# and covert SOCSIM time to calendar time
+source("Functions_Retrieve_Rates.R")
+
+## Load functions to get direct ancestors
+source("Functions_Ancestors.R")
+
+## Load theme for the graphs
+source("Functions_Graphs.R")
+
+# Load function to calculate life table from asmr 1x1
+# Currently, it only works with the asmr df calculated with the get_asmr_socsim()
+source("Functions_Life_Table.R")
+
+#------------------------------------------------------------------------------------------------------
 ## Read the output .opop file ----
 ## We use only one of the 10 simulations.
 
@@ -32,12 +49,11 @@ source("read_opop.R")
 supfile <- "socsim_SWE.sup"
  
 ## Randomly choose the simulation seed to use 
-load("sims_seeds.rda")
-seed <-  sample(sims_seeds, 1, replace = F) # Seed chosen "13486"
-
+# load("sims_seeds.rda")
+# seed <-  sample(sims_seeds, 1, replace = F) # 
+seed <- "13486"
 
 # Path of the simulation results .opop file
-#path_opop <- paste0("sim_results_s",supfile,"_",seed,"_/result.opop")
 path_opop <- paste0("sim_results_",supfile,"_",seed,"_/result.opop")
 
 # Read SOCSIM output, using read_opop function. 
@@ -45,13 +61,6 @@ opop <- read_opop(path_opop)
 
 #------------------------------------------------------------------------------------------------------
 ## Trace direct ancestors of people alive in 2022 as a proxy of current genealogists 
-
-## Load functions to recover age-specific fertility and mortality rates 
-# and covert SOCSIM time to calendar time
-source("Functions_Retrieve_Rates.R")
-
-## Load functions to get direct ancestors
-source("Functions_Ancestors.R")
 
 # Pids of people alive at the end of the simulation, i.e. dod == 0, 
 # who are older than 18 years old on 01-01-2022, i,e. dob 1913-2003 
@@ -108,8 +117,8 @@ asmr_whole <- get_asmr_socsim(df = opop,
                               age_group = 5) #[,)
 save(asmr_whole, file = "asmr_whole.RData")
 
-# Load the data frame with the ancestors of 1% sample of egos alive in 2022
-# load("ancestors_egos2022.RData")
+# Load the data frame with the ancestors of 10% sample of egos alive in 2022
+load("ancestors_egos2022_10.RData")
 
 #  Calculate ASFR and ASMR for genealogical subset of direct ancestors of population alive in 01-01-2022 with duplicates 
 
@@ -166,11 +175,6 @@ save(asmr_wod, file = "asmr_wod.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Plot results for the genealogical subsets of direct ancestors with and without duplicates ----
-library(viridis)
-library(svglite) # To save svg files
-
-## Theme for the graphs
-source("Functions_Graphs.R")
 
 # Load ASFR and ASMR for the genealogical subset of direct ancestors with duplicates
 load("asfr_wd.RData")
@@ -342,7 +346,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset)))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(aes(colour = Year, linetype = Dataset), linewidth = 1.3)+
-  scale_color_manual(values = c("#FC8961", "#B72779", "#51127C"))+
+  scale_color_manual(values = c("#FC8961", "#B72779", "#2779B7"))+
   scale_linetype_manual(values = c("11", "22", "solid")) +
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10")))+
@@ -352,7 +356,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
 ggsave(file="Graphs/Final_Socsim_Ances_ASFR_ASMR.jpeg", width=17, height=9, dpi=400)
 
 ## Save as .svg file for poster
-ggsave(file="Graphs/socsim_ances_ASFR_ASMR.svg", device = "svg", units = "in", width=15, height=8, dpi=400) 
+# ggsave(file="Graphs/Socsim_Ances_ASFR_ASMR.svg", device = "svg", units = "in", width=15, height=8, dpi=400) 
 
 #----------------------------------------------------------------------------------------------------
 #### Summary measures: TFR and e0 ----
@@ -394,8 +398,6 @@ asfr_wod_1 <- get_asfr_socsim(df = ancestors_egos2022_wod,
                             age_group = 1) #[,)
 save(asfr_wod_1, file = "asfr_wod_1.RData")
 
-
-
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
 age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
 
@@ -432,7 +434,7 @@ TFR_wod <- asfr_wod_1 %>%
          Rate = "TFR", 
          sex = "female")
 
-## Plotting TFR from whole SOCSIM simulation and the genealogical subsets of direct ancestors with duplicates
+## Plott TFR from whole SOCSIM simulation and genealogical subsets of direct ancestors with(out) duplicates
 bind_rows(TFR_whole, TFR_wd, TFR_wod) %>% 
   filter(Year >= 1751) %>%
   ggplot(aes(x = Year, y = TFR)) +
@@ -477,9 +479,6 @@ asmr_wod_1 <- get_asmr_socsim(df = ancestors_egos2022_wod,
                               age_group = 1) #[,)
 save(asmr_wod_1, file = "asmr_wod_1.RData")
 
-# Load function to calculate life table from asmr 1x1
-# Currently, it only works with the asmr df calculated with the get_asmr_socsim()
-source("Functions_Life_Table.R")
 
 # Compute life table from asmr 1x1 for Whole SOCSIM simulation
 lt_whole <- lt_socsim(asmr_whole_1)
@@ -538,7 +537,7 @@ ggsave(file="Graphs/socsim_ances_e0.jpeg", width=17, height=9, dpi=400)
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
 
-## Plotting TFR and e0 (for females) from whole SOCSIM simulation and genealogical subsets of direct ancestors
+## TFR and e0 (for females) from whole SOCSIM simulation and genealogical subsets of direct ancestors
 
 bind_rows(TFR_whole %>% 
           rename(Estimate = TFR), 
@@ -570,16 +569,18 @@ ggsave(file="Graphs/Final_Socsim_Ances_TFR_e0.jpeg", width=17, height=9, dpi=400
 
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate
-# We use here the asYr() function from the Functions_Retrieve_Rates.R
-## Check if this should be included in a function
+# The Functions_Retrieve_Rates.R must be called to use the asYr() function
 
-## If not set in the Global Environment
+## Define years of not set in the Global Environment
 final_sim_year <- 2021 #[Jan-Dec]
 year_min <- 1750 # Closed [
 year_max <- 2020 # Open )
 
 # Year range
 year_range <- year_min:(year_max-1)
+
+# Find last month of the simulation
+last_month <- max(opop$dob)
 
 # Sex Ratio at Birth by year for the whole simulation
 SRB_whole <- opop %>% 
@@ -597,7 +598,7 @@ SRB_whole <- opop %>%
          Measure = "SRB",
          Dataset = "Whole_simulation") 
 
-# Sex Ratio at Birth by year for the genealogical subset of direct ancestors with duplicates
+# Sex Ratio at Birth by year for genealogical subset of direct ancestors with duplicates
 SRB_wd <- ancestors_egos2022_wd %>% 
   mutate(Year = asYr(dob, last_month, final_sim_year),
          Sex = ifelse(fem == 1, "Female", "Male")) %>% 
@@ -613,7 +614,7 @@ SRB_wd <- ancestors_egos2022_wd %>%
          Measure = "SRB",
          Dataset = "Ancestors_w_dup") 
 
-# Sex Ratio at Birth by year for the genealogical subset of direct ancestors without duplicates
+# Sex Ratio at Birth by year for genealogical subset of direct ancestors without duplicates
 SRB_wod <- ancestors_egos2022_wod %>% 
   mutate(Year = asYr(dob, last_month, final_sim_year),
          Sex = ifelse(fem == 1, "Female", "Male")) %>% 
@@ -629,16 +630,14 @@ SRB_wod <- ancestors_egos2022_wod %>%
          Measure = "SRB",
          Dataset = "Ancestors_wo_dup") 
   
-
 # Plotting SRB
 bind_rows(SRB_whole, SRB_wd, SRB_wod) %>% 
-filter(Year >= 1751) %>%
+filter(Year >= 1751 & !is.na(SRB)) %>% # No births after 2003
   ggplot(aes(x = Year, y = SRB, group = Dataset, color = Dataset, linetype = Dataset))+
   geom_line(linewidth = 1.2) +
-  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
+  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+ 
   scale_linetype_manual(values = c("11", "22", "solid")) +
   theme_graphs()
-
 
 #### Infant Mortality Rate, both sexes
 
@@ -689,6 +688,7 @@ Deaths_0_whole <- opop %>%
          Event = "Deaths")
 
 # Deaths below age 1 (0-11 months) from genealogical subset of direct ancestors with duplicates
+# There should be no infant mortality in this subset, but let's double check it
 Deaths_0_wd <- ancestors_egos2022_wd %>% 
   filter(dod != 0) %>% 
   mutate(age_death_months = dod-dob,
@@ -702,6 +702,7 @@ Deaths_0_wd <- ancestors_egos2022_wd %>%
          Event = "Deaths")
 
 # Deaths below age 1 (0-11 months) from genealogical subset of direct ancestors without duplicates
+# There should be no infant mortality in this subset, but let's double check it
 Deaths_0_wod <- ancestors_egos2022_wod %>% 
   filter(dod != 0) %>% 
   mutate(age_death_months = dod-dob,
@@ -724,52 +725,34 @@ IMR %>%
   filter(Year >= 1751) %>% 
   ggplot(aes(x = Year, y = IMR, group = Dataset, color = Dataset))+
   geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1) +
-  theme_graphs()
-
-## We cannot measure Infant Mortality from these datasets
+  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
+  theme_graphs() 
+# There is no IMR for the genealogical subsets
 
 # Plot SRB and IMR together
-
-# Plotting SRB and IMR together
-bind_rows(SRB_whole, SRB_wd, SRB_wod, IMR) %>% 
-  filter(Year >= 1751) %>%
-  ggplot(aes(x = Year, y = SRB, ))+
-  
-
-## Check this!!! 
-  
-  bind_rows(SRB_whole, SRB_wd, SRB_wod, IMR) %>% 
+bind_rows(SRB_whole, SRB_wd, SRB_wod) %>% 
   select(Year, Dataset, SRB) %>% 
   full_join(IMR %>% select(Year, Dataset, IMR), by = c("Year", "Dataset")) %>% 
-  filter(Year >= 1751) %>%
   pivot_longer(SRB:IMR, names_to = "Measure", values_to = "Value") %>% 
+  filter(Year >= 1751 & !is.na(Value)) %>%
   mutate(Measure = factor(Measure, levels = c("SRB", "IMR"))) %>%
   ggplot(aes(x = Year, y = Value, group = Dataset, color = Dataset, linetype = Dataset))+
-  facet_wrap(. ~ Measure) + 
+  facet_wrap(. ~ Measure, scales = "free") + 
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
   scale_linetype_manual(values = c("11", "22", "solid")) +
   theme_graphs() +
-  facetted_pos_scales(y = list(SRB = scale_y_continuous(limits=c(0.75, 1.25)),
-                               IMR =  scale_y_continuous()))
-
-ggsave(file="Graphs/Socsim_SRB_IMR.jpeg", width=17, height=9, dpi=400)
-
+  facetted_pos_scales(y = list(SRB = scale_y_continuous(limits=c(0.7, 1.3)),
+                               IMR =  scale_y_continuous())) +
+  theme_graphs() +
+  theme(axis.title.y = element_blank())
+ggsave(file="Graphs/Socsim_Ances_SRB_IMR.jpeg", width=17, height=9, dpi=400)
 
 #----------------------------------------------------------------------------------------------------
 ## Births and Deaths by year from whole simulation and genealogical subsets of direct ancestors -----
 
-last_month <- max(opop$dob)
-
-## If not set in the Global Environment
-final_sim_year <- 2021 #[Jan-Dec]
-year_min <- 1750 # Closed [
-year_max <- 2020 # Open )
-
-# Year range
-year_range <- year_min:(year_max-1)
-
+## final_sim_year, year_min, year_max, year_range must be set in the Global Environment. 
+# They are defined above. 
 # For the Birth counts we use the same df calculated before
 
 # Death counts by year from the whole simulation
@@ -814,8 +797,10 @@ bind_rows(Births_whole, Births_wd, Births_wod, Deaths_whole, Deaths_wd, Deaths_w
   ggplot(aes(x = Year, y = n, group = Dataset, color = Dataset, linetype = Dataset))+
   facet_wrap(. ~ Event) + 
   geom_line(linewidth = 1.2) +
-  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
+  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+ 
   scale_linetype_manual(values = c("11", "22", "solid")) +
-  theme_graphs()
+  theme_graphs() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
 ggsave(file="Graphs/Socsim_Ances_Births_Deaths.jpeg", width=17, height=9, dpi=400)
 # The absolute values are meaningless
