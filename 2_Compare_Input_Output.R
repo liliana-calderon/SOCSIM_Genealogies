@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 14-03-2023
+# Last modified by Liliana Calderon on 21-03-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 
@@ -21,15 +21,35 @@ options(scipen=999999)
 
 # Load packages 
 library(tidyverse)
-
-# Load saved list with 10 simulations, generated in 1_Run_Simulations.R
-load("sims_opop.RData")
+library(ggh4x) # For facetted_pos_scales
+library(HMDHFDplus)
+library(svglite) # To save svg files
+library(viridis)
 
 ## Load functions to recover input age-specific fertility and mortality rates 
 # These are a modified version of scripts `02_extract_rates.R` and `functions.R` written by Diego Alburez-Gutierrez,
 # available on https://github.com/alburezg/socsim_example/tree/main/R 
 source("Functions_Retrieve_Rates.R")
 
+## Load theme for the graphs
+source("Functions_Graphs.R")
+
+# Load saved list with 10 simulations, generated in 1_Run_Simulations.R
+load("sims_opop.RData")
+
+
+## Type inside the quotes HFD and HMD credentials (username and password) for the new website
+# This information is necessary to run the comparisons below
+
+# HFD credentials
+HFD_username <- "Type_here_HFD_username"
+HFD_password <- "Type_here_HFD_password"
+
+# HMD credentials
+HMD_username <- "Type_here_HMD_username"
+HMD_password <- "Type_here_HMD_password"
+
+#------------------------------------------------------------------------------------------------------
 # Retrieve age-specific fertility rates
 asfr_10 <- map_dfr(sims_opop, ~ get_asfr_socsim(df = .x,
                                              final_sim_year = 2021 , #[Jan-Dec]
@@ -55,12 +75,6 @@ save(asmr_10, file = "asmr_10.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Plot the results ----
-library(viridis)
-library(ggh4x) # For facetted_pos_scales
-library(svglite) # To save svg files
-
-## Theme for the graphs
-source("Functions_Graphs.R")
 
 # Load ASFR and ASMR from the 10 simulations
 load("asfr_10.RData")
@@ -104,15 +118,7 @@ ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=400)
 #----------------------------------------------------------------------------------------------------
 ## Comparison with HFD and HMD data (used as input) ----
 
-## Load HMDHFD package to access the data
-# install.packages("HMDHFDplus")
-library(HMDHFDplus)
-
 #### Age-Specific Fertility rates ----
-
-# HFD credentials
-HFD_username <- "Type_here_HFD_username"
-HFD_password <- "Type_here_HFD_password"
 
 # HFD ASFR for Sweden (by calendar year and single year of age)
 HFD <- readHFDweb(CNTRY = "SWE",
@@ -177,10 +183,6 @@ ggsave(file="Graphs/HFD_SOCSIM_10_ASFR.jpeg", width=17, height=9, dpi=400)
 ####  Age-Specific Mortality rates ----
 ## We compare the mid-year ASMR with central death rates from HMD life tables 1x1
 # Rates will be aggregated as defined in the get_asmr_socsim()
-
-# HMD credentials
-HMD_username <- "Type_here_HMD_username"
-HMD_password <- "Type_here_HMD_password"
 
 # Get female life tables from HMD, 1x1
 ltf <- readHMDweb(CNTRY = "SWE",
@@ -282,7 +284,7 @@ bind_rows(HFD0 %>% rename(Estimate = ASFR),
     ggplot(aes(x = age, y = Estimate, group = interaction(Year, Sim_id)))+
     facet_wrap(. ~ Rate, scales = "free") + 
     geom_line(aes(colour = Year, linetype = Source, alpha = transp), linewidth = 1.5)+
-    scale_color_manual(values = c("#35B779", "#31688E", "#440154"))+
+    scale_color_manual(values = c("#C96D4D", "#781A4F", "#1A4F78"))+
     scale_linetype_manual(values = c("HFD" = "solid", "HMD" = "solid","SOCSIM" = "dotted")) +
     scale_alpha_discrete(guide="none", range = c(0.5, 1))+
     facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
@@ -377,7 +379,7 @@ load("asmr_10_1.RData")
 # This code was inspired by Tim Riffe's BSSD2021Module2 code to calculate life tables
 # https://github.com/timriffe/BSSD2021Module2/blob/master/02_tuesday/02_tuesday.Rmd 
 
-lt_sim <- asmr_10_1 %>% 
+lt_10 <- asmr_10_1 %>% 
   mutate(Age = as.numeric(str_extract(age, "\\d+"))) %>% 
   rename(mx = socsim) %>% 
   group_by(Sim_id, year, sex) %>% 
@@ -409,15 +411,10 @@ lt_sim <- asmr_10_1 %>%
          Tx = Lx %>% rev() %>% cumsum() %>% rev(),
          ex = Tx / lx)  %>% 
   ungroup() 
-save(lt_sim, file = "lt_sim.RData")
+save(lt_10, file = "lt_10.RData")
 
 
 ## Compare with ex at age 0 for Sweden in HDM
-library(HMDHFDplus)
-
-# HMD credentials
-HMD_username <- "Type_here_HMD_username"
-HMD_password <- "Type_here_HMD_password"
 
 # Get female life tables from HMD
 ltf <- readHMDweb(CNTRY = "SWE",
@@ -450,7 +447,7 @@ HMD_lt <- ltf %>%
          Sim_id = "0")
 
 # Wrangle SOCSIM life tables
-SOCSIM_lt <- lt_sim %>%
+SOCSIM_lt <- lt_10 %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Source = "SOCSIM") %>% 
   select(Year, Age, ex, Sex = sex, Source, Sim_id)
@@ -496,10 +493,10 @@ bind_rows(HFD1 %>%
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.2) +
   scale_color_manual(values = c("#CA650D", "#0C0B7F", "#30734A")) +
   scale_alpha_discrete(guide="none", range = c(0.1, 1)) +
+  scale_x_continuous(breaks = c(1750, 1800, 1850, 1900, 1950, 2000))+
   theme_graphs()
   # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
-   
-# Save the plot
+   # Save the plot
 ggsave(file="Graphs/Final_Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=400)
 
 #----------------------------------------------------------------------------------------------------
