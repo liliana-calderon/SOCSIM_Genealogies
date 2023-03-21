@@ -5,7 +5,7 @@
 # To run the functions, .opop file must be set in the GlobalEnv
 
 # Created by Liliana Calderon on 13-04-2022
-# Last modified by Liliana Calderon on 17-03-2023
+# Last modified by Liliana Calderon on 21-03-2023
 
 #------------------------------------------------------------------------------------------------------
 
@@ -37,8 +37,8 @@ get_kin <- function(egos) {
   ### Each generation backwards is added to the right of the most recent generation
   
   ## 0-IL. Spouses
-  w <- omar %>% filter(hpid == ego) %>% pull(wpid) %>% ze_na() # Wifes w marid
-  h <- omar %>% filter(wpid == ego) %>% pull(hpid) %>% ze_na() # Husbands w marid
+  # w <- omar %>% filter(hpid == ego) %>% pull(wpid) %>% ze_na() # Wifes w marid
+  # h <- omar %>% filter(wpid == ego) %>% pull(hpid) %>% ze_na() # Husbands w marid
   
   
   ## 1. Parents
@@ -46,26 +46,26 @@ get_kin <- function(egos) {
   f <- opop %>% filter(pid == ego) %>% pull(pop) %>% ze_na()
   
   ## 1. Children of ego 
-  c <- opop %>% 
-    filter(mom == ego | pop == ego) %>% 
-    pull(pid) %>% 
-    ze_na()
+  # c <- opop %>% 
+  #   filter(mom == ego | pop == ego) %>% 
+  #   pull(pid) %>% 
+  #   ze_na()
   
   ## 1-IL. Step-parents
-  fw <- omar %>%
-    filter(hpid == f & wpid != m) %>% # Father's wifes which are not ego's mother
-    pull(wpid) %>%
-    ze_na()
-  mh <- omar %>%
-    filter(wpid == m & hpid != f) %>% # Mother's husbands which are not ego's father
-    pull(hpid) %>%
-    ze_na()
+  # fw <- omar %>%
+  #   filter(hpid == f & wpid != m) %>% # Father's wifes which are not ego's mother
+  #   pull(wpid) %>%
+  #   ze_na()
+  # mh <- omar %>%
+  #   filter(wpid == m & hpid != f) %>% # Mother's husbands which are not ego's father
+  #   pull(hpid) %>%
+  #   ze_na()
   
   ## 1-IL. Step-children (children of all ego's spouses which are not from ego)
-  sc <- opop %>%
-    filter((mom %in% w & pop != ego) | (pop %in% h & mom != ego)) %>%
-    pull(pid) %>%
-    ze_na()
+  # sc <- opop %>%
+  #   filter((mom %in% w & pop != ego) | (pop %in% h & mom != ego)) %>%
+  #   pull(pid) %>%
+  #   ze_na()
   
   ## 2. Grandparents
   mm <- opop %>% filter(pid == m) %>% pull(mom) %>% ze_na()
@@ -74,10 +74,10 @@ get_kin <- function(egos) {
   ff <- opop %>% filter(pid == f) %>% pull(pop) %>% ze_na()
   
   ## 2-IL. Step-grand-parents. Parents of step-parents
-  fwm <- opop %>% filter(pid %in% fw) %>% pull(mom) %>% ze_na()
-  fwf <- opop %>% filter(pid %in% fw) %>% pull(pop) %>% ze_na()
-  mhm <- opop %>% filter(pid %in% mh) %>% pull(mom) %>% ze_na()
-  mhf <- opop %>% filter(pid %in% mh) %>% pull(pop) %>% ze_na()
+  # fwm <- opop %>% filter(pid %in% fw) %>% pull(mom) %>% ze_na()
+  # fwf <- opop %>% filter(pid %in% fw) %>% pull(pop) %>% ze_na()
+  # mhm <- opop %>% filter(pid %in% mh) %>% pull(mom) %>% ze_na()
+  # mhf <- opop %>% filter(pid %in% mh) %>% pull(pop) %>% ze_na()
     
   ## 2. Siblings (from both parents)
   z <- opop %>%
@@ -92,25 +92,25 @@ get_kin <- function(egos) {
     ze_na()
 
   ## 2-IL. Step-siblings (children of step-parents)
-  spc <- opop %>%
-    filter((mom %in% fw & pop != f) | (pop %in% mh & mom != m)) %>%
-    pull(pid) %>%
-    ze_na()
+  # spc <- opop %>%
+  #   filter((mom %in% fw & pop != f) | (pop %in% mh & mom != m)) %>%
+  #   pull(pid) %>%
+  #   ze_na()
   
-  ## 2. Grand-children (Children of all ego's children)
-  cc <- opop %>% 
-    filter(mom %in% c | pop %in% c) %>% 
-    pull(pid) %>% 
-    ze_na()
+  # ## 2. Grand-children (Children of all ego's children)
+  # cc <- opop %>% 
+  #   filter(mom %in% c | pop %in% c) %>% 
+  #   pull(pid) %>% 
+  #   ze_na()
+  # 
+  # ## 2-IL. Step-grand-children (Children of ego's step-children)
+  # scc <- opop %>%
+  #   filter((mom %in% sc) | (pop %in% sc)) %>%
+  #   pull(pid) %>%
+  #   ze_na()
   
-  ## 2-IL. Step-grand-children (Children of ego's step-children)
-  scc <- opop %>%
-    filter((mom %in% sc) | (pop %in% sc)) %>%
-    pull(pid) %>%
-    ze_na()
   
-  
-  ## 3. Great-grandparents (1x).
+  ## 3. Great-grandparents (1x)
   mmm <- opop %>% filter(pid == mm) %>% pull(mom) %>% ze_na()
   mmf <- opop %>% filter(pid == mm) %>% pull(pop) %>% ze_na()
   mfm <- opop %>% filter(pid == mf) %>% pull(mom) %>% ze_na()
@@ -147,20 +147,20 @@ get_kin <- function(egos) {
     ze_na()
   
   ## 3. Nieces/Nephews through sets of siblings
-  zc <- opop %>% # From both parents siblings
-    filter(mom %in% z | pop %in% z) %>%
-    pull(pid) %>%
-    ze_na()
-  hzc <- opop %>% # From half-siblings
-    filter(mom %in% hz | pop %in% hz) %>%
-    pull(pid) %>%
-    ze_na()
-
-  ## 3. Great-grand-children. Children of grand-children
-  ccc <- opop %>% 
-    filter(mom %in% cc | pop %in% cc) %>% 
-    pull(pid) %>% 
-    ze_na()
+  # zc <- opop %>% # From both parents siblings
+  #   filter(mom %in% z | pop %in% z) %>%
+  #   pull(pid) %>%
+  #   ze_na()
+  # hzc <- opop %>% # From half-siblings
+  #   filter(mom %in% hz | pop %in% hz) %>%
+  #   pull(pid) %>%
+  #   ze_na()
+  # 
+  # ## 3. Great-grand-children. Children of grand-children
+  # ccc <- opop %>% 
+  #   filter(mom %in% cc | pop %in% cc) %>% 
+  #   pull(pid) %>% 
+  #   ze_na()
   
   ## 4. Great-great-grandparents (2X)
   mmmm <- opop %>% filter(pid == mmm) %>% pull(mom) %>% ze_na()
@@ -257,23 +257,23 @@ get_kin <- function(egos) {
   ## Bind all ego's kin in a tibble and include their information from .opop
   
   kin_opop <- tibble(kin_type = c("ego",
-                                  rep("w", length(w)),
-                                  rep("h", length(h)),
+                                  # rep("w", length(w)),
+                                  # rep("h", length(h)),
                                   "m", "f",
-                                  rep("c", length(c)),
-                                  rep("fw", length(fw)),
-                                  rep("mh", length(mh)),
-                                  rep("sc", length(sc)),
+                                  # rep("c", length(c)),
+                                  # rep("fw", length(fw)),
+                                  # rep("mh", length(mh)),
+                                  # rep("sc", length(sc)),
                                   "mm", "mf", "fm", "ff",
-                                  rep("fwm", length(fwm)),
-                                  rep("fwf", length(fwf)),
-                                  rep("mhm", length(mhm)),
-                                  rep("mhf", length(mhf)),
+                                  # rep("fwm", length(fwm)),
+                                  # rep("fwf", length(fwf)),
+                                  # rep("mhm", length(mhm)),
+                                  # rep("mhf", length(mhf)),
                                   rep("z", length(z)), 
                                   rep("hz", length(hz)), 
-                                  rep("spc", length(spc)),
-                                  rep("cc", length(cc)),
-                                  rep("scc", length(scc)),
+                                  # rep("spc", length(spc)),
+                                  # rep("cc", length(cc)),
+                                  # rep("scc", length(scc)),
                                   "mmm", "mmf", "mfm", "mff",
                                   "fmm", "fmf", "ffm", "fff",
                                   rep("mz", length(mz)), 
@@ -282,9 +282,9 @@ get_kin <- function(egos) {
                                   rep("fz", length(fz)),
                                   rep("fmc", length(fmc)),
                                   rep("ffc", length(ffc)), 
-                                  rep("zc", length(zc)), 
-                                  rep("hzc", length(hzc)), 
-                                  rep("ccc", length(ccc)), 
+                                  # rep("zc", length(zc)), 
+                                  # rep("hzc", length(hzc)), 
+                                  # rep("ccc", length(ccc)), 
                                   "mmmm", "mmmf", "mmfm", "mmff", "mfmm", "mfmf", "mffm", "mfff", 
                                   "fmmm", "fmmf", "fmfm", "fmff", "ffmm", "ffmf", "fffm", "ffff", 
                                   rep("mmz", length(mmz)),
@@ -303,21 +303,19 @@ get_kin <- function(egos) {
                                   rep("ffcc", length(ffcc))
                                   ), 
                      pid = c(ego,
-                             w, h,
-                             m, f, c,
-                             fw, mh, sc,
+                             # w, h,
+                             m, f, 
+                             # c,
+                             # fw, mh, sc,
                              mm, mf, fm, ff,
-                             fwm, fwf, mhm, mhf,
+                             # fwm, fwf, mhm, mhf,
                              z, hz,
-                             spc, 
-                             cc, 
-                             scc,
+                             # spc, cc, scc,
                              mmm, mmf, mfm, mff,
                              fmm, fmf, ffm, fff,
                              mz, mmc, mfc, 
                              fz, fmc, ffc, 
-                             zc, hzc, 
-                             ccc,
+                             # zc, hzc, ccc,
                              mmmm, mmmf, mmfm, mmff, mfmm, mfmf, mffm, mfff, 
                              fmmm, fmmf, fmfm, fmff, ffmm, ffmf, fffm, ffff, 
                              mmz,mmhz, mfz, mfhz,
