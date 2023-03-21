@@ -22,8 +22,19 @@ library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(questionr)
 
-## Read the output .opop and .omar file ----
-## We use only one of the 10 simulations. 
+## Load functions to recover age-specific fertility and mortality rates 
+# and covert SOCSIM time to calendar time
+source("Functions_Retrieve_Rates.R")
+
+## Load functions to get kin up to the 4th degree of consanguinity
+source("Functions_Kin.R")
+
+## Load theme for the graphs
+source("Functions_Graphs.R")
+
+# Load function to calculate life table from asmr 1x1
+# Currently, it only works with the asmr df calculated with the get_asmr_socsim()
+source("Functions_Life_Table.R")
 
 # Load read_opop() function to read the .opop file (written by Diego Alburez-Gutierrez)
 # Once this is integrated into the rsocsim package the function might be just called
@@ -33,112 +44,61 @@ source("read_opop.R")
 # Once this is integrated into the rsocsim package the function might be just called
 source("read_omar.R")
 
-# Name of the supervisory file used for the simulation (if not set in the GlobalEnv)
-supfile <- "socsim_SWE_marr.sup"
+#------------------------------------------------------------------------------------------------------
+## Read the output .opop and .omar file ----
+## We use only one of the 10 simulations. 
 
-## Randomly choose the simulation seed to use 
-load("sims_seeds.rda")
+# Name of the supervisory file used for the simulation (if not set in the GlobalEnv)
+supfile <- "socsim_SWE.sup"
+
+## Choose simulation seed defined in the previous script
 seed <- "13486"
-# seed <-  sample(sims_seeds, 1, replace = F) 
 
 # Path of the simulation results .opop file
-path_opop <- paste0("sim_results_s",supfile,"_",seed,"/result.opop")
+path_opop <- paste0("sim_results_",supfile,"_",seed,"_/result.opop")
 
 # Read SOCSIM .opop output, using read_opop function. 
 opop <- read_opop(path_opop)
 
 # Path of the simulation results .omar file
-path_opop <- paste0("sim_results_s",supfile,"_",seed,"/result.omar")
+path_opop <- paste0("sim_results_",supfile,"_",seed,"_/result.omar")
 
 # Read SOCSIM .omar output, using read_omar function. 
 omar <- read_omar(path_opop)
 
 #------------------------------------------------------------------------------------------------------
-## Trace relevant kin up to the 4th degree of people alive in 2022 as a proxy of current genealogists 
+## Trace kin (up to 4th degree of consanguinity) of people alive in 2022 as a proxy of current genealogists 
 
-## Load functions to recover age-specific fertility and mortality rates 
-# and covert SOCSIM time to calendar time
-source("Functions_Retrieve_Rates.R")
+# Pids of people alive at the end of the simulation, i.e. dod == 0, 
+# who are older than 18 years old on 01-01-2022, i,e. dob 1913-2003 
+# egos2022 <- opop %>% 
+#   mutate(last_month = max(dob),
+#          final_sim_year = 2021, ## Change if necessary
+#          Generation = asYr(dob, last_month, final_sim_year)) %>% 
+#   filter(dod == 0 & Generation <= final_sim_year-18) %>% 
+#   pull(pid)
 
-## Load functions to get kin
-source("Functions_Kin.R")
+# Get a sample of 10% of people alive in 2022. 
+# sample_size <- round(length(egos2022)/10)
+# egos2022_samp <-  sample(egos2022, sample_size, replace = F)
+# save(egos2022_samp, file = "egos2022_samp_10.RData")
 
-#------------------------------------------------------------------------------------------------------
-## Apply the get_kin() function to trace ego's kin ----
+# Load same sample used to trace the ancestors
+load("egos2022_samp_10.RData")
 
-## Choose a random ego to get his/her kin.
-egos_opop <- opop %>% pull(pid) %>% unique()
-ego <-  sample(egos_opop, 1, replace = F)
+## Map the function to get the ancestors of a sample of individuals alive in 2022 (older than 18 years)
+start <- Sys.time()
+kin_egos2022_10 <- map_dfr(egos2022_samp, get_kin) %>%
+  left_join(select(opop, c(pid, fem, dob, dod, mom, marid, mstat)), by = "pid")
+end <- Sys.time()
+print(end-start)
 
-## Get a glimpse on ego's information
-opop %>% filter(pid %in% ego)
+# Save the data frame
+save(ancestors_egos2022_10, file = "ancestors_egos2022_10.RData")
 
-## Apply the function to get the kin set of a given ego
-kin_set <- get_kin(ego)
-view(kin_set)
 
-## Check that there are no duplicates
-kin_set %>% pull(pid) %>% duplicated() %>% sum()
-
-## Distribution of kin type
-library(questionr)
-kin_set %>% pull(kin_type) %>% freq()
-
-#------------------------------------------------------------------------------------------------------
-### Apply the function to a vector of  egos ----
-
-## Choose random egos to get their kin.
-egos_opop <- opop %>% pull(pid) %>% unique()
-egos <-  sample(egos_opop, 5, replace = F)
-
-## Get a glimpse on egos' information
-opop %>% filter(pid %in% egos)
-
-## Map the get_kin() function to get the kin set of multiple egos
-kin_set2 <- map_dfr(egos, get_kin) 
-
-## Check duplicates (duplicated works with T-F)
-kin_set2 %>% pull(pid) %>% duplicated() %>% sum()
-
-#------------------------------------------------------------------------------------------------------
-## Tracing the relatives of birth cohorts (generations) ----
-
-# Collect kin of a set of birth cohorts born at the beginning of each decade from 1960-2200
-
-# Select years to analyse
-periods <- seq(1960, 2020, by = 10)
-
-# Collect pids of people born at each time point of the period
-bchs <- opop %>% 
-  mutate(generation = asYr(dob)) %>% 
-  filter(generation %in% periods) %>% 
-  pull(pid)
-
-Kin_Coh <- map(bchs, get_kin) # c.a. 5 minutes for 532 egos
-
-# Distribution of egos by birth cohort (generation)
-bind_rows(Kin_Coh) %>% 
-  filter(pid == ego_id) %>% 
-  mutate(generation = asYr(dob)) %>% 
-  pull(generation) %>%
-  freq()
-
-# Check number of duplicates (summing True values)
-bind_rows(Kin_Coh) %>% pull(pid) %>% duplicated() %>% sum()
-
-#------------------------------------------------------------------------------------------------------
-## Tracing kin of people alive in 2022
-
-# Collect pids of people alive at the end of the simulation, i.e. dod == 0, 
-# who are older than 18 years old
-
-alive_22 <- opop %>% 
-  mutate(gen = asYr(dob)) %>% 
-  filter(dod == 0 & gen < FinalSimYear-18) %>% 
-  pull(pid)
-
-kin_alive <- map(alive_22, get_kin) #5360 egos
-
+#----------------------------------------------------------------------------------------------------
+# CHECK this later
 # Distribution of egos by birth cohort (generation)
 bind_rows(kin_alive) %>% 
   filter(pid == ego_id) %>% 
@@ -427,17 +387,6 @@ HMD %>%
   theme_bw()
 
 #------------------------------------------------------------------------------------------------------
-## To check !!!!
-
-# The function saves all the marriages with mid in .omar. 
-# However, in previous simulations I identified some individuals 
-# listed as wife/husband next most recent prior marriage 
-# (wprior or hprior) for which there is no marriage id
-
-
-
-
-#------------------------------------------------------------------------------------------------------
 ## Trace ancestors of birth cohorts (generations) ----
 # Ancestors of a sub-set of birth cohorts born every 50 years from 1800-2000
 
@@ -472,3 +421,5 @@ HMD %>%
 
 # Check number of duplicates (summing True values)
 # ancestors_bchs %>% pull(pid) %>% duplicated() %>% sum()
+
+#------------------------------------------------------------------------------------------------------
