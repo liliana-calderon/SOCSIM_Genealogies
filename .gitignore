@@ -28,6 +28,9 @@ presim*
 # Graphs 
 Graphs/*
 
+# Previous simulation (with marriage rates)
+SWE_marr/*
+
 # Simulation results
 *.rda
 sim_results*
