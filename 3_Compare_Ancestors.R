@@ -71,7 +71,7 @@ egos2022 <- opop %>%
   filter(dod == 0 & Generation <= final_sim_year-18) %>% 
   pull(pid)
 
-# Get a sample of 1% of people alive in 2022. 
+# Get a sample of 10% of people alive in 2022. 
 sample_size <- round(length(egos2022)/10)
 egos2022_samp <-  sample(egos2022, sample_size, replace = F)
 save(egos2022_samp, file = "egos2022_samp_10.RData")
