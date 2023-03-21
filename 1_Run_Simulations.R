@@ -6,7 +6,7 @@
 ## and read the output into R. 
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 17-03-2023
+# Last modified by Liliana Calderon on 21-03-2023
 
 # NB: Some functions are based on external code and repositories specified under each section.
 #------------------------------------------------------------------------------------------------------
@@ -63,12 +63,11 @@ folder <- getwd()
 # Name of the supervisory file stored in the above folder:
 supfile <- "socsim_SWE.sup"
 # Sup file for rates retrieved from HFD and HMD (1751-2021), created with the 0_Write_Input_Rates.R,  
-# assuming demographic stability for fertility over 1751-1891 and using random father allocation
-# supfile <- "socsim_SWE_marr.sup" # using marriage rates from US 1950 
+# assuming demographic stability for fertility over 1751-1891, 
+# and using random father allocation and marry after childbirth global directives
 
 # Random number generator seed:
-sims_seeds <- as.character(sample(1:99999, 6, replace = F))
-seed <- "13486"
+# sims_seeds <- as.character(sample(1:99999, 9, replace = F))
 
 ## Run the simulations for the random seeds. 
 for(seed in sims_seeds) {
@@ -80,7 +79,7 @@ for(seed in sims_seeds) {
 }
 
 # Save the seeds numbers in case they will be needed later
-save(sims_seeds, file = "sims_seeds.Rda")
+#save(sims_seeds, file = "sims_seeds.Rda")
 #----------------------------------------------------------------------------------------------------
 ## Read the output .opop file ----
 
@@ -96,7 +95,7 @@ source("read_opop.R")
 sim_folders <- fs::dir_ls(type = "directory")
 
 # Search for folders corresponding to the current simulation results and add the /result.opop to the path
-paths_opop <- paste0(grep(paste0("sim_results_s", supfile), sim_folders, value = TRUE),"/result.opop")
+paths_opop <- paste0(grep(paste0("sim_results_", supfile), sim_folders, value = TRUE),"/result.opop")
 
 # Iterate the function over paths_opop to read opop of the 10 simulations
 sims_opop <- map(paths_opop, read_opop)
