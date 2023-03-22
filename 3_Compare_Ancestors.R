@@ -88,7 +88,7 @@ save(ancestors_egos2022_10, file = "ancestors_egos2022_10.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Recover age-specific fertility and mortality rates  -----
-# Retrieve and compare the rates derived from the whole simulation with those from the genealogical subset,
+# Retrieve and compare the rates derived from the whole simulation with those from the genealogical subset
 # of direct ancestors both will and without duplicates
 
 # Prevent scientific notation (useful for the rate calculation)
