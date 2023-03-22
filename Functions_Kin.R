@@ -34,7 +34,7 @@ get_kin <- function(egos) {
   ego <- egos
   
   ### Find pid for relevant kin of ego.
-  ### Each generation backwards is added to the right of the most recent generation
+  ## Number refers to the degree of consanguinity or affinity. Ego here is 0
   
   ## 0-IL. Spouses
   # w <- omar %>% filter(hpid == ego) %>% pull(wpid) %>% ze_na() # Wifes w marid
