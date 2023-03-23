@@ -68,13 +68,14 @@ supfile <- "socsim_SWE.sup"
 
 # Random number generator seed:
 # sims_seeds <- as.character(sample(1:99999, 9, replace = F))
+seed <- as.character(sample(1:99999,1))
 
 ## Run the simulations for the random seeds. 
 for(seed in sims_seeds) {
   
   ### Run a single SOCSIM-simulation with a given folder and supervisory file,
   # using the "clustercall" process method, which allow to run several simulations. 
-  rsocsim::socsim(folder, supfile, seed, process_method = "inprocess")
+  rsocsim::socsim(folder, supfile, seed, process_method = "future")
   
 }
 
