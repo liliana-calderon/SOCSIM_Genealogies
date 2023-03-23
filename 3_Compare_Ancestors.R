@@ -91,9 +91,6 @@ save(ancestors_egos2022_10, file = "ancestors_egos2022_10.RData")
 # Retrieve and compare the rates derived from the whole simulation with those from the genealogical subset
 # of direct ancestors both will and without duplicates
 
-# Prevent scientific notation (useful for the rate calculation)
-options(scipen=999999)
-
 ## Calculate ASFR and ASMR for the Whole simulation (seed "13486")
 
 # Retrieve age-specific fertility rates for the whole single simulation 
@@ -478,7 +475,6 @@ asmr_wod_1 <- get_asmr_socsim(df = ancestors_egos2022_wod,
                               age_max_mort = 110, # Open )
                               age_group = 1) #[,)
 save(asmr_wod_1, file = "asmr_wod_1.RData")
-
 
 # Compute life table from asmr 1x1 for Whole SOCSIM simulation
 lt_whole <- lt_socsim(asmr_whole_1)
