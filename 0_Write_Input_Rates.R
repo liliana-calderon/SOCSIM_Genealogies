@@ -153,8 +153,3 @@ presim.omar <- data.frame()
 
 # Write empty omar for pre-simulation
 write.table(presim.omar, "presim.omar", row.names = F, col.names = F)
-
-
-## Copy the marriage rates file to the rates folder
-# This is not necessary with the marry_after_childbirth directive
-# file.copy(from = "SWEmarr", to = "rates/SWEmarr") 
