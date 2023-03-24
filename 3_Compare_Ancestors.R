@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 21-03-2023
+# Last modified by Liliana Calderon on 24-03-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 
@@ -38,26 +38,16 @@ source("Functions_Graphs.R")
 source("Functions_Life_Table.R")
 
 #------------------------------------------------------------------------------------------------------
-## Read the output .opop file ----
-## We use only one of the 10 simulations.
+## Read the output .opop file using read_opop function.  ----
 
-# Load read_opop() function to read the .opop file (written by Diego Alburez-Gutierrez)
-# Once this is integrated into the rsocsim package the function might be just called
-source("read_opop.R")
-
-# Name of the supervisory file used for the simulation (if not set in the GlobalEnv)
-supfile <- "socsim_SWE.sup"
- 
 ## Randomly choose the simulation seed to use 
 # load("sims_seeds.rda")
-# seed <-  sample(sims_seeds, 1, replace = F) # 
+# seed <-  sample(sims_seeds, 1, replace = F) # "13486"
 seed <- "13486"
 
-# Path of the simulation results .opop file
-path_opop <- paste0("sim_results_",supfile,"_",seed,"_/result.opop")
-
-# Read SOCSIM output, using read_opop function. 
-opop <- read_opop(path_opop)
+## We use only one of the 10 simulations, same seed chosen in 3_Compare ancestors
+opop <- read_opop(folder = getwd(), supfile = "socsim_SWE.sup", seed = seed, 
+                  suffix = "",  fn = NULL)
 
 #------------------------------------------------------------------------------------------------------
 ## Trace direct ancestors of people alive in 2022 as a proxy of current genealogists 
