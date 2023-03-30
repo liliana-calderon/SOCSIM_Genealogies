@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the subsets of family trees
 
 # Created by Liliana Calderon on 13-04-2022
-# Last modified by Liliana Calderon on 17-03-2023
+# Last modified by Liliana Calderon on 30-03-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 
@@ -23,10 +23,11 @@ library(ggh4x)  # To facet scales-
 library(questionr)
 library(svglite) # To save svg files
 library(viridis)
+library(rsocsim) # Functions to estimate rates
 
 ## Load functions to recover age-specific fertility and mortality rates 
 # and covert SOCSIM time to calendar time
-source("Functions_Retrieve_Rates.R")
+# source("Functions_Retrieve_Rates.R")
 
 ## Load functions to get ascending and lateral kin up to the 4th degree of consanguinity
 source("Functions_Kin.R")
@@ -89,14 +90,14 @@ kin_egos2022_ext %>%
 # For mortality, 1755 could be the year_min
 
 # Retrieve age-specific fertility rates for the subset of "extended" family trees without duplicates
-asfr_ext <- get_asfr_socsim(df = kin_egos2022_ext,
-                           final_sim_year = 2021 , #[Jan-Dec]
-                           year_min = 1765, # Closed [
-                           year_max = 2020, # Open )
-                           year_group = 5, 
-                           age_min_fert = 10, # Closed [
-                           age_max_fert = 55, # Open )
-                           age_group = 5) #[,)
+asfr_ext <- estimate_fertility_rates(opop = kin_egos2022_ext,
+                                     final_sim_year = 2021 , #[Jan-Dec]
+                                     year_min = 1765, # Closed [
+                                     year_max = 2020, # Open )
+                                     year_group = 5, 
+                                     age_min_fert = 10, # Closed [
+                                     age_max_fert = 55, # Open )
+                                     age_group = 5) #[,)
 
 save(asfr_ext, file = "asfr_ext.RData")
 
@@ -109,13 +110,13 @@ kin_egos2022_ext %>%
   min()
 
 # Retrieve age-specific mortality rates for the subset of "extended" family trees without duplicates
-asmr_ext <- get_asmr_socsim(df = kin_egos2022_ext,
-                           final_sim_year = 2021, #[Jan-Dec]
-                           year_min = 1755, # Closed
-                           year_max = 2020, # Open )
-                           year_group = 5,
-                           age_max_mort = 110, # Open )
-                           age_group = 5) #[,)
+asmr_ext <- estimate_mortality_rates(opop = kin_egos2022_ext,
+                                     final_sim_year = 2021, #[Jan-Dec]
+                                     year_min = 1755, # Closed
+                                     year_max = 2020, # Open )
+                                     year_group = 5,
+                                     age_max_mort = 110, # Open )
+                                     age_group = 5) #[,)
 save(asmr_ext, file = "asmr_ext.RData")
 
 
@@ -142,14 +143,14 @@ kin_egos2022_dir %>%
 # as age_min_fert = 10 women could be counted in the first age group after age 10. 
 
 # Retrieve age-specific fertility rates for the subset of "direct" family trees without duplicates
-asfr_dir <- get_asfr_socsim(df = kin_egos2022_dir,
-                            final_sim_year = 2021 , #[Jan-Dec]
-                            year_min = 1785, # Closed [
-                            year_max = 2020, # Open )
-                            year_group = 5, 
-                            age_min_fert = 10, # Closed [
-                            age_max_fert = 55, # Open )
-                            age_group = 5) #[,)
+asfr_dir <- estimate_fertility_rates(opop = kin_egos2022_dir,
+                                    final_sim_year = 2021 , #[Jan-Dec]
+                                    year_min = 1785, # Closed [
+                                    year_max = 2020, # Open )
+                                    year_group = 5, 
+                                    age_min_fert = 10, # Closed [
+                                    age_max_fert = 55, # Open )
+                                    age_group = 5) #[,)
 save(asfr_dir, file = "asfr_dir.RData")
 
 # Check minimum year of death to define year_min
@@ -161,13 +162,13 @@ kin_egos2022_dir %>%
   min()
 
 # Retrieve age-specific mortality rates for the subset of "direct" family trees without duplicates
-asmr_dir <- get_asmr_socsim(df = kin_egos2022_dir,
-                            final_sim_year = 2021, #[Jan-Dec]
-                            year_min = 1770, # Closed
-                            year_max = 2020, # Open )
-                            year_group = 5,
-                            age_max_mort = 110, # Open )
-                            age_group = 5) #[,)
+asmr_dir <- estimate_mortality_rates(opop = kin_egos2022_dir,
+                                    final_sim_year = 2021, #[Jan-Dec]
+                                    year_min = 1770, # Closed
+                                    year_max = 2020, # Open )
+                                    year_group = 5,
+                                    age_max_mort = 110, # Open )
+                                    age_group = 5) #[,)
 save(asmr_dir, file = "asmr_dir.RData")
 
 #----------------------------------------------------------------------------------------------------
@@ -271,7 +272,7 @@ bind_rows(asfr_whole2, asfr_ext2, asfr_dir2) %>%
   theme_graphs()
 # labs(title = "Age-Specific Fertility Rates in Sweden (1751-2021), 
 # retrieved from a SOCSIM simulation and subsets of "extended" and direct" family trees") 
-ggsave(file="Graphs/Socsim_Trees_ASFR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Socsim_Trees_ASFR.jpeg", width=17, height=9, dpi=200)
 
 
 ## Age-Specific Mortality rates ----
@@ -318,7 +319,7 @@ bind_rows(asmr_whole2, asmr_ext2, asmr_dir2) %>%
   theme_graphs()
 #labs(title = "Age-Specific Mortality Rates in Sweden (1751-2021), 
 # retrieved from a SOCSIM simulation and subsets of "extended" and direct" family trees without duplicates") 
-ggsave(file="Graphs/Socsim_Trees_ASMR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Socsim_Trees_ASMR.jpeg", width=17, height=9, dpi=200)
 
 
 ## Final plot combining ASFR and ASMR ----
@@ -352,10 +353,10 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(x = "Age")
-ggsave(file="Graphs/Final_Socsim_Trees_ASFR_ASMR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Final_Socsim_Trees_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
 ## Save as .svg file for poster
-# ggsave(file="Graphs/Socsim_Trees_ASFR_ASMR.svg", device = "svg", units = "in", width=15, height=8, dpi=400) 
+# ggsave(file="Graphs/Socsim_Trees_ASFR_ASMR.svg", device = "svg", units = "in", width=15, height=8, dpi=200) 
 
 #----------------------------------------------------------------------------------------------------
 #### Summary measures: TFR and e0 ----
@@ -368,7 +369,7 @@ ggsave(file="Graphs/Final_Socsim_Trees_ASFR_ASMR.jpeg", width=17, height=9, dpi=
 load("asfr_whole_1.RData")
 
 # Retrieve age-specific fertility rates 1x1 for the subset of "extended" family trees without duplicates
-asfr_ext_1 <- get_asfr_socsim(df = kin_egos2022_ext,
+asfr_ext_1 <- estimate_fertility_rates(opop = kin_egos2022_ext,
                               final_sim_year = 2021 , #[Jan-Dec]
                               year_min = 1765, # Closed [
                               year_max = 2020, # Open )
@@ -380,7 +381,7 @@ save(asfr_ext_1, file = "asfr_ext_1.RData")
 load("asfr_ext_1.RData")
 
 # Retrieve age-specific fertility rates 1x1 for the subset of "direct" family trees without duplicates
-asfr_dir_1 <- get_asfr_socsim(df = kin_egos2022_dir,
+asfr_dir_1 <- estimate_fertility_rates(opop = kin_egos2022_dir,
                               final_sim_year = 2021 , #[Jan-Dec]
                               year_min = 1785, # Closed [
                               year_max = 2020, # Open )
@@ -437,7 +438,7 @@ bind_rows(TFR_whole, TFR_ext, TFR_dir) %>%
   theme_graphs() 
 # labs(title = "Total Fertility Rate in Sweden (1751-2021), 
 #retrieved from a SOCSIM simulation and subsets of "extended" and direct" family trees without duplicates") 
-ggsave(file="Graphs/Socsim_Trees_TFR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Socsim_Trees_TFR.jpeg", width=17, height=9, dpi=200)
 
 ## Life Expectancy at birth ----
 # Calculate life expectancy at birth from asmr 1x1
@@ -448,23 +449,23 @@ load("asmr_whole_1.RData")
 load("lt_whole.RData")
 
 # Retrieve age-specific mortality rates for the subset of "extended" family trees without duplicates
-asmr_ext_1 <- get_asmr_socsim(df = kin_egos2022_ext,
-                              final_sim_year = 2021, #[Jan-Dec]
-                              year_min = 1755, # Closed
-                              year_max = 2020, # Open )
-                              year_group = 1,
-                              age_max_mort = 110, # Open )
-                              age_group = 1) #[,)
+asmr_ext_1 <- estimate_mortality_rates(opop = kin_egos2022_ext,
+                                      final_sim_year = 2021, #[Jan-Dec]
+                                      year_min = 1755, # Closed
+                                      year_max = 2020, # Open )
+                                      year_group = 1,
+                                      age_max_mort = 110, # Open )
+                                      age_group = 1) #[,)
 save(asmr_ext_1, file = "asmr_ext_1.RData")
 
 # Retrieve age-specific mortality rates for the subset of "direct" family trees without duplicates
-asmr_dir_1 <- get_asmr_socsim(df = kin_egos2022_dir,
-                              final_sim_year = 2021, #[Jan-Dec]
-                              year_min = 1770, # Closed
-                              year_max = 2020, # Open )
-                              year_group = 1,
-                              age_max_mort = 110, # Open )
-                              age_group = 1) #[,)
+asmr_dir_1 <- estimate_mortality_rates(opop = kin_egos2022_dir,
+                                      final_sim_year = 2021, #[Jan-Dec]
+                                      year_min = 1770, # Closed
+                                      year_max = 2020, # Open )
+                                      year_group = 1,
+                                      age_max_mort = 110, # Open )
+                                      age_group = 1) #[,)
 save(asmr_dir_1, file = "asmr_dir_1.RData")
 
 ## In the first years of the subset of family trees, at almost all ages 
@@ -544,7 +545,7 @@ bind_rows(lt_whole2, lt_ext2, lt_dir2) %>%
   labs(y = "e0") 
  #  labs(title = "Life expectancy at birth in Sweden (e0), 1751-2020, retrieved from a SOCSIM simulation 
        # subsets of "extended" and direct" family trees without duplicates")
-ggsave(file="Graphs/socsim_Trees_e0.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/socsim_Trees_e0.jpeg", width=17, height=9, dpi=200)
 
 
 #----------------------------------------------------------------------------------------------------
@@ -579,7 +580,7 @@ bind_rows(TFR_whole %>%
 # from SOCSIM microsimulation and subsets of "extended" and direct" family trees ") + 
 
 # Save the plot
-ggsave(file="Graphs/Final_Socsim_Trees_TFR_e0.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Final_Socsim_Trees_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate
@@ -761,7 +762,7 @@ bind_rows(SRB_whole, SRB_ext, SRB_dir) %>%
                                IMR =  scale_y_continuous())) +
   theme_graphs() +
   theme(axis.title.y = element_blank())
-ggsave(file="Graphs/Final_Socsim_Trees_SRB_IMR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Final_Socsim_Trees_SRB_IMR.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Births and Deaths by year from whole simulation and subsets of "extended" and direct" family trees  -----
@@ -817,4 +818,4 @@ bind_rows(Births_whole, Births_ext, Births_dir, Deaths_whole, Deaths_ext, Deaths
   theme_graphs() +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank())
-ggsave(file="Graphs/Socsim_Trees_Births_Deaths.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Socsim_Trees_Births_Deaths.jpeg", width=17, height=9, dpi=200)
