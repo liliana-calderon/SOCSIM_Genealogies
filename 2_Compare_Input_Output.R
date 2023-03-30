@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 21-03-2023
+# Last modified by Liliana Calderon on 30-03-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 
@@ -25,6 +25,7 @@ library(ggh4x) # For facetted_pos_scales
 library(HMDHFDplus)
 library(svglite) # To save svg files
 library(viridis)
+library(rsocsim) # Functions to estimate rates
 
 ## Load functions to recover input age-specific fertility and mortality rates 
 # These are a modified version of scripts `02_extract_rates.R` and `functions.R` written by Diego Alburez-Gutierrez,
@@ -51,25 +52,25 @@ HMD_password <- "Type_here_HMD_password"
 
 #------------------------------------------------------------------------------------------------------
 # Retrieve age-specific fertility rates
-asfr_10 <- map_dfr(sims_opop, ~ get_asfr_socsim(df = .x,
-                                             final_sim_year = 2021 , #[Jan-Dec]
-                                             year_min = 1750, # Closed [
-                                             year_max = 2020, # Open )
-                                             year_group = 5, 
-                                             age_min_fert = 10, # Closed [
-                                             age_max_fert = 55, # Open )
-                                             age_group = 5), # [,)
+asfr_10 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
+                                                         final_sim_year = 2021 , #[Jan-Dec]
+                                                         year_min = 1750, # Closed [
+                                                         year_max = 2020, # Open )
+                                                         year_group = 5, 
+                                                         age_min_fert = 10, # Closed [
+                                                         age_max_fert = 55, # Open )
+                                                         age_group = 5), # [,)
                 .id = "Sim_id") 
 save(asfr_10, file = "asfr_10.RData")
 
 # Retrieve age-specific mortality rates
-asmr_10 <- map_dfr(sims_opop, ~ get_asmr_socsim(df = .x,
-                                             final_sim_year = 2021, #[Jan-Dec]
-                                             year_min = 1750, # Closed
-                                             year_max = 2020, # Open )
-                                             year_group = 5,
-                                             age_max_mort = 110, # Open )
-                                            age_group = 5), # [,)
+asmr_10 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
+                                                         final_sim_year = 2021, #[Jan-Dec]
+                                                         year_min = 1750, # Closed
+                                                         year_max = 2020, # Open )
+                                                         year_group = 5,
+                                                         age_max_mort = 110, # Open )
+                                                         age_group = 5), # [,)
                 .id = "Sim_id") 
 save(asmr_10, file = "asmr_10.RData")
 
@@ -112,7 +113,7 @@ bind_rows(asfr_10 %>%
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   labs(x = "Age", y = "Estimate")
   # labs(title = "Age-Specific Fertility and Mortality Rates for Women retrieved from 10 SOCSIM outputs")
-ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
 
 #----------------------------------------------------------------------------------------------------
@@ -177,7 +178,7 @@ bind_rows(HFD0, SocsimF0) %>%
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(title = "Age-Specific Fertility rates in Sweden (1751-2021), retrieved from HFD and 10 SOCSIM simulation outputs") 
-ggsave(file="Graphs/HFD_SOCSIM_10_ASFR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/HFD_SOCSIM_10_ASFR.jpeg", width=17, height=9, dpi=200)
 
 
 ####  Age-Specific Mortality rates ----
@@ -255,13 +256,13 @@ bind_rows(HMD, SocsimM) %>%
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs()+
   labs(title = "Age-Specific Mortality Rates (log-scale) in Sweden (1751-2021), HMD and 10 Socsim simulations (without NaNs and Inf values)")
-ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=200)
 
 
 ## Final plot combining ASFR and ASMR ----
 
-# Same years to plot than above (in intervals). Change if necessary
-# yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+# Change years to plot only to two periods
+yrs_plot <- c("[1900,1905)", "[2000,2005)") 
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(SocsimM$age)
@@ -275,27 +276,25 @@ bind_rows(HFD0 %>% rename(Estimate = ASFR),
     # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
     filter(Estimate != 0 & !is.infinite(Estimate) & !is.nan(Estimate)) %>% 
     filter(Sex == "Female") %>% 
-    # Hack to set HFD rates for 1890 as 1800
-    mutate(Year = case_when(Source == "HFD"& Rate == "ASFR" & year == "[1890,1895)" ~ "[1800,1805)", 
-                            TRUE ~ year),
+    mutate(Year = year,
            age = factor(as.character(age), levels = age_levels), 
-           transp = ifelse(Source == "SOCSIM", "0", "1")) %>%
+           transp = ifelse(Source == "SOCSIM", "0", "1"), 
+           Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", "Age-Specific Mortality Rates")) %>%
     filter(Year %in% yrs_plot) %>% 
     ggplot(aes(x = age, y = Estimate, group = interaction(Year, Sim_id)))+
     facet_wrap(. ~ Rate, scales = "free") + 
-    geom_line(aes(colour = Year, linetype = Source, alpha = transp), linewidth = 1.5)+
-    scale_color_manual(values = c("#C96D4D", "#781A4F", "#1A4F78"))+
-    scale_linetype_manual(values = c("HFD" = "solid", "HMD" = "solid","SOCSIM" = "dotted")) +
-    scale_alpha_discrete(guide="none", range = c(0.5, 1))+
-    facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                                 ASMR =  scale_y_continuous(trans = "log10")))+
+    geom_line(aes(colour = Year, alpha = transp), linewidth = 1.5)+
+    scale_color_manual(values = c("#781A4F", "#1A4F78"))+
+    scale_alpha_discrete(guide="none", range = c(0.2, 1))+
+    facetted_pos_scales(y = list("Age-Specific Fertility Rates" = scale_y_continuous(),
+                                 "Age-Specific Mortality Rates" =  scale_y_continuous(trans = "log10")))+
     scale_x_discrete(guide = guide_axis(angle = 90)) +
     labs(x = "Age") +
     # labs(title = "Age-Specific Fertility and Mortality rates in Sweden (1751-2021), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
     theme_graphs() 
 
 # Save the plot
-ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 #### Summary measures: TFR and e0 ----
@@ -304,14 +303,14 @@ ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=400)
 #### Total Fertility Rate
 
 ## Retrieve age-specific fertility rates, by single calendar year and 1 year age group
-asfr_10_1 <- map_dfr(sims_opop, ~ get_asfr_socsim(df = .x,
-                                                final_sim_year = 2021 , #[Jan-Dec]
-                                                year_min = 1750, # Closed [
-                                                year_max = 2020, # Open )
-                                                year_group = 1, 
-                                                age_min_fert = 10, # Closed [
-                                                age_max_fert = 55, # Open )
-                                                age_group = 1), # [,)
+asfr_10_1 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
+                                                          final_sim_year = 2021 , #[Jan-Dec]
+                                                          year_min = 1750, # Closed [
+                                                          year_max = 2020, # Open )
+                                                          year_group = 1, 
+                                                          age_min_fert = 10, # Closed [
+                                                          age_max_fert = 55, # Open )
+                                                          age_group = 1), # [,)
                    .id = "Sim_id") 
 save(asfr_10_1, file = "asfr_10_1.RData")
 
@@ -357,14 +356,14 @@ bind_rows(HFD1, SocsimF1) %>%
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(title = "Total Fertility rates in Sweden (1751-2021), retrieved from HFD and 10 Socsim simulation outputs") 
-ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
 
 
 ## Life Expectancy at birth ----
 # Calculate life expectancy at birth 1x1 for the 10 SOCSIM simulations
 
 # Retrieve age-specific mortality rates, by single calendar year and 1 year age group
-asmr_10_1 <- map_dfr(sims_opop, ~ get_asmr_socsim(df = .x,
+asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
                                                   final_sim_year = 2021, #[Jan-Dec]
                                                   year_min = 1750, # Closed
                                                   year_max = 2020, # Open )
@@ -412,6 +411,8 @@ lt_10 <- asmr_10_1 %>%
          ex = Tx / lx)  %>% 
   ungroup() 
 save(lt_10, file = "lt_10.RData")
+
+load("lt_10.RData")
 
 
 ## Compare with ex at age 0 for Sweden in HDM
@@ -464,7 +465,7 @@ bind_rows(HMD_lt, SOCSIM_lt) %>%
   theme_graphs()+
   labs(title = "Life expectancy at birth in Sweden (e0), 1751-2020, retrieved from HMD and 10 SOCSIM simulation outputs",
        y = "e0") 
-ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
@@ -487,7 +488,8 @@ bind_rows(HFD1 %>%
               mutate(Rate = "e0")) %>% 
   filter(Sex == "female") %>% 
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1"),
-         Rate = factor(Rate, levels = c("TFR", "e0"))) %>%
+         Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life expectancy at birth"), 
+         Rate = factor(Rate, levels = c("Total Fertility Rate", "Life expectancy at birth"))) %>%
   ggplot(aes(x = Year, y = Estimate, group = interaction(Source, Sim_id)))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.2) +
@@ -497,7 +499,7 @@ bind_rows(HFD1 %>%
   theme_graphs()
   # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
    # Save the plot
-ggsave(file="Graphs/Final_Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Final_Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Births and Deaths counts by calendar year -----
@@ -549,7 +551,7 @@ full_join(Births, Deaths,  by = c("Sim_id", "Year")) %>%
   geom_line(linewidth = 1)+
   scale_color_viridis(option = "C", discrete = T, direction = -1) +
   theme_graphs()
-ggsave(file="Graphs/Socsim_Births_Deaths.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Socsim_Births_Deaths.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate
@@ -651,7 +653,7 @@ full_join(SRB %>% select(Sim_id, Year, SRB),
   facetted_pos_scales(y = list(SRB = scale_y_continuous(limits=c(0.75, 1.25)),
                                IMR =  scale_y_continuous())) +
   theme_graphs()
-ggsave(file="Graphs/Socsim_SRB_IMR.jpeg", width=17, height=9, dpi=400)
+ggsave(file="Graphs/Socsim_SRB_IMR.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 #### Infant Mortality Rate by sex. 
