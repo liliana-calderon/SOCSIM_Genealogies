@@ -26,6 +26,7 @@ library(rsocsim) # Functions to estimate rates
 
 ## Load functions to recover age-specific fertility and mortality rates 
 # and covert SOCSIM time to calendar time
+## This should be changed now
 source("Functions_Retrieve_Rates.R")
 
 ## Load functions to get direct ancestors
@@ -336,12 +337,12 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
          Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Experiment 1 with duplicates",
                              Dataset == "Ancestors_wo_dup" ~ "Experiment 1 without duplicates",
                              TRUE ~ "Whole_simulation")) %>% 
-  ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset)))+
+  ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(. ~ Rate, scales = "free") + 
-  geom_line(aes(colour = Year), linewidth = 1.3)+
-  geom_point(aes(colour = Year, shape = Dataset), size = 4)+
+  geom_line(linewidth = 1.3)+
+  geom_point(aes(shape = Dataset), size = 7)+
   scale_color_manual(values = c("#B72779", "#2779B7"))+
-  scale_shape_manual(values = c(15,0,20)) +
+  scale_shape_manual(values = c(15,17,46)) + 
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
@@ -492,7 +493,7 @@ save(lt_wod, file = "lt_wod.RData")
 
 
 ## Load lt_1 data
-load("asmr_wd_1.RData")
+load("asmr_whole_1.RData")
 load("lt_whole.RData")
 load("lt_wd.RData")
 load("lt_wod.RData")
@@ -543,6 +544,8 @@ ggsave(file="Graphs/socsim_ances_e0.jpeg", width=17, height=9, dpi=200)
 
 ## TFR and e0 (for females) from whole SOCSIM simulation and genealogical subsets of direct ancestors
 
+yrs_plot2 <- c(1750, 1800, 1850, 1900, 1950, 2000)
+
 bind_rows(TFR_whole %>% 
           rename(Estimate = TFR), 
           TFR_wd %>% 
@@ -564,19 +567,20 @@ bind_rows(TFR_whole %>%
          Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Experiment 1 with duplicates",
                              Dataset == "Ancestors_wo_dup" ~ "Experiment 1 without duplicates",
                              TRUE ~ "Whole_simulation")) %>%
-  ggplot(aes(x = Year, y = Estimate, group = Dataset))+
+  ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
   facet_wrap(. ~ Rate, scales = "free") + 
-  geom_line(aes(color = Dataset), linewidth = 1.2) +
-  geom_point(aes(color = Dataset, shape = Dataset), size = 2)+
+  geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 9)+
+  geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
-  scale_shape_manual(values = c(15,0,20)) + ## Check how to define some years
+  scale_shape_manual(values = c(15,17,46)) + 
+  scale_x_continuous(breaks = yrs_plot2)+
   theme_graphs()
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
 
 # Save the plot
 ggsave(file="Graphs/Final_Socsim_Ances_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
-#----------------------------------------------------------------------------------------------------
+L#----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate
 # The Functions_Retrieve_Rates.R must be called to use the asYr() function
 
@@ -642,10 +646,12 @@ SRB_wod <- ancestors_egos2022_wod %>%
 # Plotting SRB
 bind_rows(SRB_whole, SRB_wd, SRB_wod) %>% 
 filter(Year >= 1751 & !is.na(SRB)) %>% # No births after 2003
-  ggplot(aes(x = Year, y = SRB, group = Dataset, color = Dataset, linetype = Dataset))+
+  ggplot(aes(x = Year, y = SRB, group = Dataset, color = Dataset, shape = Dataset))+
+  geom_point(data = . %>% filter(Year %in% yrs_plot2), size = 9)+
   geom_line(linewidth = 1.2) +
-  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+ 
-  scale_linetype_manual(values = c("11", "22", "solid")) +
+  scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
+  scale_shape_manual(values = c(15,17,46)) + 
+  scale_x_continuous(breaks = yrs_plot2)+
   theme_graphs()
 
 #### Infant Mortality Rate, both sexes
@@ -744,12 +750,17 @@ bind_rows(SRB_whole, SRB_wd, SRB_wod) %>%
   full_join(IMR %>% select(Year, Dataset, IMR), by = c("Year", "Dataset")) %>% 
   pivot_longer(SRB:IMR, names_to = "Measure", values_to = "Value") %>% 
   filter(Year >= 1751 & !is.na(Value)) %>%
-  mutate(Measure = factor(Measure, levels = c("SRB", "IMR"))) %>%
-  ggplot(aes(x = Year, y = Value, group = Dataset, color = Dataset, linetype = Dataset))+
+  mutate(Measure = ifelse(Measure == "SRB", "Sex Ratio at Birth", "Infant Mortality Rate"), 
+         Measure = factor(Measure, levels = c("Sex Ratio at Birth", "Infant Mortality Rate")),
+         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Experiment 1 with duplicates",
+                             Dataset == "Ancestors_wo_dup" ~ "Experiment 1 without duplicates",
+                             TRUE ~ "Whole_simulation")) %>%
+  ggplot(aes(x = Year, y = Value, group = Dataset, color = Dataset, shape = Dataset))+
   facet_wrap(. ~ Measure, scales = "free") + 
+  geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 9)+
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
-  scale_linetype_manual(values = c("11", "22", "solid")) +
+  scale_shape_manual(values = c(15,17,46)) +
   theme_graphs() +
   facetted_pos_scales(y = list(SRB = scale_y_continuous(limits=c(0.7, 1.3)),
                                IMR =  scale_y_continuous())) +
@@ -802,14 +813,17 @@ Deaths_wod <- ancestors_egos2022_wod %>%
 
 # Plotting birth and death counts together. 
 bind_rows(Births_whole, Births_wd, Births_wod, Deaths_whole, Deaths_wd, Deaths_wod) %>% 
-  filter(Year >= 1751) %>%
-  ggplot(aes(x = Year, y = n, group = Dataset, color = Dataset, linetype = Dataset))+
+  filter(Year >= 1751 & n!=0) %>%
+  mutate(Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Experiment 1 with duplicates",
+                             Dataset == "Ancestors_wo_dup" ~ "Experiment 1 without duplicates",
+                             TRUE ~ "Whole_simulation")) %>%
+  ggplot(aes(x = Year, y = n, group = Dataset, color = Dataset, shape = Dataset))+
   facet_wrap(. ~ Event) + 
+  geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 7)+
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+ 
-  scale_linetype_manual(values = c("11", "22", "solid")) +
+  scale_shape_manual(values = c(15,17,46)) +
   theme_graphs() +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank())
 ggsave(file="Graphs/Socsim_Ances_Births_Deaths.jpeg", width=17, height=9, dpi=200)
-# The absolute values are meaningless
