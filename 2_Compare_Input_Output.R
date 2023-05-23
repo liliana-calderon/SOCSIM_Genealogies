@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 30-03-2023
+# Last modified by Liliana Calderon on 23-05-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 
@@ -27,17 +27,11 @@ library(svglite) # To save svg files
 library(viridis)
 library(rsocsim) # Functions to estimate rates
 
-## Load functions to recover input age-specific fertility and mortality rates 
-# These are a modified version of scripts `02_extract_rates.R` and `functions.R` written by Diego Alburez-Gutierrez,
-# available on https://github.com/alburezg/socsim_example/tree/main/R 
-source("Functions_Retrieve_Rates.R")
-
 ## Load theme for the graphs
 source("Functions_Graphs.R")
 
 # Load saved list with 10 simulations, generated in 1_Run_Simulations.R
 load("sims_opop.RData")
-
 
 ## Type inside the quotes HFD and HMD credentials (username and password) for the new website
 # This information is necessary to run the comparisons below
