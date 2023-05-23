@@ -79,27 +79,24 @@ for(seed in sims_seeds) {
   
 }
 
-# Save the seeds numbers in case they will be needed later
-#save(sims_seeds, file = "sims_seeds.Rda")
+# Save the seeds numbers to use them later to read the data
+save(sims_seeds, file = "sims_seeds.Rda")
 #----------------------------------------------------------------------------------------------------
 ## Read the output .opop file ----
 
 # Load packages 
 library(tidyverse)
 
-# Load read_opop() function to read the .opop file (written by Diego Alburez-Gutierrez)
-# Once this is integrated into the rsocsim package the function might be just called
-source("read_opop.R")
+# Load seeds numbers and convert them into numeric
+load("sims_seeds.Rda")
+sims_seeds <- as.numeric(sims_seeds)
 
-# Path of the folders where the simulations results have been saved. 
-# List directories in the current folder 
-sim_folders <- fs::dir_ls(type = "directory")
-
-# Search for folders corresponding to the current simulation results and add the /result.opop to the path
-paths_opop <- paste0(grep(paste0("sim_results_", supfile), sim_folders, value = TRUE),"/result.opop")
-
-# Iterate the function over paths_opop to read opop of the 10 simulations
-sims_opop <- map(paths_opop, read_opop)
+# Iterate the function for the 10 seeds to read opop of the 10 simulations
+sims_opop <- map(sims_seeds, ~ rsocsim::read_opop(folder = getwd(),
+                                                  supfile = "socsim_SWE.sup",
+                                                  seed = .,
+                                                  suffix = "",
+                                                  fn = NULL))
 
 # Check the structure of sims_opop. A list of opop dfs
 sims_opop %>% str()
