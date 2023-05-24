@@ -4,10 +4,11 @@
 
 ## Write the input fertility and mortality rates for a SOCSIM micro-simulation for Sweden,
 # using data from HFD (1891-2021) and HMD (1751-2021), with the HMDHFDplus package.
+# and the Human Fertility Collection (HFC) for the period not covered in HFD
 # Create a initial population file and empty marriage file for the simulations
 
 # Created by Liliana Calderon on 08-06-2022
-# Last modified by Liliana Calderon on 20-03-2023
+# Last modified by Liliana Calderon on 24-05-2023
 
 #----------------------------------------------------------------------------------------------------
 # Rate files format (Cf. Socsim oversimplified, p. 26):
@@ -35,10 +36,11 @@ options(scipen=999999)
 
 # Load necessary packages
 library(tidyverse)
+library(readr)
 # install.packages("HMDHFDplus")
 library(HMDHFDplus)
 
-# Load functions to write SOCSIM rate files from HFD and HMD
+# Load functions to write SOCSIM rate files from HFD/HMD and HFC
 source("Functions_Input_Rates.R")
 
 #----------------------------------------------------------------------------------------------------
@@ -69,6 +71,22 @@ write_socsim_rates_HFD(Country = "Type_here_Country_name", # SWE
                        HFD_username = "Type_here_HFD_username",
                        HFD_password = "Type_here_HFD_password")
 
+
+#----------------------------------------------------------------------------------------------------
+## Write fertility rate files for SOCSIM using data from Human Fertility Collection ----
+
+# For the period before 1751-1890 that is covered by HMD but not by HFD, 
+# We use data from the Human Fertility Collection
+# Vital registers in Sweden prior 1891 came from Statistics Sweden (1969). 
+# Historisk statistik för Sverige. Del 1. Bevolkning 1720-1967. Örebro : Statistiska centralbyrån. 
+# we use Collection = "STAT" (SourceType = "Vital") 
+# These data have Age Definition = ACY, Age in Completed Years and age range [15-49] 
+# Age Interval is 1 for most ages [15-49], but for Age=14 (AgeInt=-99) and Age=55 (AgeInt=99)
+# The age-specific rates hold over a period of 5 calendar years. 
+# Hence, we use the same set of rates for each single year of the period.
+
+write_socsim_rates_HFC(Country = "SWE", 
+                       Collection = "STAT", Year_Max = 1891) # Vital statistics prior 1891 
 
 #----------------------------------------------------------------------------------------------------
 ## Write mortality rate files for SOCSIM using data from HMD ----
