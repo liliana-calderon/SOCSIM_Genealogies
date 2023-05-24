@@ -1,8 +1,9 @@
 #----------------------------------------------------------------------------------------------------
 # Functions to Write SOCSIM fertility and mortality input rate files using HFD and HMD data
-# retrieved using the HMDHFDplus package
+# retrieved using the HMDHFDplus package 
+# (and the Human Fertility COllection for the period not covered in HFD)
 
-## Write SOCSIM input fertility rates from HFD using the HMDHFDplus package ----
+## Write SOCSIM input rates from HMD and HFD using the HMDHFDplus package ----
 
 # Created by Liliana Calderon on 08-06-2022
 # Last modified by Liliana Calderon on 28-02-2023
@@ -14,7 +15,7 @@ ifelse(!dir.exists("rates"), dir.create("rates"), FALSE)
 # it must be also changed in the functions when opening the output file connection
 
 #----------------------------------------------------------------------------------------------------
-#### Write SOCSIM input mortality rates from HMD using the HMDHFDplus package ----
+#### Write SOCSIM input fertility rates from HFD using the HMDHFDplus package ----
 
 write_socsim_rates_HFD <- function(Country, HFD_username, HFD_password) {
   
@@ -85,7 +86,7 @@ write_socsim_rates_HFD <- function(Country, HFD_username, HFD_password) {
         file = outfilename)
     cat(c("** NB: The original HFD annual rates have been converted into monthly rates", "\n"), 
         file = outfilename)
-    cat(c("** The open age interval (55+) is limited to one year [55-56)", "\n"), 
+    cat(c("** The open age intervals (12- and 55+) are limited to one year [12-13) and [55-56)", "\n"), 
         file = outfilename)
     cat("\n", file = outfilename)
     
@@ -105,7 +106,6 @@ write_socsim_rates_HFD <- function(Country, HFD_username, HFD_password) {
   }
   
 }
-
 
 #----------------------------------------------------------------------------------------------------
 #### Write SOCSIM input mortality rates from HMD using the HMDHFDplus package ----
@@ -191,4 +191,147 @@ write_socsim_rates_HMD <- function(Country, HMD_username, HMD_password) {
     close(outfilename)
     
   }
+}
+
+#----------------------------------------------------------------------------------------------------
+#### Write SOCSIM input fertility rates from HFC for period not covered by HFD ----
+
+write_socsim_rates_HFC <- function(Country, Collection, Year_Max) {
+  
+  ## Download ASFR from HFC
+  HFC <- read_csv(paste0("https://www.fertilitydata.org/File/GetFile/Country/",Country,"/",Country,"_ASFRstand_TOT.txt"),
+                  col_names = T, show_col_types = F)
+  
+  # Wrangling HFC data
+  HFC <- HFC %>% 
+    filter(Collection == Collection & Year1 < Year_Max) %>% 
+    select(Year1, Age, ASFR) %>% # Select useful columns
+    mutate(ASFR = ifelse(ASFR == '.', "0", ASFR), 
+           ASFR = as.numeric(ASFR),
+           Age_up = Age + 1, # SOCSIM uses the upper age bound
+           Month = 0, 
+           ASFR_mo = ASFR/12) %>%
+    select(-ASFR)
+  
+  # Add rows with rates = 0 for ages [0-12] and [51-111] to keep the same format than HFD
+  
+  ASFR <- 
+    HFC %>% 
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x,
+                     Year1 = unique(.x$Year1), 
+                     Age = 0, Age_up = 12,  Month = 0, ASFR_mo = 0.0, 
+                     .before = 1)) %>% 
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x,
+                     Year1 = unique(.x$Year1), 
+                     Age = 12, Age_up = 13,  Month = 0, ASFR_mo = 0.0, 
+                     .after = 1)) %>% 
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x,
+                     Year1 = unique(.x$Year1), 
+                     Age = 13, Age_up = 14,  Month = 0, ASFR_mo = 0.0, 
+                     .after = 2)) %>% 
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x, 
+                     Year1 = unique(.x$Year1), 
+                     Age = 51, Age_up = 52, Month = 0, ASFR_mo = 0.0,
+                     .after = 40)) %>%
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x, 
+                     Year1 = unique(.x$Year1), 
+                     Age = 52, Age_up = 53, Month = 0, ASFR_mo = 0.0, 
+                     .after = 41)) %>%
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x, 
+                     Year1 = unique(.x$Year1), 
+                     Age = 53, Age_up = 54, Month = 0, ASFR_mo = 0.0,
+                     .after = 42)) %>%
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x, 
+                     Year1 = unique(.x$Year1), 
+                     Age = 54, Age_up = 55, Month = 0, ASFR_mo = 0.0, 
+                     .after = 43)) %>%
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x, 
+                     Year1 = unique(.x$Year1), 
+                     Age = 55, Age_up = 56, Month = 0, ASFR_mo = 0.0, 
+                     .after = 44)) %>%
+    group_by(Year1) %>% 
+    group_split() %>% 
+    map_df(~ add_row(.x, 
+                     Year1 = unique(.x$Year1), 
+                     Age = 56, Age_up = 111, Month = 0, ASFR_mo = 0.0, 
+                     .after = 45)) %>%
+    ungroup() %>%
+    # Add years that hold for each set of rates
+    mutate(Year2 = Year1 + 1, 
+           Year3 = Year1 + 2, 
+           Year4 = Year1 + 3,
+           Year5 = Year1 + 4) %>% 
+    select(Year1, Year2, Year3, Year4, Year5, Age_up, Month, ASFR_mo) %>% 
+    # Repeat rates for year groups for each calendar year
+    pivot_longer(cols = c(Year1:Year5), names_to = "Delete", values_to = "Year") %>% 
+    select(Year, Age_up, Month, ASFR_mo) %>% 
+    arrange(Year, Age_up)
+  
+  # Extract the years available in HFC
+  years <- ASFR %>% pull(Year) %>% unique()
+  
+  # Row numbers corresponding to sequence of years of age in ASFR
+  rows_ageF <- ASFR %>% pull(Age_up) %>% unique() %>% seq_along()
+  
+  ## Write the fertility rate files for each year
+  
+  for(Year in years) {
+    
+    # Find the index of each year of the iteration
+    n <- which(Year == years)
+    n_row <- (n-1)*46 + rows_ageF
+    
+    # Open an output file connection
+    outfilename <- file(paste0("rates/",Country,"fert",Year), "w") 
+    # without ".txt" specification as the original files had no format. 
+    
+    # Include country and year of the corresponding rates
+    cat(c("** Period (Monthly) Age-Specific Fertility Rates for", Country, "in", Year, "\n"), 
+        file = outfilename)
+    cat(c("* Retrieved from the Human Fertility Collection, www.fertilitydata.org", "\n"), 
+        file = outfilename)
+    cat(c("* Max Planck Institute for Demographic Research (Germany) and", "\n"), 
+        file = outfilename)
+    cat(c("* Vienna Institute of Demography (Austria)", "\n"), 
+        file = outfilename)
+    cat(c("* Data downloaded on ", format(Sys.time(), format= "%d %b %Y %X %Z"), "\n"), 
+        file = outfilename)
+    cat(c("** NB: The original HFC annual rates have been converted into monthly rates", "\n"), 
+        file = outfilename)
+    cat(c("** The open age intervals (14- and 49+) are limited to one year [14-15) and [49-50)", "\n"), 
+        file = outfilename)
+    cat(c("** The ages below and above are set to 0", "\n"), file = outfilename)
+    cat("\n", file = outfilename)
+    
+    # Print birth rates (single females)
+    cat("birth", "1", "F", "single", "0", "\n", file = outfilename)
+    for(i in n_row) {
+      cat(c(as.matrix(ASFR)[i,-1], "\n"), file = outfilename) }
+    cat("\n", file = outfilename)
+    
+    # Print birth rates (married females)
+    cat("birth", "1", "F", "married", "0", "\n", file = outfilename)
+    for(i in n_row) {
+      cat(c(as.matrix(ASFR)[i,-1],"\n"), file = outfilename) }
+    
+    close(outfilename)
+    
+  }
+  
 }
