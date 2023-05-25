@@ -6,7 +6,7 @@
 ## Write SOCSIM input rates from HMD and HFD using the HMDHFDplus package ----
 
 # Created by Liliana Calderon on 08-06-2022
-# Last modified by Liliana Calderon on 28-02-2023
+# Last modified by Liliana Calderon on 25-05-2023
 
 #----------------------------------------------------------------------------------------------------
 # Create a sub-folder called "rates" to save the rate files if it does not exist.
@@ -196,7 +196,7 @@ write_socsim_rates_HMD <- function(Country, HMD_username, HMD_password) {
 #----------------------------------------------------------------------------------------------------
 #### Write SOCSIM input fertility rates from HFC for period not covered by HFD ----
 
-write_socsim_rates_HFC <- function(Country, Collection, Year_Max) {
+write_socsim_rates_HFC <- function(Country, RefCode, Year_Max) {
   
   ## Download ASFR from HFC
   HFC <- read_csv(paste0("https://www.fertilitydata.org/File/GetFile/Country/",Country,"/",Country,"_ASFRstand_TOT.txt"),
@@ -204,7 +204,7 @@ write_socsim_rates_HFC <- function(Country, Collection, Year_Max) {
   
   # Wrangling HFC data
   HFC <- HFC %>% 
-    filter(Collection == Collection & Year1 < Year_Max) %>% 
+    filter(RefCode %in% "SWE_02" & Year2 <= Year_Max) %>% 
     select(Year1, Age, ASFR) %>% # Select useful columns
     mutate(ASFR = ifelse(ASFR == '.', "0", ASFR), 
            ASFR = as.numeric(ASFR),
@@ -277,7 +277,7 @@ write_socsim_rates_HFC <- function(Country, Collection, Year_Max) {
            Year3 = Year1 + 2, 
            Year4 = Year1 + 3,
            Year5 = Year1 + 4) %>% 
-    select(Year1, Year2, Year3, Year4, Year5, Age_up, Month, ASFR_mo) %>% 
+    select(Year1, Year2, Year3, Year4, Year5, Age_up, Month, ASFR_mo) %>%
     # Repeat rates for year groups for each calendar year
     pivot_longer(cols = c(Year1:Year5), names_to = "Delete", values_to = "Year") %>% 
     select(Year, Age_up, Month, ASFR_mo) %>% 
