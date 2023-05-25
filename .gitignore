@@ -31,6 +31,10 @@ Graphs/*
 # Previous simulation (with marriage rates)
 SWE_marr/*
 
+
+# Previous simulation (with fertility stability)
+SWE_PAA/*
+
 # Simulation results
 *.rda
 sim_results*
