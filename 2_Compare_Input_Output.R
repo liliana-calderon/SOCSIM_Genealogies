@@ -2,14 +2,14 @@
 # SOCSIM - SOCSIM Genealogies - Compare Input and Output Rates
 # U:/SOCSIM/SOCSIM_Genealogies/2_Compare_Input_Output.R
 
-## Compare input and output age-specific rates from 10 SOCSIM microsimulations for Sweden (1751-2021)
-# The script also includes some comparisons of summary measures like TFR, e0, SRB, IMR
+## Compare input and output age-specific rates from 10 SOCSIM microsimulations for Sweden (1751-2022)
+# as well as summary measures such as TFR, e0, SRB, IMR
 
 ## To run the following code, it is necessary to have already run the simulations and read the .opop file
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 23-05-2023
+# Last modified by Liliana Calderon on 26-05-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 
@@ -111,15 +111,34 @@ ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
 
 #----------------------------------------------------------------------------------------------------
-## Comparison with HFD and HMD data (used as input) ----
+## Comparison with HFC/HFD and HMD data (used as input) ----
 
 #### Age-Specific Fertility rates ----
 
-# HFD ASFR for Sweden (by calendar year and single year of age)
+# Get HFD ASFR for Sweden (by single year of age and 5 calendar year), 1751-1890
+HFC <- read_csv(paste0("https://www.fertilitydata.org/File/GetFile/Country/SWE/SWE_ASFRstand_TOT.txt"),
+                col_names = T, show_col_types = F) %>% 
+  filter(RefCode %in% "SWE_02" & Year2 <= 1890)
+
+# Get HFD ASFR for Sweden (by single year of age and calendar year), 1891-2022
 HFD <- readHFDweb(CNTRY = "SWE",
                   item = "asfrRR",
                   username = HFD_username,
                   password = HFD_password)
+
+# Repeat rates of year groups for each calendar year
+HFC <- HFC  %>% 
+  select(Year1, Age, ASFR) %>% 
+  mutate(ASFR = if_else(ASFR == ".", "0", ASFR), 
+         ASFR = as.double(ASFR), 
+         Year2 = Year1 + 1, 
+         Year3 = Year1 + 2, 
+         Year4 = Year1 + 3,
+         Year5 = Year1 + 4) %>% 
+  select(Year1, Year2, Year3, Year4, Year5, Age, ASFR) %>%
+  pivot_longer(cols = c(Year1:Year5), names_to = "Delete", values_to = "Year") %>% 
+  select(Year, Age, ASFR) %>% 
+  arrange(Year, Age)
 
 # Extract year and age breaks used in the get_asfr_socsim() to apply the same values to HFD data
 
@@ -132,8 +151,9 @@ year_range_fert <- min(year_breaks_fert):max(year_breaks_fert-1)
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
 age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_10$age, "\\d+", simplify = T)))
 
-# Wrangle HFD data
-HFD0 <- HFD %>% 
+
+# Wrangle HFC and HFD data
+HFCD0 <- bind_rows(HFC, HFD) %>% 
   filter(Year %in% year_range_fert) %>% 
   select(-OpenInterval) %>% 
   mutate(year = cut(Year, breaks = year_breaks_fert, 
@@ -144,7 +164,7 @@ HFD0 <- HFD %>%
   group_by(year, age) %>%
   summarise(ASFR = mean(ASFR)) %>%
   ungroup() %>%
-  mutate(Source = "HFD", 
+  mutate(Source = "HFC/HFD", 
          Sim_id = "0", # To plot multiple simulations
          Rate = "ASFR")
 
@@ -157,17 +177,14 @@ SocsimF0 <- asfr_10 %>%
 ## Plot ASFR from HFD vs SOCSIM   
 
 # Same years to plot than above (in intervals). Change if necessary
-# yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
-bind_rows(HFD0, SocsimF0) %>%
-  # HFD rates for [1890,1895) are used for[1800,1805) in the simulation
-  mutate(Year = case_when(Source == "HFD" & year == "[1890,1895)" ~ "[1800,1805)", 
-                          TRUE ~ year)) %>%
-  filter(Year %in% yrs_plot) %>% 
-  ggplot(aes(x = age, y = ASFR, group = interaction(Year, Sim_id)))+
-  geom_line(aes(colour = Year, linetype = Source, alpha = Source), linewidth = 1.2)+
+bind_rows(HFCD0, SocsimF0) %>%
+  filter(year %in% yrs_plot) %>% 
+  ggplot(aes(x = age, y = ASFR, group = interaction(year, Sim_id)))+
+  geom_line(aes(colour = year, linetype = Source, alpha = Source), linewidth = 1.2)+
   scale_color_viridis(option = "D", discrete = T, direction = 1) +
-  scale_linetype_manual(values = c("HFD" = "solid", "SOCSIM" = "dotted")) +
+  scale_linetype_manual(values = c("HFC/HFD" = "solid", "SOCSIM" = "dotted")) +
   scale_alpha_discrete(guide="none", range = c(1, 0.4))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
@@ -262,7 +279,7 @@ yrs_plot <- c("[1900,1905)", "[2000,2005)")
 age_levels <- levels(SocsimM$age)
 
 ## Plotting ASFR and ASMR (for females) from HFD/HMD vs SOCSIM 
-bind_rows(HFD0 %>% rename(Estimate = ASFR), 
+bind_rows(HFCD0 %>% rename(Estimate = ASFR), 
             SocsimF0 %>% rename(Estimate = ASFR)) %>% 
     mutate(Sex = "Female") %>%   
     bind_rows(HMD %>% rename(Estimate = mx),
@@ -292,7 +309,7 @@ ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 #### Summary measures: TFR and e0 ----
-# Here, we use the rates by single calendar year and year of age
+# Here, we use the socsim rates by single calendar year and year of age
 
 #### Total Fertility Rate
 
@@ -322,15 +339,16 @@ age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simp
 # Retrieve age_group size
 age_group_fert <- unique(diff(age_breaks_fert))
 
-# Calculate TFR from HFD
-HFD1 <- HFD %>% 
+
+# Calculate TFR from HFC and HFD
+HFCD1 <- bind_rows(HFC, HFD) %>% 
   filter(Year %in% year_range_fert) %>% 
   select(-OpenInterval) %>% 
   group_by(Year) %>% 
-  summarise(TFR = sum(ASFR)) %>% 
+  summarise(TFR = sum(ASFR, na.rm = T)) %>% 
   ungroup() %>% 
-  mutate(Source = "HFD", 
-         Sim_id = "0") 
+  mutate(Source = "HFC/HFD", 
+         Sim_id = "0") # To plot multiple simulations
 
 # Calculate TFR from SOCSIM
 SocsimF1 <-  asfr_10_1 %>% 
@@ -341,7 +359,7 @@ SocsimF1 <-  asfr_10_1 %>%
   mutate(Source = "SOCSIM") 
 
 ## Plot TFR from HFD vs SOCSIM 
-bind_rows(HFD1, SocsimF1) %>% 
+bind_rows(HFCD1, SocsimF1) %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1")) %>% 
   ggplot(aes(x = Year, y = TFR, group = interaction(Source, Sim_id))) +
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.3)+
@@ -465,7 +483,7 @@ ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
 ## Final plot combining TFR and e0 ----
 
 ## Ploting TFR and e0 (for females) from HFD/HMD vs SOCSIM 
-bind_rows(HFD1 %>% 
+bind_rows(HFCD1 %>% 
             rename(Estimate = TFR) %>% 
             mutate(Rate = "TFR"),
           SocsimF1 %>% 
