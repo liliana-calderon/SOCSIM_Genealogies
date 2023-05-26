@@ -6,14 +6,13 @@
 ## and read the output into R. 
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 21-03-2023
+# Last modified by Liliana Calderon on 26-05-2023
 
 # NB: Some functions are based on external code and repositories specified under each section.
 #------------------------------------------------------------------------------------------------------
 # SOCSIM simulation: rate files and assumptions ----
 
 # The SOCSIM simulation is implemented using the 'rsocsim' package,
-# written by Tom Theile and Diego Alburez-Gutierrez 
 # Available at https://github.com/MPIDR/rsocsim 
 
 # It uses as input historical data for Sweden (1751-2021). 
@@ -61,14 +60,14 @@ folder <- getwd()
 # Otherwise, the working directory must be specified after "folder <- "
 
 # Name of the supervisory file stored in the above folder:
-supfile <- "socsim_SWE.sup"
+supfile <- "socsim.sup"
 # Sup file for rates retrieved from HFD and HMD (1751-2021), created with the 0_Write_Input_Rates.R,  
-# assuming demographic stability for fertility over 1751-1891, 
-# and using random father allocation and marry after childbirth global directives
+# using marry after childbirth and heterogeneous fertility directives
+# and random father allocation 
 
 # Random number generator seed:
-# sims_seeds <- as.character(sample(1:99999, 9, replace = F))
-seed <- as.character(sample(1:99999,1))
+sims_seeds <- as.character(sample(1:99999, 9, replace = F))
+# seed <- as.character(sample(1:99999,1)) #15829
 
 ## Run the simulations for the random seeds. 
 for(seed in sims_seeds) {
@@ -93,7 +92,7 @@ sims_seeds <- as.numeric(sims_seeds)
 
 # Iterate the function for the 10 seeds to read opop of the 10 simulations
 sims_opop <- map(sims_seeds, ~ rsocsim::read_opop(folder = getwd(),
-                                                  supfile = "socsim_SWE.sup",
+                                                  supfile = "socsim.sup",
                                                   seed = .,
                                                   suffix = "",
                                                   fn = NULL))
