@@ -15,15 +15,12 @@
 # The SOCSIM simulation is implemented using the 'rsocsim' package,
 # Available at https://github.com/MPIDR/rsocsim 
 
-# It uses as input historical data for Sweden (1751-2021). 
-# Input age-specific fertility rates (1891-2021) come from the Human Fertility Database, 
+# It uses as input historical data for Sweden (1751-2022). 
+# Input age-specific fertility rates come from the Human Fertility Collection (HFC) for 1751-1890,
+# the Human Fertility Database (HFD)for the period 1891-2022
 # and age-specific mortality rates (1751-2021) come from the Human Mortality Database.
 # To run the simulation, original HFD and HMD rates are converted to monthly rates/probabilities
 # and SOCSIM format using the 0_Write_Input_Rates.R script.
-# For the period 1751-1890, mortality rates are available at HMD, 
-# but there are no fertility rates available at HFD. 
-# We then assumed demographic stability for fertility over the period 1751-1891.
-# Yet, this could be improved by including data from the Human Fertility Collection prior 1891. 
 
 # Female fertility rates are identical for all marital status, but are specified for single and married women
 # Other marital status (divorced, widowed, cohabiting) follow the SOCSIM rate default rules. 
@@ -32,7 +29,7 @@
 # Other marital status will follow the rate default rules. 
 
 # The first segment of the simulation runs for 100 years to produce a stable age structure, 
-# based on 1751-HMD and 1891-HFD age-specific rates
+# based on 1751-HMD and 1751-HFC age-specific rates
 
 #------------------------------------------------------------------------------------------------------
 ## Run SOCSIM simulations with 'rsocsim' package ----
@@ -61,12 +58,11 @@ folder <- getwd()
 
 # Name of the supervisory file stored in the above folder:
 supfile <- "socsim.sup"
-# Sup file for rates retrieved from HFD and HMD (1751-2021), created with the 0_Write_Input_Rates.R,  
+# Sup file for rates retrieved from HFC/HFD and HMD (1751-2022), created with the 0_Write_Input_Rates.R,  
 # using marry after childbirth and heterogeneous fertility directives
-# and random father allocation 
 
 # Random number generator seed:
-sims_seeds <- as.character(sample(1:99999, 9, replace = F))
+sims_seeds <- as.character(sample(1:99999, 10, replace = F))
 # seed <- as.character(sample(1:99999,1)) #15829
 
 ## Run the simulations for the random seeds. 
