@@ -5,7 +5,7 @@
 # To run the functions, .opop file must be set in the GlobalEnv
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 26-05-2023
+# Last modified by Liliana Calderon on 31-05-2023
 #----------------------------------------------------------------------------------------------------
 
 ## Function to replace zeros and empty vectors for NA 
@@ -32,7 +32,7 @@ get_ancestors <- function(egos) {
   ego <- egos
   
   ### Find pid for relevant kin of ego.
-  # NB: Each generation backwards is added to the right of the most recent generation
+  # NB: Each generation backwards is added to the left of the most recent generation
 
   ## 2. Parents (Mothers and fathers). 2
   m <- opop %>% filter(pid == ego) %>% pull(mom) %>% ze_na()
@@ -58,7 +58,7 @@ get_ancestors <- function(egos) {
   gggggm <- opop %>% filter(pid %in% c(ggggm, ggggf)) %>% pull(mom) %>% ze_na()
   gggggf <- opop %>% filter(pid %in% c(ggggm, ggggf)) %>% pull(pop) %>% ze_na()
 
-  ## 8. Great-great-great-great-great-gracndparents (5x). 128
+  ## 8. Great-great-great-great-great-grandparents (5x). 128
   ggggggm <- opop %>% filter(pid %in% c(gggggm, gggggf)) %>% pull(mom) %>% ze_na()
   ggggggf <- opop %>% filter(pid %in% c(gggggm, gggggf)) %>% pull(pop) %>% ze_na()
 
@@ -70,22 +70,22 @@ get_ancestors <- function(egos) {
   ## Bind all ego's direct ancestors in a tibble and include their information from .opop
   
   ancestors_opop <- tibble(kin_type = c("ego", # 1
-                                        "m", # 2
-                                        "f", # 2
-                                        rep("gm", length(gm)), # 3 
-                                        rep("gf", length(gf)), # 3
-                                        rep("ggm", length(ggm)), # 4
-                                        rep("ggf", length(ggf)), # 4
-                                        rep("gggm", length(gggm)), # 5
-                                        rep("gggf", length(gggf)), # 5
-                                        rep("ggggm", length(ggggm)), # 6
-                                        rep("ggggf", length(ggggf)),# 6
-                                        rep("gggggm", length(gggggm)), # 7
-                                        rep("gggggf", length(gggggf)), # 7
-                                        rep("ggggggm", length(ggggggm)), # 8
-                                        rep("ggggggf", length(ggggggf)), # 8
-                                        rep("gggggggm", length(gggggggm)), # 9
-                                        rep("gggggggf", length(gggggggf))), # 9
+                                        "mother", # 2
+                                        "father", # 2
+                                        rep("gmother", length(gm)), # 3 
+                                        rep("gfather", length(gf)), # 3
+                                        rep("ggmother", length(ggm)), # 4
+                                        rep("ggfather", length(ggf)), # 4
+                                        rep("gggmother", length(gggm)), # 5
+                                        rep("gggfather", length(gggf)), # 5
+                                        rep("ggggmother", length(ggggm)), # 6
+                                        rep("ggggfather", length(ggggf)),# 6
+                                        rep("gggggmother", length(gggggm)), # 7
+                                        rep("gggggfather", length(gggggf)), # 7
+                                        rep("ggggggmother", length(ggggggm)), # 8
+                                        rep("ggggggfather", length(ggggggf)), # 8
+                                        rep("gggggggmother", length(gggggggm)), # 9
+                                        rep("gggggggfather", length(gggggggf))), # 9
                            pid = c(ego, # 1 
                                    m, f, # 2 
                                    gm, gf, # 3 
