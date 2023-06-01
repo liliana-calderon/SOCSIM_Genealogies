@@ -40,7 +40,6 @@ get_kin <- function(egos) {
   # w <- omar %>% filter(hpid == ego) %>% pull(wpid) %>% ze_na() # Wifes w marid
   # h <- omar %>% filter(wpid == ego) %>% pull(hpid) %>% ze_na() # Husbands w marid
   
-  
   ## 1. Parents
   m <- opop %>% filter(pid == ego) %>% pull(mom) %>% ze_na()
   f <- opop %>% filter(pid == ego) %>% pull(pop) %>% ze_na()

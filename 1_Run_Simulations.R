@@ -6,7 +6,7 @@
 ## and read the output into R. 
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 26-05-2023
+# Last modified by Liliana Calderon on 01-06-2023
 
 # NB: Some functions are based on external code and repositories specified under each section.
 #------------------------------------------------------------------------------------------------------
@@ -17,10 +17,12 @@
 
 # It uses as input historical data for Sweden (1751-2022). 
 # Input age-specific fertility rates come from the Human Fertility Collection (HFC) for 1751-1890,
-# the Human Fertility Database (HFD)for the period 1891-2022
-# and age-specific mortality rates (1751-2021) come from the Human Mortality Database.
-# To run the simulation, original HFD and HMD rates are converted to monthly rates/probabilities
+# the Human Fertility Database (HFD) for 1891-2022
+# and age-specific mortality rates come from the Human Mortality Database for the whole period (1751-2021).
+# To run the simulation, original HFC, HFD and HMD rates are converted to monthly rates/probabilities
 # and SOCSIM format using the 0_Write_Input_Rates.R script.
+# HFC fertility rates are provided by 5 calendar years and hence considered to be constant over each sub-period
+
 
 # Female fertility rates are identical for all marital status, but are specified for single and married women
 # Other marital status (divorced, widowed, cohabiting) follow the SOCSIM rate default rules. 
@@ -29,7 +31,7 @@
 # Other marital status will follow the rate default rules. 
 
 # The first segment of the simulation runs for 100 years to produce a stable age structure, 
-# based on 1751-HMD and 1751-HFC age-specific rates
+# based on 1751-HFC and 1751-HMD age-specific rates
 
 #------------------------------------------------------------------------------------------------------
 ## Run SOCSIM simulations with 'rsocsim' package ----
@@ -41,7 +43,6 @@
 rm(list=ls(all=TRUE))
 
 # library(devtools)
-
 # Install rsocsim from Github with devtools:
 # devtools::install_github("MPIDR/rsocsim")
 
@@ -63,7 +64,6 @@ supfile <- "Sweden.sup"
 
 # Random number generator seed:
 sims_seeds <- as.character(sample(1:99999, 10, replace = F))
-# seed <- as.character(sample(1:99999,1)) #15829
 
 ## Run the simulations for the random seeds. 
 for(seed in sims_seeds) {
@@ -88,7 +88,7 @@ sims_seeds <- as.numeric(sims_seeds)
 
 # Iterate the function for the 10 seeds to read opop of the 10 simulations
 sims_opop <- map(sims_seeds, ~ rsocsim::read_opop(folder = getwd(),
-                                                  supfile = "socsim.sup",
+                                                  supfile = "Sweden.sup",
                                                   seed = .,
                                                   suffix = "",
                                                   fn = NULL))
