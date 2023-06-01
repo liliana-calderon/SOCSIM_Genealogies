@@ -573,6 +573,11 @@ ggsave(file="Graphs/Socsim_Births_Deaths.jpeg", width=17, height=9, dpi=200)
 ## Sex Ratio at Birth and Infant Mortality Rate
 # We use here the asYr() function from the Functions_Fertility_Rates_Mod.R
 
+# Convert SOCSIM months to calendar years. 
+asYr <- function(month, last_month, final_sim_year) {
+  return(final_sim_year - trunc((last_month - month)/12))
+}
+
 ## If not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
 year_min <- 1750 # Closed [
