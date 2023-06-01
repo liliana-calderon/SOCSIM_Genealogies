@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 30-05-2023
+# Last modified by Liliana Calderon on 01-06-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 
@@ -46,6 +46,10 @@ HMD_password <- "Type_here_HMD_password"
 
 #------------------------------------------------------------------------------------------------------
 # Retrieve age-specific fertility rates
+
+# Create a sub-folder called "Measures" to save the output measures if it does not exist.
+ifelse(!dir.exists("Measures"), dir.create("Measures"), FALSE)
+
 asfr_10 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
                                                          final_sim_year = 2022 , #[Jan-Dec]
                                                          year_min = 1750, # Closed [
@@ -55,7 +59,7 @@ asfr_10 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
                                                          age_max_fert = 55, # Open )
                                                          age_group = 5), # [,)
                 .id = "Sim_id") 
-save(asfr_10, file = "asfr_10.RData")
+save(asfr_10, file = "Measures/asfr_10.RData")
 
 # Retrieve age-specific mortality rates
 asmr_10 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
@@ -66,14 +70,14 @@ asmr_10 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
                                                          age_max_mort = 110, # Open )
                                                          age_group = 5), # [,)
                 .id = "Sim_id") 
-save(asmr_10, file = "asmr_10.RData")
+save(asmr_10, file = "Measures/asmr_10.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Plot the results ----
 
 # Load ASFR and ASMR from the 10 simulations
-load("asfr_10.RData")
-load("asmr_10.RData")
+load("Measures/asfr_10.RData")
+load("Measures/asmr_10.RData")
 
 # Create a sub-folder called "Graphs" to save the plots if it does not exist.
 ifelse(!dir.exists("Graphs"), dir.create("Graphs"), FALSE)
@@ -273,7 +277,7 @@ ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=200)
 ## Final plot combining ASFR and ASMR ----
 
 # Change years to plot only to two periods
-yrs_plot <- c("[1900,1905)", "[2000,2005)") 
+# yrs_plot <- c("[1900,1905)", "[2000,2005)") 
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(SocsimM$age)
@@ -295,7 +299,7 @@ bind_rows(HFCD0 %>% rename(Estimate = ASFR),
     ggplot(aes(x = age, y = Estimate, group = interaction(Year, Sim_id)))+
     facet_wrap(. ~ Rate, scales = "free") + 
     geom_line(aes(colour = Year, alpha = transp), linewidth = 1.5)+
-    scale_color_manual(values = c("#781A4F", "#1A4F78"))+
+    scale_color_manual(values = c("#FC8961", "#781A4F", "#1A4F78"))+
     scale_alpha_discrete(guide="none", range = c(0.2, 1))+
     facetted_pos_scales(y = list("Age-Specific Fertility Rates" = scale_y_continuous(),
                                  "Age-Specific Mortality Rates" =  scale_y_continuous(trans = "log10")))+
@@ -323,9 +327,9 @@ asfr_10_1 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
                                                           age_max_fert = 55, # Open )
                                                           age_group = 1), # [,)
                    .id = "Sim_id") 
-save(asfr_10_1, file = "asfr_10_1.RData")
+save(asfr_10_1, file = "Measures/asfr_10_1.RData")
 
-load("asfr_10_1.RData")
+load("Measures/asfr_10_1.RData")
 
 # Year breaks. Extract all the unique numbers from the intervals. 
 year_breaks_fert <- unique(as.numeric(str_extract_all(asfr_10_1$year, "\\d+", simplify = T)))
@@ -383,9 +387,9 @@ asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
                                                   age_max_mort = 110, # Open )
                                                   age_group = 1), # [,)
                      .id = "Sim_id") 
-save(asmr_10_1, file = "asmr_10_1.RData")
+save(asmr_10_1, file = "Measures/asmr_10_1.RData")
 
-load("asmr_10_1.RData")
+load("Measures/asmr_10_1.RData")
 
 # This code was inspired by Tim Riffe's BSSD2021Module2 code to calculate life tables
 # https://github.com/timriffe/BSSD2021Module2/blob/master/02_tuesday/02_tuesday.Rmd 
@@ -422,9 +426,9 @@ lt_10 <- asmr_10_1 %>%
          Tx = Lx %>% rev() %>% cumsum() %>% rev(),
          ex = Tx / lx)  %>% 
   ungroup() 
-save(lt_10, file = "lt_10.RData")
+save(lt_10, file = "Measures/lt_10.RData")
 
-load("lt_10.RData")
+load("Measures/lt_10.RData")
 
 
 ## Compare with ex at age 0 for Sweden in HDM
@@ -555,20 +559,19 @@ Deaths <- map_dfr(sims_opop, ~ .x %>%
 
 # Plotting birth and death counts together
 full_join(Births, Deaths,  by = c("Sim_id", "Year")) %>% 
-  filter(Year >= 1751 & Sim_id %in% c("1", "2", "3")) %>%
+  filter(Year >= 1751) %>%
   mutate(Sim_id = factor(Sim_id, levels = 1:10)) %>% 
   pivot_longer(Births:Deaths, names_to = "Event", values_to = "Count") %>% 
   ggplot(aes(x = Year, y = Count, group = interaction(Sim_id), color = Sim_id))+
   facet_wrap(. ~ Event) + 
   geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1) +
+  scale_color_viridis(option = "C", discrete = T, direction = -1, guide = "none") +
   theme_graphs()
 ggsave(file="Graphs/Socsim_Births_Deaths.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate
-# We use here the asYr() function from the Functions_Retrieve_Rates.R
-## Check if this should be included in a function
+# We use here the asYr() function from the Functions_Fertility_Rates_Mod.R
 
 ## If not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
@@ -654,14 +657,15 @@ IMR %>%
 full_join(SRB %>% select(Sim_id, Year, SRB),
           IMR %>% select(Sim_id, Year, IMR),
           by = c("Sim_id", "Year")) %>% 
-  filter(Year >= 1751 & Sim_id %in% c("1", "2", "3")) %>%
+  filter(Year >= 1751) %>%
   mutate(Sim_id = factor(Sim_id, levels = 1:10)) %>% 
   pivot_longer(SRB:IMR, names_to = "Measure", values_to = "Value") %>% 
-  mutate(Measure = factor(Measure, levels = c("SRB", "IMR"))) %>%
-    ggplot(aes(x = Year, y = Value, group = Sim_id, color = Sim_id))+
+  mutate(Measure = factor(ifelse(Measure == "SRB", "Sex Ratio at Birth", "Infant Mortality Rate"), 
+                          levels = c("Sex Ratio at Birth", "Infant Mortality Rate"))) %>%
+  ggplot(aes(x = Year, y = Value, group = Sim_id, color = Sim_id))+
   facet_wrap(. ~ Measure, scales = "free") + 
   geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1) +
+  scale_color_viridis(option = "C", discrete = T, direction = -1, guide = "none") +
   facetted_pos_scales(y = list(SRB = scale_y_continuous(limits=c(0.75, 1.25)),
                                IMR =  scale_y_continuous())) +
   theme_graphs()
@@ -702,7 +706,7 @@ IMR_sex %>%
   theme_graphs()
 
 # Compare with death rates at age 0 from asmr
-load("asmr_10_1.RData")
+load("Measures/asmr_10_1.RData")
 
 # Rates from asmr (using mid-year pop aged 0) are a bit higher than IMR (using births as denominator)
 asmr_10_1 %>% 
