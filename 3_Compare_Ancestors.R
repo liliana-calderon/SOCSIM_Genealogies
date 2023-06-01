@@ -23,13 +23,13 @@ library(svglite) # To save svg files
 library(viridis)
 library(rsocsim) # Functions to estimate rates
 
-## Load functions to get direct ancestors
-# source("Functions_Ancestors.R")
-source("Functions_Ancestors_Imp.R") # Improved function
+## Load function to get direct ancestors
+source("Functions_Ancestors.R")
 
-## Load functions to estimate age-specific fertility rates 
-# This is a slightly modified version of the functions in the package 
+## Load function to estimate age-specific fertility rates 
+# This is a slightly modified version of the function in the package 
 # that allows to handle the intentional duplicates in the data
+# The script also includes the asYr() function
 source("Functions_Fertility_Rates_Mod.R")
 
 ## Load theme for the graphs
@@ -47,12 +47,12 @@ load("sims_seeds.rda")
 # seed <-  sample(sims_seeds, 1, replace = F) 
 seed <- "1129"
 
-## We use only one of the 10 simulations, same seed chosen in 3_Compare ancestors
+## We now use only one of the 10 simulations
 opop <- read_opop(folder = getwd(), supfile = "Sweden.sup", seed = seed, 
                   suffix = "",  fn = NULL)
 
 #------------------------------------------------------------------------------------------------------
-## Trace direct ancestors of people alive in 2022 as a proxy of current genealogists 
+## Trace direct ancestors of people alive in 2023 as a proxy of current genealogists 
 
 # Pids of people alive at the end of the simulation, i.e. dod == 0, 
 # who are older than 18 years old on 01-01-2023, i,e. dob 1914-2004
