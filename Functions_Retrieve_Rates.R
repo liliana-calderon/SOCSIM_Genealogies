@@ -1,10 +1,10 @@
 #----------------------------------------------------------------------------------------------------
-# Functions to retrieve age-specific fertility and mortality rates ----
+# Functions to estimate age-specific fertility and mortality rates ----
 
 # Created by Liliana Calderon on 18-01-2022, based on functions included in
 # .Rmd scripts provided at the 2020 SOCSIM Workshop at the MPIDR (cf. Marriage Squeeze and Sandwich modules)
 # .R scripts written by Diego Alburez-Gutierrez, available at https://github.com/alburezg/socsim_example/blob/main/R/functions.R
-# Last modified by Liliana Calderon on 03-03-2023
+# Last modified by Liliana Calderon on 01-06-2023
 
 #----------------------------------------------------------------------------------------------------
 ## Notes ----
@@ -37,11 +37,13 @@ jul <- function(year, last_month, final_sim_year){
 
 
 #----------------------------------------------------------------------------------------------------
-#### Get SOCSIM period ASFR ----
+#### Estimate SOCSIM period age-specific fertility rates ----
+# This is a modified version of the function included in the rsocsim package
+# allowing to handle the intentional duplicates in the data
 
-get_asfr_socsim <- function(df, final_sim_year, year_min, year_max, year_group, age_min_fert, age_max_fert, age_group) {
+estimate_fertility_rates_mod <- function(opop, final_sim_year, year_min, year_max, year_group, age_min_fert, age_max_fert, age_group) {
 
-  last_month <- max(df$dob)
+  last_month <- max(opop$dob)
   
   # Year range and breaks
   year_range <- year_min:(year_max-1)
@@ -51,17 +53,17 @@ get_asfr_socsim <- function(df, final_sim_year, year_min, year_max, year_group, 
   age_breaks_fert <- seq(age_min_fert, age_max_fert, by = age_group)
   
   # Calculate year of birth
-  opop2 <- df %>%
+  opop2 <- opop %>%
     mutate(birth_year = asYr(dob, last_month, final_sim_year))
 
   # 1. Numerator - births by women of given age group
-    numerator <- yearly_birth_by_age_socsim(df = opop2, 
+    numerator <- yearly_birth_by_age_socsim(opop = opop2, 
                                             year_range = year_range, 
                                             age_breaks_fert = age_breaks_fert)
     
   # 2. Denominator - women in reproductive years (1st July)
     denom <- lapply(year_range, get_women_reproductive_age_socsim,
-                    df = opop2,
+                    opop = opop2,
                     final_sim_year = final_sim_year,
                     age_breaks_fert = age_breaks_fert)
 
@@ -84,14 +86,12 @@ get_asfr_socsim <- function(df, final_sim_year, year_min, year_max, year_group, 
 #----------------------------------------------------------------------------------------------------
 #### Yearly Births by Age SOCSIM ----
 
-yearly_birth_by_age_socsim <- function(df, year_range, age_breaks_fert) {
+yearly_birth_by_age_socsim <- function(opop, year_range, age_breaks_fert) {
 
-  last_month <- max(df$dob)
+  last_month <- max(opop$dob)
   
-  out <- df %>% 
-    left_join(df %>% select(mom = pid, mother_birth = birth_year), 
-              # multiple = "any" to return only one "mom" match for each (children) id
-              by = "mom", multiple = "any") %>% 
+  out <- opop %>% 
+    left_join(opop %>% select(mom = pid, mother_birth = birth_year), by = "mom") %>% 
     select(birth_year, mother_birth) %>% 
     filter(birth_year %in% year_range) %>% 
     mutate(birth_year_factor = factor(birth_year, levels = year_range),
@@ -112,12 +112,12 @@ yearly_birth_by_age_socsim <- function(df, year_range, age_breaks_fert) {
 #### Get Women Reproductive Age SOCSIM (Female mid-year population) ----
 # Return women by age alive on the 1st of July of a given year, including right-censored
 
-get_women_reproductive_age_socsim <- function(df, final_sim_year, year, age_breaks_fert) {
+get_women_reproductive_age_socsim <- function(opop, final_sim_year, year, age_breaks_fert) {
   
-  last_month <- max(df$dob)
-  df$census <- year
+  last_month <- max(opop$dob)
+  opop$census <- year
   
-  out <- df %>% 
+  out <- opop %>% 
     mutate(dod2 = ifelse(dod == 0, 999999999, dod)) %>%
     filter(fem == 1 & dob < jul(year, last_month, final_sim_year) & dod2 >= jul(year, last_month, final_sim_year)) %>%
     mutate(age_at_census = trunc((jul(census, last_month, final_sim_year)-dob)/12),
@@ -133,11 +133,11 @@ get_women_reproductive_age_socsim <- function(df, final_sim_year, year, age_brea
 }
 
 #----------------------------------------------------------------------------------------------------
-#### Get SOCSIM period ASMR ----
+#### Estimate SOCSIM period age-specific mortality rates ----
 
-get_asmr_socsim <- function(df, final_sim_year, year_min, year_max, year_group, age_max_mort, age_group) {
+estimate_mortality_rates <- function(opop, final_sim_year, year_min, year_max, year_group, age_max_mort, age_group) {
 
-  last_month <- max(df$dob)
+  last_month <- max(opop$dob)
   
   # Year range and breaks 
   year_range <- year_min:(year_max-1)
@@ -153,7 +153,7 @@ get_asmr_socsim <- function(df, final_sim_year, year_min, year_max, year_group, 
   age_levels_census <- seq(0, age_max_mort-1, by = 1)
   
   # Calculate age at death and year of death
-  opop2 <- df %>% 
+  opop2 <- opop %>% 
     rename(sex = fem) %>% 
     mutate(age_death_months = ifelse(dod == 0,NA,dod-dob), 
            age_death = trunc(age_death_months/12), 
@@ -177,7 +177,7 @@ get_asmr_socsim <- function(df, final_sim_year, year_min, year_max, year_group, 
       select(pid, dob, dod, sex)
     
     yearly_pop_age_sex <- lapply(year_range, census_socsim, 
-                               df = opop2_subset, 
+                               opop = opop2_subset, 
                                final_sim_year = final_sim_year,
                                age_levels_census = age_levels_census)  
 
@@ -212,12 +212,12 @@ get_asmr_socsim <- function(df, final_sim_year, year_min, year_max, year_group, 
 #### Census SOCSIM (Mid-year population, 1st July) ----
 # Returns population by sex and age alive on the 1st of July of a given year, including right-censored
 
-census_socsim <- function(df, year, final_sim_year, age_levels_census) {
+census_socsim <- function(opop, year, final_sim_year, age_levels_census) {
   
-  last_month <- max(df$dob)
-  df$census <- year 
+  last_month <- max(opop$dob)
+  opop$census <- year 
   
-  out <- df %>% 
+  out <- opop %>% 
     mutate(dod2 = ifelse(dod == 0, 999999999, dod)) %>%
     filter(dob < jul(year, last_month, final_sim_year) & dod2 >= jul(year, last_month, final_sim_year)) %>% 
     mutate(age_at_census = trunc((jul(census, last_month, final_sim_year)-dob)/12)) %>%
