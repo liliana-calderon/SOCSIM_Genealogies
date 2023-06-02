@@ -20,13 +20,11 @@ options(scipen=999999)
 ## Load packages 
 library(tidyverse)
 library(ggh4x)  # To facet scales-
-library(questionr)
 library(svglite) # To save svg files
 library(viridis)
 library(rsocsim) # Functions to estimate rates
 
 ## Load functions to get ascending and lateral kin up to the 4th degree of consanguinity
-# source("Functions_Kin.R")
 source("progress/Functions_Kin_Imp.R")
 
 ## Load theme for the graphs
@@ -53,15 +51,17 @@ opop <- read_opop(folder = getwd(), supfile = "Sweden.sup", seed = seed,
 # who are older than 18 years old on 01-01-2023, i,e. dob 1914-2004 
 
 load("egos2023_samp_10.RData")
+egos2023_samp_10 <- sample(egos2023_samp, 441, replace = F)
 
 ## Map the function to get relevant kin of a sample of individuals alive in 2023 (older than 18 years)
 start <- Sys.time()
-kin_egos2023_10 <- map_dfr(egos2023_samp, get_kin) %>%
+kin_egos2023_10 <- map_dfr(egos2023_samp_10, get_kin) %>%
   left_join(select(opop, c(pid, fem, dob, dod, mom, marid, mstat)), by = "pid")
 end <- Sys.time()
 print(end-start)
-# Time difference of 2.05798 mins for 44 egos with previous function
-# Time difference of 56.74149 secs for 44 egos with new function
+# Time difference of 56.74149 secs for 44 egos with new function 
+# (half time of the previous one, but still very inefficient). 
+# Would take around 30 hours for 44000 egos. 
 
 # Save the data frame
 save(kin_egos2023_10, file = "kin_egos2023_10.RData")
