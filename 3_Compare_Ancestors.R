@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 31-05-2023
+# Last modified by Liliana Calderon on 06-06-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 
@@ -49,6 +49,10 @@ seed <- "1129"
 
 ## We now use only one of the 10 simulations
 opop <- read_opop(folder = getwd(), supfile = "Sweden.sup", seed = seed, 
+                  suffix = "",  fn = NULL)
+
+## We now use only one of the 10 simulations
+omar <- read_omar(folder = getwd(), supfile = "Sweden.sup", seed = seed, 
                   suffix = "",  fn = NULL)
 
 #------------------------------------------------------------------------------------------------------
