@@ -8,7 +8,7 @@
 # Create a initial population file and empty marriage file for the simulations
 
 # Created by Liliana Calderon on 08-06-2022
-# Last modified by Liliana Calderon on 25-05-2023
+# Last modified by Liliana Calderon on 12-06-2023
 
 #----------------------------------------------------------------------------------------------------
 # Rate files format (Cf. Socsim oversimplified, p. 26):
@@ -140,7 +140,7 @@ write_socsim_rates_HMD(Country = "SWE",
 # Create initial .opop and empty omar file for the simulation ----
 
 # Set size of initial population
-size_opop <-  50000
+size_opop <-  5000
 
 # Create data.frame with 14 columns and nrows = size_opop
 presim.opop <- setNames(data.frame(matrix(data = 0, ncol = 14, nrow = size_opop)), 
