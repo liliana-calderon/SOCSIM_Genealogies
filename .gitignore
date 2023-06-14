@@ -4,6 +4,9 @@
 # Session Data files
 *.RData
 
+# Temp Data files
+*.RDataTmp
+
 # User-specific files
 .Ruserdata
 
@@ -28,12 +31,8 @@ presim*
 # Graphs 
 Graphs/*
 
-# Previous simulation (with marriage rates)
-SWE_marr/*
-
-
-# Previous simulation (with fertility stability)
-SWE_PAA/*
+# Measures (saved data)
+Measures/*
 
 # Simulation results
 *.rda
@@ -43,3 +42,6 @@ socsim_clustercall.log
 # Work in progress 
 progress/*
 Pass.R
+
+# Results from previous simulations
+z_Simulations/*
