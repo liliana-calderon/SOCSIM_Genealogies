@@ -6,7 +6,7 @@
 ## and read the output into R. 
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 01-06-2023
+# Last modified by Liliana Calderon on 14-06-2023
 
 # NB: Some functions are based on external code and repositories specified under each section.
 #------------------------------------------------------------------------------------------------------
@@ -65,7 +65,11 @@ supfile <- "Sweden.sup"
 # Random number generator seed:
 sims_seeds <- as.character(sample(1:99999, 10, replace = F))
 
+# Save the seeds numbers to use them later to read the data
+save(sims_seeds, file = "sims_seeds.Rda")
+
 ## Run the simulations for the random seeds. 
+start <- Sys.time()
 for(seed in sims_seeds) {
   
   ### Run a single SOCSIM-simulation with a given folder and supervisory file,
@@ -73,11 +77,12 @@ for(seed in sims_seeds) {
   rsocsim::socsim(folder, supfile, seed, process_method = "future")
   
 }
-
-# Save the seeds numbers to use them later to read the data
-save(sims_seeds, file = "sims_seeds.Rda")
+end <- Sys.time()
+print(end-start)
+# Time difference of 18 hours for 10 simulations, with initial population of 50000
+# Time difference of 1.663983 hours for  10 simulations, with initial population of 5000
 #----------------------------------------------------------------------------------------------------
-## Read the output .opop file ----
+## Read the output .opop and .omar files ----
 
 # Load packages 
 library(tidyverse)
@@ -98,3 +103,17 @@ sims_opop %>% str()
 
 # Save sims_opop list to use later
 save(sims_opop, file = "sims_opop.RData")
+
+
+# Iterate the function for the 10 seeds to read omar of the 10 simulations
+sims_omar <- map(sims_seeds, ~ rsocsim::read_omar(folder = getwd(),
+                                                  supfile = "Sweden.sup",
+                                                  seed = .,
+                                                  suffix = "",
+                                                  fn = NULL))
+
+# Check the structure of sims_omar. A list of omar dfs
+sims_omar %>% str()
+
+# Save sims_opop list to use later
+save(sims_omar, file = "sims_omar.RData")
