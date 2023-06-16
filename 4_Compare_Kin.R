@@ -7,12 +7,12 @@
 # and compare demographic measures from the whole simulation and the subsets of family trees
 
 # Created by Liliana Calderon on 13-04-2022
-# Last modified by Liliana Calderon on 01-06-2023
+# Last modified by Liliana Calderon on 16-06-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 
 #------------------------------------------------------------------------------------------------------
-## General settings ----
+## General settings and functions ----
 
 # Prevent scientific notation (useful for the rate calculation)
 options(scipen=999999)
@@ -24,62 +24,78 @@ library(svglite) # To save svg files
 library(viridis)
 library(rsocsim) # Functions to estimate rates
 
-## Load functions to get ascending and lateral kin up to the 4th degree of consanguinity
-source("progress/Functions_Kin_Imp.R")
-
 ## Load theme for the graphs
 source("Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
-# Currently, it only works with the asmr df calculated with the get_asmr_socsim()
+# Currently, it only works with asmr calculated with rsocsim::estimate_mortality_rates()
 source("Functions_Life_Table.R")
 
 #------------------------------------------------------------------------------------------------------
-## Read the output .opop file using read_opop function.  ----
+## Trace kin (up to 4th degree) of people alive in 2023 ----
 
-# seed <-  sample(sims_seeds, 1, replace = F) 
-seed <- "1129"
+# Load saved list with opop from 10 simulations, generated in 1_Run_Simulations.R
+load("sims_opop.RData")
+# Load saved list with omar from 10 simulations, generated in 1_Run_Simulations.R
+load("sims_omar.RData")
 
-## We now use only one of the 10 simulations
-opop <- read_opop(folder = getwd(), supfile = "Sweden.sup", seed = seed, 
-                  suffix = "",  fn = NULL)
-
-## Trace kin (up to 4th degree of consanguinity) of people alive in 2023 as a proxy of current genealogists 
-
-# Load same opop sample used to trace the ancestors in 3_Compare_Ancestors.R
-# This is a 10% sample of people alive at the end of the simulation, i.e. dod == 0, 
+# Load same sample for each opop used to trace the ancestors in 3_Compare_Ancestors.R
+# These are a 10% sample of people alive at the end of the simulation, i.e. dod == 0, 
 # who are older than 18 years old on 01-01-2023, i,e. dob 1914-2004 
+load("egos_samp_10.RData")
 
-load("egos2023_samp_10.RData")
-egos2023_samp_10 <- sample(egos2023_samp, 441, replace = F)
-
-## Map the function to get relevant kin of a sample of individuals alive in 2023 (older than 18 years)
+## Retrieve the ancestors of each simulation sample of egos alive in 2023
 start <- Sys.time()
-kin_egos2023_10 <- map_dfr(egos2023_samp_10, get_kin) %>%
-  left_join(select(opop, c(pid, fem, dob, dod, mom, marid, mstat)), by = "pid")
+kin_egos_10_lc <- pmap_dfr(list(sims_opop, sims_omar, egos_samp_10),
+                             ~ rsocsim::retrieve_kin(opop = ..1, omar = ..2, pid = ..3,
+                                                     KidsOf = KidsOf,
+                                                     extra_kintypes = c("unclesaunts", "niblings", "gunclesaunts", "firstcousins"),
+                                                     kin_by_sex = F),
+                             .id = "Sim_id")
 end <- Sys.time()
 print(end-start)
-# Time difference of 56.74149 secs for 44 egos with new function 
-# (half time of the previous one, but still very inefficient). 
-# Would take around 30 hours for 44000 egos. 
+# Time difference of 27.25173 mins for 10 simulations with initial population of 5000
 
-# Save the data frame
-save(kin_egos2023_10, file = "kin_egos2023_10.RData")
+kin_egos_10 <- kin_egos_10_lc %>% 
+  mutate(ego_id = unlist(egos_samp_10)) %>% 
+  pivot_longer(-c(Sim_id, ego_id), names_to = "kin_type", values_to = "pid") %>% 
+  unnest_longer(kin_type:pid) %>% 
+  # With the kin_by_sex = F option, we get nieces and nephews in addition to niblings
+  filter(!is.na(pid) & !kin_type %in% c("nieces", "nephews")) %>% 
+  # Some pids are included in more than one kin type, e.g. ggparents and gunclesaunts
+    # Sim_id ego_id kin_type        pid
+  # <chr>   <int> <chr>         <int>
+  # 2      176873 ggparents    107065
+  # 2      176873 gunclesaunts 107065
+  group_by(Sim_id, ego_id, pid) %>%
+  distinct(pid, .keep_all = TRUE) %>%
+  ungroup()
 
+# Select relevant variables from each opop and add Simulation id to allow the left-join. 
+opop_sims_df <- map_dfr(sims_opop, ~ select(.x, c(pid, fem, dob, dod, mom, marid, mstat)), 
+                    .id = "Sim_id")
+
+kin_egos_10 <- kin_egos_10  %>% left_join(opop_sims_df, by = c("Sim_id", "pid"))
+
+# Save the data frame with the relatives of 10 simulations samples
+save(kin_egos_10, file = "kin_egos_10.RData")
 #----------------------------------------------------------------------------------------------------
-## Recover age-specific fertility and mortality rates  -----
+## Age-Specific Fertility and Mortality rates, 5x5  -----
 # Retrieve and compare rates derived from the whole simulation with those from the subset of family trees
 # of ascending and lateral kin up to the 4th generation
 
-load("kin_egos2023_10.RData")
+load("kin_egos_10.RData")
 
 ##  Calculate ASFR and ASMR for the subset of "extended" family trees up to the 4th degree of consanguinity:  
 
-# Ascending and lateral kin up to the 4th degree for sample of egos alive in 2023 without duplicates
-kin_egos2023_ext <- kin_egos2023_10 %>% distinct(pid, .keep_all = TRUE)
+# Remove duplicates for ascending and lateral kin up to the 4th degree for sample of egos alive in 2023
+kin_egos_ext <- kin_egos_10 %>% distinct(pid, .keep_all = TRUE)
 
 # Check minimum year of birth to define year_min
-kin_egos2023_ext %>% 
+asYr <- function(month, last_month, final_sim_year) {
+  return(final_sim_year - trunc((last_month - month)/12))}
+
+kin_egos_ext %>% 
   mutate(last_month = max(dob),
          final_sim_year = 2022,
          Birth_Year = asYr(dob, last_month, final_sim_year)) %>% 
@@ -92,7 +108,7 @@ kin_egos2023_ext %>%
 # For mortality, 1755 could be the year_min
 
 # Retrieve age-specific fertility rates for the subset of "extended" family trees without duplicates
-asfr_ext <- estimate_fertility_rates(opop = kin_egos2023_ext,
+asfr_ext <- estimate_fertility_rates(opop = kin_egos_ext,
                                      final_sim_year = 2022 , #[Jan-Dec]
                                      year_min = 1765, # Closed [
                                      year_max = 2020, # Open )
@@ -104,7 +120,7 @@ asfr_ext <- estimate_fertility_rates(opop = kin_egos2023_ext,
 save(asfr_ext, file = "Measures/asfr_ext.RData")
 
 # Check minimum year of death to define year_min
-kin_egos2023_ext %>% 
+kin_egos_ext %>% 
   mutate(last_month = max(dob),
          final_sim_year = 2022,
          Death_Year = asYr(dob, last_month, final_sim_year)) %>% 
@@ -112,7 +128,7 @@ kin_egos2023_ext %>%
   min()
 
 # Retrieve age-specific mortality rates for the subset of "extended" family trees without duplicates
-asmr_ext <- estimate_mortality_rates(opop = kin_egos2023_ext,
+asmr_ext <- estimate_mortality_rates(opop = kin_egos_ext,
                                      final_sim_year = 2022, #[Jan-Dec]
                                      year_min = 1755, # Closed
                                      year_max = 2020, # Open )
@@ -130,11 +146,11 @@ ancestors_5 <- c("ego", "m", "f", "mm","mf", "fm", "ff",
                  "mmm", "mmf", "mfm", "mff", "fmm", "fmf", "ffm", "fff", 
                  "mmmm", "mmmf", "mmfm", "mmff", "mfmm", "mfmf", "mffm", "mfff", 
                  "fmmm", "fmmf", "fmfm", "fmff", "ffmm", "ffmf", "fffm", "ffff")
-kin_egos2023_dir <- kin_egos2023_ext %>% 
+kin_egos_dir <- kin_egos_ext %>% 
   filter(kin_type %in% ancestors_5)
 
 # Check minimum year of birth to define year_min
-kin_egos2023_dir %>% 
+kin_egos_dir %>% 
   mutate(last_month = max(dob),
          final_sim_year = 2022, 
          Birth_Year = asYr(dob, last_month, final_sim_year)) %>% 
@@ -145,7 +161,7 @@ kin_egos2023_dir %>%
 # as age_min_fert = 10 women could be counted in the first age group after age 10. 
 
 # Retrieve age-specific fertility rates for the subset of "direct" family trees without duplicates
-asfr_dir <- estimate_fertility_rates(opop = kin_egos2023_dir,
+asfr_dir <- estimate_fertility_rates(opop = kin_egos_dir,
                                     final_sim_year = 2022 , #[Jan-Dec]
                                     year_min = 1785, # Closed [
                                     year_max = 2020, # Open )
@@ -156,7 +172,7 @@ asfr_dir <- estimate_fertility_rates(opop = kin_egos2023_dir,
 save(asfr_dir, file = "Measures/asfr_dir.RData")
 
 # Check minimum year of death to define year_min
-kin_egos2023_dir %>% 
+kin_egos_dir %>% 
   mutate(last_month = max(dob),
          final_sim_year = 2022,
          Death_Year = asYr(dob, last_month, final_sim_year)) %>% 
@@ -164,7 +180,7 @@ kin_egos2023_dir %>%
   min()
 
 # Retrieve age-specific mortality rates for the subset of "direct" family trees without duplicates
-asmr_dir <- estimate_mortality_rates(opop = kin_egos2023_dir,
+asmr_dir <- estimate_mortality_rates(opop = kin_egos_dir,
                                     final_sim_year = 2022, #[Jan-Dec]
                                     year_min = 1770, # Closed
                                     year_max = 2020, # Open )
@@ -174,7 +190,7 @@ asmr_dir <- estimate_mortality_rates(opop = kin_egos2023_dir,
 save(asmr_dir, file = "Measures/asmr_dir.RData")
 
 #----------------------------------------------------------------------------------------------------
-## Plot results for the genealogical subsets of ascending and lateral kin up to the 4th generation ----
+## Plot estimates from genealogical subsets of ascending and lateral kin----
 
 # Load ASFR and ASMR for the subset of "direct" family trees without duplicates
 load("Measures/asfr_dir.RData")
@@ -234,13 +250,13 @@ bind_rows(asfr_dir %>%
   labs(x = "Age", y = "Estimate")
 
 #----------------------------------------------------------------------------------------------------
-## Comparison of a whole SOCSIM simulation with family trees subsets of ascending and lateral kin ----
+## Comparison of whole simulation with subsets of ascending and lateral kin ----
 
 # Load ASFR and ASMR for the whole single simulation (seed "13486"), used in 3_Compare_Ancestors.R
 load("Measures/asfr_whole.RData")
 load("Measures/asmr_whole.RData")
 
-#### Age-specific Fertility Rates ----
+# ASFR ----
 
 # Whole SOCSIM simulation
 asfr_whole2 <- asfr_whole %>% 
@@ -277,7 +293,7 @@ bind_rows(asfr_whole2, asfr_ext2, asfr_dir2) %>%
 ggsave(file="Graphs/Socsim_Exp2_ASFR.jpeg", width=17, height=9, dpi=200)
 
 
-## Age-Specific Mortality rates ----
+# ASMR ----
 
 # Whole SOCSIM simulation
 asmr_whole2 <- asmr_whole %>% 
@@ -324,6 +340,7 @@ bind_rows(asmr_whole2, asmr_ext2, asmr_dir2) %>%
 ggsave(file="Graphs/Socsim_Exp2_ASMR.jpeg", width=17, height=9, dpi=200)
 
 
+#----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 
 # Years to plot limited to  two years
@@ -367,14 +384,14 @@ ggsave(file="Graphs/Final_Socsim_Exp2_ASFR_ASMR.jpeg", width=17, height=9, dpi=2
 # ggsave(file="Graphs/Socsim_Exp2_ASFR_ASMR.svg", device = "svg", units = "in", width=15, height=8, dpi=200) 
 
 #----------------------------------------------------------------------------------------------------
-#### Summary measures: TFR and e0 ----
-# Here, we use the rates by single calendar year and 1 year of age
+## Summary measures: TFR and e0 ----
+# Here, we use the rates by 1 year age group and 1 calendar year
 
-#### Total Fertility Rate ----
+# Total Fertility Rate ----
 # Calculate Total Fertility Rate from asfr 1x1
 
 # Retrieve age-specific fertility rates 1x1 for the subset of "extended" family trees without duplicates
-asfr_ext_1 <- estimate_fertility_rates(opop = kin_egos2023_ext,
+asfr_ext_1 <- estimate_fertility_rates(opop = kin_egos_ext,
                               final_sim_year = 2022 , #[Jan-Dec]
                               year_min = 1765, # Closed [
                               year_max = 2020, # Open )
@@ -386,7 +403,7 @@ save(asfr_ext_1, file = "Measures/asfr_ext_1.RData")
 
 
 # Retrieve age-specific fertility rates 1x1 for the subset of "direct" family trees without duplicates
-asfr_dir_1 <- estimate_fertility_rates(opop = kin_egos2023_dir,
+asfr_dir_1 <- estimate_fertility_rates(opop = kin_egos_dir,
                               final_sim_year = 2022 , #[Jan-Dec]
                               year_min = 1785, # Closed [
                               year_max = 2020, # Open )
@@ -449,11 +466,11 @@ bind_rows(TFR_whole, TFR_ext, TFR_dir) %>%
 #retrieved from a SOCSIM simulation and subsets of "extended" and direct" family trees without duplicates") 
 ggsave(file="Graphs/Socsim_Exp2_TFR.jpeg", width=17, height=9, dpi=200)
 
-## Life Expectancy at birth ----
+# Life Expectancy at birth ----
 # Calculate life expectancy at birth from asmr 1x1
 
 # Retrieve age-specific mortality rates for the subset of "extended" family trees without duplicates
-asmr_ext_1 <- estimate_mortality_rates(opop = kin_egos2023_ext,
+asmr_ext_1 <- estimate_mortality_rates(opop = kin_egos_ext,
                                       final_sim_year = 2022, #[Jan-Dec]
                                       year_min = 1755, # Closed
                                       year_max = 2020, # Open )
@@ -463,7 +480,7 @@ asmr_ext_1 <- estimate_mortality_rates(opop = kin_egos2023_ext,
 save(asmr_ext_1, file = "Measures/asmr_ext_1.RData")
 
 # Retrieve age-specific mortality rates for the subset of "direct" family trees without duplicates
-asmr_dir_1 <- estimate_mortality_rates(opop = kin_egos2023_dir,
+asmr_dir_1 <- estimate_mortality_rates(opop = kin_egos_dir,
                                       final_sim_year = 2022, #[Jan-Dec]
                                       year_min = 1770, # Closed
                                       year_max = 2020, # Open )
@@ -598,8 +615,12 @@ bind_rows(TFR_whole %>%
 ggsave(file="Graphs/Final_Socsim_Exp2_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
-## Sex Ratio at Birth and Infant Mortality Rate
-# The Functions_Retrieve_Rates.R must be called to use the asYr() function
+## Sex Ratio at Birth and Infant Mortality Rate ----
+
+# Convert SOCSIM months to calendar years. 
+asYr <- function(month, last_month, final_sim_year) {
+  return(final_sim_year - trunc((last_month - month)/12))
+}
 
 ## Define years if not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
@@ -629,7 +650,7 @@ SRB_whole <- opop %>%
          Dataset = "Whole_simulation") 
 
 # Sex Ratio at Birth by year for "extended" family trees subset without duplicates
-SRB_ext <- kin_egos2023_ext %>% 
+SRB_ext <- kin_egos_ext %>% 
   mutate(Year = asYr(dob, last_month, final_sim_year),
          Sex = ifelse(fem == 1, "Female", "Male")) %>% 
   filter(Year %in% year_range) %>% 
@@ -645,7 +666,7 @@ SRB_ext <- kin_egos2023_ext %>%
          Dataset = "Trees_extended") 
 
 # Sex Ratio at Birth by year for subset of "direct" family trees without duplicates
-SRB_dir <- kin_egos2023_dir %>% 
+SRB_dir <- kin_egos_dir %>% 
   mutate(Year = asYr(dob, last_month, final_sim_year),
          Sex = ifelse(fem == 1, "Female", "Male")) %>% 
   filter(Year %in% year_range) %>% 
@@ -683,7 +704,7 @@ Births_whole <- opop %>%
          Event = "Births")
 
 # Births by year from "Extended" family trees subset without duplicates
-Births_ext <- kin_egos2023_ext %>% 
+Births_ext <- kin_egos_ext %>% 
   mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
   filter(Year %in% year_range) %>% 
   count(Year) %>%
@@ -694,7 +715,7 @@ Births_ext <- kin_egos2023_ext %>%
          Event = "Births")
 
 # Births by year from subset of "direct" family trees without duplicates
-Births_dir <- kin_egos2023_dir %>% 
+Births_dir <- kin_egos_dir %>% 
   mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
   filter(Year %in% year_range) %>% 
   count(Year) %>%
@@ -718,7 +739,7 @@ Deaths_0_whole <- opop %>%
          Event = "Deaths")
 
 # Deaths below age 1 (0-11 months) from "Extended" family trees subset without duplicates
-Deaths_0_ext <- kin_egos2023_ext %>% 
+Deaths_0_ext <- kin_egos_ext %>% 
   filter(dod != 0) %>% 
   mutate(age_death_months = dod-dob,
          Year = asYr(dod, last_month, final_sim_year)) %>% 
@@ -732,7 +753,7 @@ Deaths_0_ext <- kin_egos2023_ext %>%
 
 # Deaths below age 1 (0-11 months) from subset of "direct" family trees without duplicates
 # There should be no infant mortality in this subset, but let's double check it
-Deaths_0_dir <- kin_egos2023_dir %>% 
+Deaths_0_dir <- kin_egos_dir %>% 
   filter(dod != 0) %>% 
   mutate(age_death_months = dod-dob,
          Year = asYr(dod, last_month, final_sim_year)) %>% 
@@ -785,7 +806,7 @@ bind_rows(SRB_whole, SRB_ext, SRB_dir) %>%
 ggsave(file="Graphs/Socsim_Exp2_SRB_IMR.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
-## Births and Deaths by year from whole simulation and subsets of "extended" and direct" family trees  -----
+## Births and Deaths counts by year -----
 
 ## final_sim_year, year_min, year_max, year_range must be set in the Global Environment. 
 # They are defined above. 
@@ -804,7 +825,7 @@ Deaths_whole <- opop %>%
          Event = "Deaths")
 
 # Death counts by year from subset of "Extended" family trees without duplicates
-Deaths_ext <- kin_egos2023_ext %>% 
+Deaths_ext <- kin_egos_ext %>% 
   filter(dod != 0) %>% 
   mutate(Year = asYr(dod, last_month, final_sim_year)) %>% 
   filter(Year %in% year_range) %>% 
@@ -816,7 +837,7 @@ Deaths_ext <- kin_egos2023_ext %>%
          Event = "Deaths")
 
 # Death counts by year from subset of "direct" family trees without duplicates
-Deaths_dir <- kin_egos2023_dir %>% 
+Deaths_dir <- kin_egos_dir %>% 
   filter(dod != 0) %>% 
   mutate(Year = asYr(dod, last_month, final_sim_year)) %>% 
   filter(Year %in% year_range) %>% 
