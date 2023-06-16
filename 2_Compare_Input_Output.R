@@ -29,6 +29,10 @@ library(rsocsim) # Functions to estimate rates
 ## Load theme for the graphs
 source("Functions_Graphs.R")
 
+# Load function to calculate life table from asmr 1x1
+# Currently, it only works with asmr calculated with rsocsim::estimate_mortality_rates()
+source("Functions_Life_Table.R")
+
 # Load saved list with opop from simulations, generated in 1_Run_Simulations.R
 load("sims_opop.RData")
 # Load saved list with omar from simulations, generated in 1_Run_Simulations.R
@@ -314,11 +318,11 @@ ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
-# Here, we use the socsim rates by single calendar year and year of age
+# Here, we use the socsim rates by 1 year age group and 1 calendar year
 
 # Total Fertility Rate ----
 
-## Retrieve age-specific fertility rates, by single calendar year and 1 year age group
+## Retrieve age-specific fertility rates, by 1 year age group and 1 calendar year
 asfr_10_1 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
                                                           final_sim_year = 2022 , #[Jan-Dec]
                                                           year_min = 1750, # Closed [
@@ -379,7 +383,7 @@ ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
 # Life Expectancy at birth ----
 # Calculate life expectancy at birth 1x1 for the 10 SOCSIM simulations
 
-# Retrieve age-specific mortality rates, by single calendar year and 1 year age group
+# Retrieve age-specific mortality rates, by 1 year age group and 1 calendar year
 asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
                                                   final_sim_year = 2022, #[Jan-Dec]
                                                   year_min = 1750, # Closed
@@ -389,50 +393,14 @@ asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
                                                   age_group = 1), # [,)
                      .id = "Sim_id") 
 save(asmr_10_1, file = "Measures/asmr_10_1.RData")
-
 load("Measures/asmr_10_1.RData")
 
-# This code was inspired by Tim Riffe's BSSD2021Module2 code to calculate life tables
-# https://github.com/timriffe/BSSD2021Module2/blob/master/02_tuesday/02_tuesday.Rmd 
-
-lt_10 <- asmr_10_1 %>% 
-  mutate(Age = as.numeric(str_extract(age, "\\d+"))) %>% 
-  rename(mx = socsim) %>% 
-  group_by(Sim_id, year, sex) %>% 
-  mutate(n = ifelse(Age == max(Age), 1, lead(Age)-Age), # n = 1 for Open Age Interval as in rate files
-         rn = row_number()) %>% 
-  # Filter data frame until maximum row with mx greater than 0
-  filter(between(rn, 1, max(which(mx > 0)))) %>% 
-  mutate(mx = case_when(is.nan(mx) ~ 0,
-                        is.infinite(mx) ~ 1,  # Set Infinite mx(x/0) to 1
-                        TRUE ~ mx),
-         # Use a0 formulas from HMD (Modified version from Andreev and Kingkade, 2015)
-         ax = case_when(Age == 0 & sex == "female" & mx < 0.01724 ~ 0.14903 - 2.05527 * mx,
-                        Age == 0 & sex == "female" & mx < 0.06891 ~ 0.04667 + 3.88089 * mx,
-                        Age == 0 & sex == "female" & mx >= 0.06891 ~ 0.31411,
-                        Age == 0 & sex == "male" & mx < 0.02300 ~ 0.14929 - 1.99545 * mx,
-                        Age == 0 & sex == "male" & mx < 0.08307 ~ 0.02832 + 3.26021 * mx,
-                        Age == 0 & sex == "male" & mx >= 0.08307 ~ 0.29915,
-                        Age == max(Age) ~ 1/mx, # With this transformation, there can be very high ax
-                        TRUE ~ n/2),
-         qx = (mx * n) / (1 + (n - ax) * mx), 
-         qx = case_when(Age == max(Age) ~ 1, 
-                        qx > 1 ~ 1, TRUE ~ qx)) %>%  
-  # Filter data frame until minimum row with qx == 1, to avoid having more than one qx = 1
-  filter(between(rn, 1, min(which(qx ==1)))) %>%
-  mutate(px = 1 - qx,
-         lx = 1e5 * c(1, cumprod(px[-n()])),
-         dx = lx * qx,
-         Lx = n * lx - (n - ax) * dx, 
-         Tx = Lx %>% rev() %>% cumsum() %>% rev(),
-         ex = Tx / lx)  %>% 
-  ungroup() 
+# Compute life table from SOCSIM's asmr 1x1 for each simulation
+lt_10 <- lt_socsim_sims(asmr_socsim_sims = asmr_10_1)
 save(lt_10, file = "Measures/lt_10.RData")
-
 load("Measures/lt_10.RData")
 
-
-## Compare with ex at age 0 for Sweden in HDM
+## Compare with ex at age 0 for Sweden in HMD
 
 # Get female life tables from HMD
 ltf <- readHMDweb(CNTRY = "SWE",
@@ -763,3 +731,53 @@ asmr_whole_1 <- asmr_10_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup()
 save(asmr_whole_1, file = "Measures/asmr_whole_1.RData")
+
+
+### Quick plots to be modified later
+
+load("Measures/asfr_whole_1.RData")
+## Mean TFR, with heterogeneous fertility disabled. 
+# Calculate mean TFR from SOCSIM
+SocsimF1_mean <-  asfr_whole_1 %>% 
+  mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  group_by(Year) %>% 
+  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  ungroup() %>% 
+  mutate(Source = "SOCSIM") 
+
+## Plot TFR from HFD vs SOCSIM 
+bind_rows(HFCD1, SocsimF1_mean) %>%
+  mutate(transp = ifelse(Source == "SOCSIM", "0", "1")) %>% 
+  ggplot(aes(x = Year, y = TFR, group = interaction(Source, Sim_id))) +
+  geom_line(aes(colour = Source, alpha = transp), linewidth = 1.3)+
+  scale_color_manual(values = c("#30734A", "#CA650D"))+
+  scale_alpha_discrete(guide = "none", range = c(0.5, 1))+
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  theme_graphs() +
+  labs(title = "Total Fertility rates in Sweden (1751-2022), retrieved from HFD and 10 Socsim simulation outputs") 
+ggsave(file="Graphs/HFD_SOCSIM_10_TFR_hetfert0.jpeg", width=17, height=9, dpi=200)
+
+
+## Mean TFR, with heterogeneous fertility disabled. 
+# Calculate mean TFR from SOCSIM
+
+asfr_whole_1 <- load("U:/SOCSIM/SOCSIM_Genealogies/Sweden_hetfert/Measures/asfr_whole_1.RData")
+
+SocsimF1_meanB <-  asfr_whole_1 %>% 
+  mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  group_by(Year) %>% 
+  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  ungroup() %>% 
+  mutate(Source = "SOCSIM") 
+
+## Plot TFR from HFD vs SOCSIM 
+bind_rows(HFCD1, SocsimF1_meanB) %>%
+  mutate(transp = ifelse(Source == "SOCSIM", "0", "1")) %>% 
+  ggplot(aes(x = Year, y = TFR, group = interaction(Source, Sim_id))) +
+  geom_line(aes(colour = Source, alpha = transp), linewidth = 1.3)+
+  scale_color_manual(values = c("#30734A", "#CA650D"))+
+  scale_alpha_discrete(guide = "none", range = c(0.5, 1))+
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  theme_graphs() +
+  labs(title = "Total Fertility rates in Sweden (1751-2022), retrieved from HFD and 10 Socsim simulation outputs") 
+ggsave(file="Graphs/HFD_SOCSIM_10_TFR_hetfert1.jpeg", width=17, height=9, dpi=200)
