@@ -81,6 +81,7 @@ end <- Sys.time()
 print(end-start)
 # Time difference of 18 hours for 10 simulations, with initial population of 50000
 # Time difference of 1.663983 hours for  10 simulations, with initial population of 5000
+# Time difference of 3.616023 hours for  10 simulations, with initial population of 5000 and hetfert 0
 #----------------------------------------------------------------------------------------------------
 ## Read the output .opop and .omar files ----
 
@@ -93,7 +94,7 @@ sims_seeds <- as.numeric(sims_seeds)
 
 # Iterate the function for the 10 seeds to read opop of the 10 simulations
 sims_opop <- map(sims_seeds, ~ rsocsim::read_opop(folder = getwd(),
-                                                  supfile = "Sweden.sup",
+                                                  supfile = "Sweden_0.sup",
                                                   seed = .,
                                                   suffix = "",
                                                   fn = NULL))
@@ -107,7 +108,7 @@ save(sims_opop, file = "sims_opop.RData")
 
 # Iterate the function for the 10 seeds to read omar of the 10 simulations
 sims_omar <- map(sims_seeds, ~ rsocsim::read_omar(folder = getwd(),
-                                                  supfile = "Sweden.sup",
+                                                  supfile = "Sweden_0.sup",
                                                   seed = .,
                                                   suffix = "",
                                                   fn = NULL))
