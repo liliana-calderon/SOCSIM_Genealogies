@@ -10,7 +10,7 @@
 # This is a modified version of the script "U:/SOCSIM/SOCSIM_Genealogies/SWE_PAA/R_old/Function_Ancestors_Old.R" 
 #----------------------------------------------------------------------------------------------------
 
-get_ancestors <- function(egos, opop = opop) {
+retrieve_ancestors <- function(egos, opop = opop) {
   
   opop2 <- opop %>% 
     select(pid, mom, pop) %>% 
