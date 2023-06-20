@@ -326,21 +326,20 @@ ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
 asfr_10_1 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
                                                           final_sim_year = 2022 , #[Jan-Dec]
                                                           year_min = 1750, # Closed [
-                                                          year_max = 2020, # Open )
+                                                          year_max = 2023, # Open )
                                                           year_group = 1, 
                                                           age_min_fert = 10, # Closed [
                                                           age_max_fert = 55, # Open )
                                                           age_group = 1), # [,)
                    .id = "Sim_id") 
 save(asfr_10_1, file = "Measures/asfr_10_1.RData")
-
 load("Measures/asfr_10_1.RData")
 
 # Year breaks. Extract all the unique numbers from the intervals. 
-year_breaks_fert <- unique(as.numeric(str_extract_all(asfr_10_1$year, "\\d+", simplify = T)))
+year_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$year, "\\d+", simplify = T)))
 
 # Year range to filter HFD data
-year_range_fert <- min(year_breaks_fert):max(year_breaks_fert-1)
+year_range_fert_1 <- min(year_breaks_fert):max(year_breaks_fert-1)
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
 age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
@@ -351,7 +350,7 @@ age_group_fert <- unique(diff(age_breaks_fert))
 
 # Calculate TFR from HFC and HFD
 HFCD1 <- bind_rows(HFC, HFD) %>% 
-  filter(Year %in% year_range_fert) %>% 
+  filter(Year %in% year_range_fert_1) %>% 
   select(-OpenInterval) %>% 
   group_by(Year) %>% 
   summarise(TFR = sum(ASFR, na.rm = T)) %>% 
@@ -387,7 +386,7 @@ ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
 asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
                                                   final_sim_year = 2022, #[Jan-Dec]
                                                   year_min = 1750, # Closed
-                                                  year_max = 2020, # Open )
+                                                  year_max = 2023, # Open )
                                                   year_group = 1,
                                                   age_max_mort = 110, # Open )
                                                   age_group = 1), # [,)
@@ -448,7 +447,7 @@ bind_rows(HMD_lt, SOCSIM_lt) %>%
   scale_alpha_discrete(guide = "none", range = c(0.2, 1))+
   facet_wrap(~Sex) +
   theme_graphs()+
-  labs(title = "Life Expectancy at Birth in Sweden (e0), 1751-2020, retrieved from HMD and 10 SOCSIM simulation outputs",
+  labs(title = "Life Expectancy at Birth in Sweden (e0), 1751-2022, retrieved from HMD and 10 SOCSIM simulation outputs",
        y = "e0") 
 ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
 
@@ -471,7 +470,7 @@ bind_rows(HFCD1 %>%
               filter(Age == 0) %>% 
               rename(Estimate = ex) %>% 
               mutate(Rate = "e0")) %>% 
-  filter(Sex == "female") %>% 
+  filter(Sex == "female") %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1"),
          Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth"))) %>%
@@ -482,9 +481,44 @@ bind_rows(HFCD1 %>%
   scale_alpha_discrete(guide="none", range = c(0.1, 1)) +
   scale_x_continuous(breaks = c(1750, 1800, 1850, 1900, 1950, 2000))+
   theme_graphs()
-  # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
+  # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
    # Save the plot
 ggsave(file="Graphs/Final_Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
+
+#----------------------------------------------------------------------------------------------------
+## Calculate the mean measures of the different simulations ----
+
+# Age-specific fertility rates 5x5
+load("Measures/asfr_10.RData")
+asfr_whole <- asfr_10 %>%
+  group_by(year, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup()
+save(asfr_whole, file = "Measures/asfr_whole.RData")
+
+# Age-specific mortality rates 5x5
+load("Measures/asmr_10.RData")
+asmr_whole <- asmr_10 %>%
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup()
+save(asmr_whole, file = "Measures/asmr_whole.RData")
+
+# Age-specific fertility rates 1x1
+load("Measures/asfr_10_1.RData")
+asfr_whole_1 <- asfr_10_1 %>%
+  group_by(year, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup()
+save(asfr_whole_1, file = "Measures/asfr_whole_1.RData")
+
+# Age-specific mortality rates 1x1
+load("Measures/asmr_10_1.RData")
+asmr_whole_1 <- asmr_10_1 %>%
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup()
+save(asmr_whole_1, file = "Measures/asmr_whole_1.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Births and Deaths counts by calendar year -----
@@ -497,7 +531,7 @@ last_month <- map_dbl(sims_opop, ~ .x %>%
 ## If not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
 year_min <- 1750 # Closed [
-year_max <- 2020 # Open )
+year_max <- 2023 # Open )
 
 # Year range
 year_range <- year_min:(year_max-1)
@@ -540,7 +574,6 @@ ggsave(file="Graphs/Socsim_Births_Deaths.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate ----
-# We use here the asYr() function from the Functions_Fertility_Rates_Mod.R
 
 # Convert SOCSIM months to calendar years. 
 asYr <- function(month, last_month, final_sim_year) {
@@ -550,7 +583,7 @@ asYr <- function(month, last_month, final_sim_year) {
 ## If not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
 year_min <- 1750 # Closed [
-year_max <- 2020 # Open )
+year_max <- 2023 # Open )
 
 # Year range
 year_range <- year_min:(year_max-1)
@@ -695,39 +728,3 @@ asmr_10_1 %>%
   geom_line(linewidth = 1)+
   scale_color_viridis(option = "C", discrete = T, direction = -1) +
   theme_graphs()
-
-
-#----------------------------------------------------------------------------------------------------
-## Calculate the mean of the different simulations ----
-
-# Age-specific fertility rates 5x5
-load("Measures/asfr_10.RData")
-asfr_whole <- asfr_10 %>%
-  group_by(year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-save(asfr_whole, file = "Measures/asfr_whole.RData")
-
-# Age-specific mortality rates 5x5
-load("Measures/asmr_10.RData")
-asmr_whole <- asmr_10 %>%
-  group_by(year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-save(asmr_whole, file = "Measures/asmr_whole.RData")
-
-# Age-specific fertility rates 1x1
-load("Measures/asfr_10_1.RData")
-asfr_whole_1 <- asfr_10_1 %>%
-  group_by(year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-save(asfr_whole_1, file = "Measures/asfr_whole_1.RData")
-
-# Age-specific mortality rates 1x1
-load("Measures/asmr_10_1.RData")
-asmr_whole_1 <- asmr_10_1 %>%
-  group_by(year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-save(asmr_whole_1, file = "Measures/asmr_whole_1.RData")
