@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 14-06-2023
+# Last modified by Liliana Calderon on 19-06-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 
@@ -47,7 +47,10 @@ load("sims_opop.RData")
 # Load saved list with omar from 10 simulations, generated in 1_Run_Simulations.R
 load("sims_omar.RData")
 
-# Function to Get a 10% sample of people alive at the end of each simulation, i.e. dod == 0, 
+# Create a sub-folder called "Subsets" to save the opop subsets used for each experiment
+ifelse(!dir.exists("Subsets"), dir.create("Subsets"), FALSE)
+
+# Function to get a 10% sample of people alive at the end of each simulation, i.e. dod == 0, 
 # who are older than 18 years old on 01-01-final_sim_year+1 
 
 sample_egos <- function(opop = opop, final_sim_year, percentage) {
@@ -65,122 +68,96 @@ sample_egos <- function(opop = opop, final_sim_year, percentage) {
 egos_samp_10 <- map(sims_opop, ~ sample_egos(opop = .x,
                                              final_sim_year = 2022, 
                                              percentage = 10)) 
-save(egos_samp_10, file = "egos_samp_10.RData")
+save(egos_samp_10, file = "Subsets/egos_samp_10.RData")
 
 ## Retrieve the ancestors of each simulation sample of egos alive in 2023
-ancestors_egos_10 <- map2_dfr(egos_samp_10, sims_opop,
-                              ~ retrieve_ancestors(egos = .x, opop = .y), 
-                              .id = "Sim_id") 
+ancestors_10 <- map2_dfr(egos_samp_10, sims_opop,
+                           ~ retrieve_ancestors(egos = .x, opop = .y), 
+                           .id = "Sim_id") 
 # Save the data frame with the ancestors of 10 simulations samples
-save(ancestors_egos_10, file = "ancestors_egos_10.RData")
+save(ancestors_10, file = "Subsets/ancestors_10.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Age-Specific Fertility and Mortality rates, 5x5  -----
-# Retrieve and compare the rates derived from the whole simulation with those from the genealogical subset
-# of direct ancestors both will and without duplicates
-
-# Load mean Age-specific fertility rates 5x5
-load("Measures/asfr_10_whole.RData")
-
-# Load mean Age-specific mortality rates 5x5
-load("Measures/asmr_10_whole.RData")
-
-# Load mean Age-specific fertility rates 1x1
-load("Measures/asfr_10_1_whole.RData")
-
-# Load mean Age-specific mortality rates 1x1
-load("Measures/asmr_10_1_whole.RData")
-
-
-## Calculate ASFR and ASMR for the Whole simulation (seed "13486")
-
-# Retrieve age-specific fertility rates for the whole single simulation 
-asfr_whole <- estimate_fertility_rates(opop = opop,
-                                      final_sim_year = 2022, #[Jan-Dec]
-                                      year_min = 1750, # Closed [
-                                      year_max = 2020, # Open )
-                                      year_group = 5, 
-                                      age_min_fert = 10, # Closed [
-                                      age_max_fert = 55, # Open )
-                                      age_group = 5) #[,)
-save(asfr_whole, file = "Measures/asfr_whole.RData")
-
-# Retrieve age-specific mortality rates for the whole single simulation
-asmr_whole <- estimate_mortality_rates(opop = opop, 
-                                      final_sim_year = 2022, #[Jan-Dec]
-                                      year_min = 1750, # Closed
-                                      year_max = 2020, # Open )
-                                      year_group = 5,
-                                      age_max_mort = 110, # Open )
-                                      age_group = 5) #[,)
-save(asmr_whole, file = "Measures/asmr_whole.RData")
+# Estimate and compare the rates derived from the whole simulation with those from the genealogical subset
+# of direct ancestors both with and without duplicates
 
 # Load the data frame with the ancestors of 10% sample of egos alive in 2022
-load("ancestors_egos_10.RData")
+load("Subsets/ancestors_10.RData")
 
-#  Calculate ASFR and ASMR for genealogical subset of direct ancestors of population alive in 01-01-2022 with duplicates 
+#  Estimate ASFR and ASMR for genealogical subset of direct ancestors of population alive in 01-01-2023 with duplicates 
 
-# Copy the vector of direct ancestors with duplicates. 
-ancestors_egos_wd <- ancestors_egos_10 
+# Create a list of data frames containing opop of ancestors for each simulation
+ancestors_wd <- ancestors_10 %>%
+  split(.$Sim_id)
 
-# Retrieve age-specific fertility rates for the genealogical subset of direct ancestors with duplicates
-asfr_wd <- estimate_fertility_rates_mod(opop = ancestors_egos_wd,
-                                        final_sim_year = 2022 , #[Jan-Dec]
-                                        year_min = 1750, # Closed [
-                                        year_max = 2020, # Open )
-                                        year_group = 5, 
-                                        age_min_fert = 10, # Closed [
-                                        age_max_fert = 55, # Open )
-                                        age_group = 5) #[,)
+# Estimate age-specific fertility rates for the genealogical subset of direct ancestors with duplicates
+# We need to use here the modified function that allows the joining of data frames with duplicates
+asfr_wd <- map_dfr(ancestors_wd, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                final_sim_year = 2022, #[Jan-Dec]
+                                                                year_min = 1750, # Closed [
+                                                                year_max = 2020, # Open )
+                                                                year_group = 5, 
+                                                                age_min_fert = 10, # Closed [
+                                                                age_max_fert = 55, # Open )
+                                                                age_group = 5), # [,)
+                       .id = "Sim_id") 
 save(asfr_wd, file = "Measures/asfr_wd.RData")
 
-# Retrieve age-specific mortality rates for the genealogical subset of direct ancestor with duplicates
-asmr_wd <- estimate_mortality_rates(opop = ancestors_egos_wd,
-                                   final_sim_year = 2022, #[Jan-Dec]
-                                   year_min = 1750, # Closed
-                                   year_max = 2020, # Open )
-                                   year_group = 5,
-                                   age_max_mort = 110, # Open )
-                                   age_group = 5) #[,)
+# Estimate age-specific mortality rates for the genealogical subset of direct ancestor with duplicates
+asmr_wd <- map_dfr(ancestors_wd, ~ estimate_mortality_rates(opop = .x,
+                                                            final_sim_year = 2022, #[Jan-Dec]
+                                                            year_min = 1750, # Closed
+                                                            year_max = 2020, # Open )
+                                                            year_group = 5,
+                                                            age_max_mort = 110, # Open )
+                                                            age_group = 5), # [,)
+                   .id = "Sim_id") 
 save(asmr_wd, file = "Measures/asmr_wd.RData")
 
 
 ## Calculate ASFR and ASMR for genealogical subset of direct ancestors without duplicates 
 
-# Ancestors without duplicates for sample 
-ancestors_egos_wod <- ancestors_egos_10 %>% distinct(pid, .keep_all = TRUE)
+# Keep only unique pids for each simulation and create a list of data frames containing opop of ancestors 
+ancestors_wod <- ancestors_10 %>% 
+  group_by(Sim_id) %>% 
+  distinct(pid, .keep_all = TRUE) %>% 
+  ungroup() %>% 
+  split(.$Sim_id)
 
-# Retrieve age-specific fertility rates for the genealogical subset of direct ancestors without duplicates
-asfr_wod <- estimate_fertility_rates(opop = ancestors_egos_wod,
-                                    final_sim_year = 2022 , #[Jan-Dec]
-                                    year_min = 1750, # Closed [
-                                    year_max = 2020, # Open )
-                                    year_group = 5, 
-                                    age_min_fert = 10, # Closed [
-                                    age_max_fert = 55, # Open )
-                                    age_group = 5) #[,)
+# Estimate age-specific fertility rates for the genealogical subset of direct ancestors without duplicates
+asfr_wod <- map_dfr(ancestors_wod, ~ estimate_fertility_rates(opop = .x,
+                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                              year_min = 1750, # Closed [
+                                                              year_max = 2020, # Open )
+                                                              year_group = 5, 
+                                                              age_min_fert = 10, # Closed [
+                                                              age_max_fert = 55, # Open )
+                                                              age_group = 5), # [,)
+                             .id = "Sim_id") 
 save(asfr_wod, file = "Measures/asfr_wod.RData")
 
-# Retrieve age-specific mortality rates for the genealogical subset of direct ancestors without duplicates
-asmr_wod <- estimate_mortality_rates(opop = ancestors_egos_wod,
-                                      final_sim_year = 2022, #[Jan-Dec]
-                                      year_min = 1750, # Closed
-                                      year_max = 2020, # Open )
-                                      year_group = 5,
-                                      age_max_mort = 110, # Open )
-                                      age_group = 5) #[,)
+# Estimate age-specific mortality rates for the genealogical subset of direct ancestors without duplicates
+asmr_wod <- map_dfr(ancestors_wod, ~ estimate_mortality_rates(opop = .x,
+                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                              year_min = 1750, # Closed
+                                                              year_max = 2020, # Open )
+                                                              year_group = 5,
+                                                              age_max_mort = 110, # Open )
+                                                              age_group = 5), # [,)
+                   .id = "Sim_id") 
 save(asmr_wod, file = "Measures/asmr_wod.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Plot estimates from genealogical subsets of direct ancestors ----
 
 # Load ASFR and ASMR for the genealogical subset of direct ancestors with duplicates
-load("Measures/asfr_wd.RData")
-load("Measures/asmr_wd.RData")
+# load("Measures/asfr_wd.RData")
+# load("Measures/asmr_wd.RData")
 
 # Load ASFR and ASMR for the genealogical subset of direct ancestors without duplicates
-load("Measures/asfr_wod.RData")
-load("Measures/asmr_wod.RData")
+# load("Measures/asfr_wod.RData")
+# load("Measures/asmr_wod.RData")
 
 # Choose years to plot (in intervals).
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
@@ -189,16 +166,16 @@ yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 age_levels <- levels(asmr_wd$age)
 
 ## ASFR and ASMR (for women) genealogical subset of direct ancestors with duplicates
-bind_rows(asfr_wd %>% 
+bind_rows(asfr_wd %>%
             mutate(rate = "ASFR",
                    sex = "female"),
-          asmr_wd %>% 
-            mutate(rate = "ASMR") %>% 
+          asmr_wd %>%
+            mutate(rate = "ASMR") %>%
             filter(sex == "female")) %>% 
   # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
   filter(socsim !=0 & !is.infinite(socsim) & !is.nan(socsim)) %>% 
   filter(year %in% yrs_plot) %>% 
-  ggplot(aes(x = age, y = socsim, group = year, colour = year)) +
+  ggplot(aes(x = age, y = socsim, group = interaction(Sim_id, year), colour = year)) +
   geom_line(linewidth = 1) +
   facet_wrap(. ~ rate, scales = "free") + 
   theme_graphs()  +
@@ -219,7 +196,7 @@ bind_rows(asfr_wod %>%
   # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
   filter(socsim !=0 & !is.infinite(socsim) & !is.nan(socsim)) %>% 
   filter(year %in% yrs_plot) %>% 
-  ggplot(aes(x = age, y = socsim, group = year, colour = year)) +
+  ggplot(aes(x = age, y = socsim, group = interaction(Sim_id, year), colour = year)) +
   geom_line(linewidth = 1) +
   facet_wrap(. ~ rate, scales = "free") + 
   theme_graphs()  +
@@ -229,15 +206,15 @@ bind_rows(asfr_wod %>%
   scale_color_viridis(option = "F", discrete = T, direction = -1)+
   labs(x = "Age", y = "Estimate")
 
-
 #----------------------------------------------------------------------------------------------------
 ## Comparison of whole simulation with subsets of direct ancestors ----
 
-# Load ASFR and ASMR for the whole single simulation 
-load("Measures/asfr_whole.RData")
-load("Measures/asmr_whole.RData")
-
 # ASFR ----
+
+# Load mean ASFR 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
+load("Measures/asfr_whole.RData")
+
+## Calculate the mean of the different simulations and add relevant columns
 
 # Whole SOCSIM simulation
 asfr_whole2 <- asfr_whole %>% 
@@ -247,12 +224,18 @@ asfr_whole2 <- asfr_whole %>%
 
 # Genealogical subset of direct ancestors with duplicates
 asfr_wd2 <- asfr_wd %>% 
+  group_by(year, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
   rename(ASFR = socsim) %>% 
   mutate(Dataset = "Ancestors_w_dup",
          Rate = "ASFR") 
 
 # Genealogical subset of direct ancestors without duplicates
 asfr_wod2 <- asfr_wod %>% 
+  group_by(year, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
   rename(ASFR = socsim) %>% 
   mutate(Dataset = "Ancestors_wo_dup", 
          Rate = "ASFR") 
@@ -276,6 +259,9 @@ ggsave(file="Graphs/Socsim_Exp1_ASFR.jpeg", width=17, height=9, dpi=200)
 
 # ASMR ----
 
+# Load mean ASMR rates 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
+load("Measures/asmr_whole.RData")
+
 # Whole SOCSIM simulation
 asmr_whole2 <- asmr_whole %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),
@@ -285,6 +271,9 @@ asmr_whole2 <- asmr_whole %>%
   
 # Genealogical subset of direct ancestors with duplicates
 asmr_wd2 <- asmr_wd %>% 
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),
          Dataset = "Ancestors_w_dup",
          Rate = "ASMR") %>% 
@@ -292,6 +281,9 @@ asmr_wd2 <- asmr_wd %>%
 
 # Genealogical subset of direct ancestors without duplicates
 asmr_wod2 <- asmr_wod %>% 
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),
          Dataset = "Ancestors_wo_dup",
          Rate = "ASMR") %>% 
@@ -316,7 +308,8 @@ bind_rows(asmr_whole2, asmr_wd2, asmr_wod2) %>%
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
   theme_graphs()
-  #labs(title = "Age-Specific Mortality Rates in Sweden (1751-2022), retrieved from a SOCSIM simulation and subset of direct ancestors") 
+  #labs(title = "Age-Specific Mortality Rates in Sweden (1751-2022), 
+ # retrieved from a SOCSIM simulation and subset of direct ancestors") 
 ggsave(file="Graphs/socsim_Exp1_ASMR.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
@@ -343,12 +336,12 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   mutate(age = factor(as.character(age), levels = age_levels), 
          Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
                        "Age-Specific Mortality Rates"),
-         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Experiment 1 with duplicates",
-                             Dataset == "Ancestors_wo_dup" ~ "Experiment 1 without duplicates",
+         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
+                             Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
                              TRUE ~ "Whole simulation")) %>% 
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(. ~ Rate, scales = "free") + 
-  geom_line(linewidth = 1.3)+
+  geom_line(linewidth = 1.3, show.legend = TRUE)+
   geom_point(aes(shape = Dataset), size = 7)+
   scale_color_manual(values = c("#B72779", "#2779B7"))+
   scale_shape_manual(values = c(15,17,46)) + 
@@ -369,40 +362,32 @@ ggsave(file="Graphs/Final_Socsim_Exp1_ASFR_ASMR.jpeg", width=17, height=9, dpi=2
 # Total Fertility Rate ----
 # Calculate Total Fertility Rate from asfr 1x1
 
-# Retrieve age-specific fertility rates 1x1 for the whole single simulation 
-asfr_whole_1 <- estimate_fertility_rates(opop = opop,
-                                final_sim_year = 2022 , #[Jan-Dec]
-                                year_min = 1750, # Closed [
-                                year_max = 2020, # Open )
-                                year_group = 1, 
-                                age_min_fert = 10, # Closed [
-                                age_max_fert = 55, # Open )
-                                age_group = 1) #[,)
-save(asfr_whole_1, file = "Measures/asfr_whole_1.RData")
-
-# Retrieve age-specific fertility rates 1x1 for the genealogical subset of direct ancestors with duplicates
-asfr_wd_1 <- estimate_fertility_rates_mod(opop = ancestors_egos_wd,
-                                          final_sim_year = 2022 , #[Jan-Dec]
-                                          year_min = 1750, # Closed [
-                                          year_max = 2020, # Open )
-                                          year_group = 1, 
-                                          age_min_fert = 10, # Closed [
-                                          age_max_fert = 55, # Open )
-                                          age_group = 1) #[,)
+# Estimate age-specific fertility rates 1x1 for the genealogical subset of direct ancestors with duplicates
+# We need to use here the modified function that allows the joining of data frames with duplicates
+asfr_wd_1 <- map_dfr(ancestors_wd, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                  final_sim_year = 2022, #[Jan-Dec]
+                                                                  year_min = 1750, # Closed [
+                                                                  year_max = 2023, # Open )
+                                                                  year_group = 1, 
+                                                                  age_min_fert = 10, # Closed [
+                                                                  age_max_fert = 55, # Open )
+                                                                  age_group = 1), # [,)
+                   .id = "Sim_id") 
 save(asfr_wd_1, file = "Measures/asfr_wd_1.RData")
 
-# Retrieve age-specific fertility rates 1x1 for the genealogical subset of direct ancestors without duplicates
-asfr_wod_1 <- estimate_fertility_rates(opop = ancestors_egos_wod,
-                                      final_sim_year = 2022 , #[Jan-Dec]
-                                      year_min = 1750, # Closed [
-                                      year_max = 2020, # Open )
-                                      year_group = 1, 
-                                      age_min_fert = 10, # Closed [
-                                      age_max_fert = 55, # Open )
-                                      age_group = 1) #[,)
+# Estimate age-specific fertility rates 1x1 for the genealogical subset of direct ancestors without duplicates
+asfr_wod_1 <- map_dfr(ancestors_wod, ~ estimate_fertility_rates(opop = .x,
+                                                                final_sim_year = 2022, #[Jan-Dec]
+                                                                year_min = 1750, # Closed [
+                                                                year_max = 2023, # Open )
+                                                                year_group = 1, 
+                                                                age_min_fert = 10, # Closed [
+                                                                age_max_fert = 55, # Open )
+                                                                age_group = 1), # [,)
+                    .id = "Sim_id") 
 save(asfr_wod_1, file = "Measures/asfr_wod_1.RData")
 
-## Load asfr_1 data
+# Load mean Age-specific fertility rates 1x1 from the 10 simulations, calculated on 2_Compare_Input_Output
 load("Measures/asfr_whole_1.RData")
 load("Measures/asfr_wd_1.RData")
 load("Measures/asfr_wod_1.RData")
@@ -410,7 +395,7 @@ load("Measures/asfr_wod_1.RData")
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
 age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
 
-# Retrieve age_group size
+# Estimate age_group size
 age_group_fert <- unique(diff(age_breaks_fert))
 
 # Whole SOCSIM simulation
@@ -426,6 +411,9 @@ TFR_whole <- asfr_whole_1 %>%
 # Genealogical subset of direct ancestors with duplicates
 TFR_wd <- asfr_wd_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  group_by(Year, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>%
   group_by(Year) %>% 
   summarise(TFR = sum(socsim)*age_group_fert) %>%
   ungroup() %>% 
@@ -436,6 +424,9 @@ TFR_wd <- asfr_wd_1 %>%
 # Genealogical subset of direct ancestors without duplicates
 TFR_wod <- asfr_wod_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  group_by(Year, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>%
   group_by(Year) %>% 
   summarise(TFR = sum(socsim)*age_group_fert) %>%
   ungroup() %>% 
@@ -457,57 +448,60 @@ ggsave(file="Graphs/socsim_Exp1_TFR.jpeg", width=17, height=9, dpi=200)
 # Life Expectancy at birth ----
 # Calculate life expectancy at birth from asmr 1x1
 
-# Retrieve age-specific mortality rates for the whole simulation
-asmr_whole_1 <- estimate_mortality_rates(opop = opop, 
-                                        final_sim_year = 2022, #[Jan-Dec]
-                                        year_min = 1750, # Closed
-                                        year_max = 2020, # Open )
-                                        year_group = 1,
-                                        age_max_mort = 110, # Open )
-                                        age_group = 1) #[,)
-save(asmr_whole_1, file = "Measures/asmr_whole_1.RData")
-
-
-# Retrieve age-specific mortality rates for the genealogical subset of direct ancestors with duplicates
-asmr_wd_1 <- estimate_mortality_rates(opop = ancestors_egos_wd,
-                                     final_sim_year = 2022, #[Jan-Dec]
-                                     year_min = 1750, # Closed
-                                     year_max = 2020, # Open )
-                                     year_group = 1,
-                                     age_max_mort = 110, # Open )
-                                     age_group = 1) #[,)
+# Estimate age-specific mortality rates for the genealogical subset of direct ancestor with duplicates
+asmr_wd_1 <- map_dfr(ancestors_wd, ~ estimate_mortality_rates(opop = .x,
+                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                              year_min = 1750, # Closed
+                                                              year_max = 2023, # Open )
+                                                              year_group = 1,
+                                                              age_max_mort = 110, # Open )
+                                                              age_group = 1), # [,)
+                     .id = "Sim_id") 
 save(asmr_wd_1, file = "Measures/asmr_wd_1.RData")
 
-# Retrieve age-specific mortality rates for the genealogical subset of direct ancestors without duplicates
-asmr_wod_1 <- estimate_mortality_rates(opop = ancestors_egos_wod,
-                                      final_sim_year = 2022, #[Jan-Dec]
-                                      year_min = 1750, # Closed
-                                      year_max = 2020, # Open )
-                                      year_group = 1,
-                                      age_max_mort = 110, # Open )
-                                      age_group = 1) #[,)
+# Estimate age-specific mortality rates for the genealogical subset of direct ancestors without duplicates
+asmr_wod_1 <- map_dfr(ancestors_wod, ~ estimate_mortality_rates(opop = .x,
+                                                               final_sim_year = 2022, #[Jan-Dec]
+                                                               year_min = 1750, # Closed
+                                                               year_max = 2023, # Open )
+                                                               year_group = 1,
+                                                               age_max_mort = 110, # Open )
+                                                               age_group = 1), # [,)
+                    .id = "Sim_id") 
 save(asmr_wod_1, file = "Measures/asmr_wod_1.RData")
 
+
+# Load mean Age-specific mortality rates 1x1 from the 10 simulations, calculated on 2_Compare_Input_Output
+load("Measures/asmr_whole_1.RData")
 # Compute life table from asmr 1x1 for Whole SOCSIM simulation
 lt_whole <- lt_socsim(asmr_whole_1)
 save(lt_whole, file = "Measures/lt_whole.RData")
 
-# Compute life table from asmr 1x1 for the genealogical subset of direct ancestors with duplicates
+# Calculate the mean from asmr 1x1 for the genealogical subset of direct ancestors with duplicates
+asmr_wd_1 <- asmr_wd_1 %>%
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup()
+# Compute life table for the genealogical subset of direct ancestors with duplicates
 lt_wd <- lt_socsim(asmr_wd_1)
 save(lt_wd, file = "Measures/lt_wd.RData")
 
-# Compute life table from asmr 1x1 for the genealogical subset of direct ancestors without duplicates
+# Calculate the mean from asmr 1x1 for the genealogical subset of direct ancestors without duplicates
+asmr_wod_1 <- asmr_wd_1 %>%
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup()
+# Compute life table for the genealogical subset of direct ancestors without duplicates
 lt_wod <- lt_socsim(asmr_wod_1)
 save(lt_wod, file = "Measures/lt_wod.RData")
 
-
-## Load lt_1 data
-load("Measures/asmr_whole_1.RData")
-load("Measures/lt_whole.RData")
-load("Measures/lt_wd.RData")
-load("Measures/lt_wod.RData")
+## Load life tables
+# load("Measures/lt_whole.RData")
+# load("Measures/lt_wd.RData")
+# load("Measures/lt_wod.RData")
 
 # Year breaks. Extract all the unique numbers from the intervals 
+load("Measures/asmr_whole_1.RData")
 year_breaks_mort_1 <- unique(as.numeric(str_extract_all(asmr_whole_1$year, "\\d+", simplify = T)))
 
 # Year range to filter HMD data
@@ -535,7 +529,7 @@ lt_wod2 <- lt_wod %>%
   select(Year, ex, Dataset, Rate, sex, Age)
 
 bind_rows(lt_whole2, lt_wd2, lt_wod2) %>% 
-  filter(Age == 0 & Year %in% year_range_mort_1) %>%
+  filter(Age == 0 ) %>%
   mutate(Sex = ifelse(sex == "female", "Female", "Male")) %>% 
   ggplot(aes(x = Year, y = ex, group = Dataset))+
   geom_line(aes(colour = Dataset, linetype = Dataset), linewidth = 1.3)+
@@ -543,7 +537,7 @@ bind_rows(lt_whole2, lt_wd2, lt_wod2) %>%
   scale_linetype_manual(values = c("11", "22", "solid")) +
   facet_wrap(~Sex) +
   theme_graphs()+
-  labs(title = "Life expectancy at birth in Sweden (e0), 1751-2020, a SOCSIM simulation and genealogical subset of direct ancestors",
+  labs(title = "Life expectancy at birth in Sweden (e0), 1751-2022, a SOCSIM simulation and genealogical subset of direct ancestors",
        y = "e0") 
 ggsave(file="Graphs/socsim_Exp1_e0.jpeg", width=17, height=9, dpi=200)
 
@@ -571,32 +565,36 @@ bind_rows(TFR_whole %>%
               rename(Estimate = ex) %>% 
               filter(Age == 0)) %>% 
   filter(sex == "female") %>% 
-  mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life expectancy at birth"), 
-         Rate = factor(Rate, levels = c("Total Fertility Rate", "Life expectancy at birth")),
-         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Experiment 1 with duplicates",
-                             Dataset == "Ancestors_wo_dup" ~ "Experiment 1 without duplicates",
+  mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
+         Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth")),
+         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
+                             Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
                              TRUE ~ "Whole simulation")) %>%
   ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 9)+
-  geom_line(linewidth = 1.2) +
+  geom_line(linewidth = 1.2, show.legend = TRUE) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
   scale_shape_manual(values = c(15,17,46)) + 
   scale_x_continuous(breaks = yrs_plot2)+
   theme_graphs()
-# labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
+# labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
 
 # Save the plot
 ggsave(file="Graphs/Final_Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate ----
-# The Functions_Retrieve_Rates.R must be called to use the asYr() function
+
+# Convert SOCSIM months to calendar years. 
+asYr <- function(month, last_month, final_sim_year) {
+  return(final_sim_year - trunc((last_month - month)/12))
+}
 
 ## Define years of not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
 year_min <- 1750 # Closed [
-year_max <- 2020 # Open )
+year_max <- 2023 # Open )
 
 # Year range
 year_range <- year_min:(year_max-1)
@@ -621,7 +619,7 @@ SRB_whole <- opop %>%
          Dataset = "Whole_simulation") 
 
 # Sex Ratio at Birth by year for genealogical subset of direct ancestors with duplicates
-SRB_wd <- ancestors_egos_wd %>% 
+SRB_wd <- ancestors_wd %>% 
   mutate(Year = asYr(dob, last_month, final_sim_year),
          Sex = ifelse(fem == 1, "Female", "Male")) %>% 
   filter(Year %in% year_range) %>% 
@@ -637,7 +635,7 @@ SRB_wd <- ancestors_egos_wd %>%
          Dataset = "Ancestors_w_dup") 
 
 # Sex Ratio at Birth by year for genealogical subset of direct ancestors without duplicates
-SRB_wod <- ancestors_egos_wod %>% 
+SRB_wod <- ancestors_wod %>% 
   mutate(Year = asYr(dob, last_month, final_sim_year),
          Sex = ifelse(fem == 1, "Female", "Male")) %>% 
   filter(Year %in% year_range) %>% 
@@ -677,7 +675,7 @@ Births_whole <- opop %>%
            Event = "Births")
   
 # Births by year from genealogical subset of direct ancestors with duplicates
-Births_wd <- ancestors_egos_wd %>% 
+Births_wd <- ancestors_wd %>% 
     mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
     filter(Year %in% year_range) %>% 
     count(Year) %>%
@@ -688,7 +686,7 @@ Births_wd <- ancestors_egos_wd %>%
            Event = "Births")
   
 # Births by year from genealogical subset of direct ancestors without duplicates
-Births_wod <- ancestors_egos_wod %>% 
+Births_wod <- ancestors_wod %>% 
     mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
     filter(Year %in% year_range) %>% 
     count(Year) %>%
@@ -713,7 +711,7 @@ Deaths_0_whole <- opop %>%
 
 # Deaths below age 1 (0-11 months) from genealogical subset of direct ancestors with duplicates
 # There should be no infant mortality in this subset, but let's double check it
-Deaths_0_wd <- ancestors_egos_wd %>% 
+Deaths_0_wd <- ancestors_wd %>% 
   filter(dod != 0) %>% 
   mutate(age_death_months = dod-dob,
          Year = asYr(dod, last_month, final_sim_year)) %>% 
@@ -727,7 +725,7 @@ Deaths_0_wd <- ancestors_egos_wd %>%
 
 # Deaths below age 1 (0-11 months) from genealogical subset of direct ancestors without duplicates
 # There should be no infant mortality in this subset, but let's double check it
-Deaths_0_wod <- ancestors_egos_wod %>% 
+Deaths_0_wod <- ancestors_wod %>% 
   filter(dod != 0) %>% 
   mutate(age_death_months = dod-dob,
          Year = asYr(dod, last_month, final_sim_year)) %>% 
@@ -761,8 +759,8 @@ bind_rows(SRB_whole, SRB_wd, SRB_wod) %>%
   filter(Year >= 1751 & !is.na(Value)) %>%
   mutate(Measure = ifelse(Measure == "SRB", "Sex Ratio at Birth", "Infant Mortality Rate"), 
          Measure = factor(Measure, levels = c("Sex Ratio at Birth", "Infant Mortality Rate")),
-         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Experiment 1 with duplicates",
-                             Dataset == "Ancestors_wo_dup" ~ "Experiment 1 without duplicates",
+         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
+                             Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
                              TRUE ~ "Whole simulation")) %>%
   ggplot(aes(x = Year, y = Value, group = Dataset, color = Dataset, shape = Dataset))+
   facet_wrap(. ~ Measure, scales = "free") + 
@@ -797,7 +795,7 @@ Deaths_whole <- opop %>%
          Event = "Deaths")
 
 # Death counts by year from genealogical subset of direct ancestors with duplicates
-Deaths_wd <- ancestors_egos_wd %>% 
+Deaths_wd <- ancestors_wd %>% 
   filter(dod != 0) %>% 
   mutate(Year = asYr(dod, last_month, final_sim_year)) %>% 
   filter(Year %in% year_range) %>% 
@@ -809,7 +807,7 @@ Deaths_wd <- ancestors_egos_wd %>%
          Event = "Deaths")
 
 # Death counts by year from genealogical subset of direct ancestors without duplicates
-Deaths_wod <- ancestors_egos_wod %>% 
+Deaths_wod <- ancestors_wod %>% 
   filter(dod != 0) %>% 
   mutate(Year = asYr(dod, last_month, final_sim_year)) %>% 
   filter(Year %in% year_range) %>% 
@@ -823,8 +821,8 @@ Deaths_wod <- ancestors_egos_wod %>%
 # Plotting birth and death counts together. 
 bind_rows(Births_whole, Births_wd, Births_wod, Deaths_whole, Deaths_wd, Deaths_wod) %>% 
   filter(Year >= 1751 & n!=0) %>%
-  mutate(Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Experiment 1 with duplicates",
-                             Dataset == "Ancestors_wo_dup" ~ "Experiment 1 without duplicates",
+  mutate(Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
+                             Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
                              TRUE ~ "Whole simulation")) %>%
   ggplot(aes(x = Year, y = n, group = Dataset, color = Dataset, shape = Dataset))+
   facet_wrap(. ~ Event) + 
