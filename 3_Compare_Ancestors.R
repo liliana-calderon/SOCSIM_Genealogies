@@ -68,7 +68,7 @@ sample_egos <- function(opop = opop, final_sim_year, percentage) {
 egos_samp_10 <- map(sims_opop, ~ sample_egos(opop = .x,
                                              final_sim_year = 2022, 
                                              percentage = 10)) 
-save(egos_samp_10, file = "Subsets/egos_samp_10.RData")
+# save(egos_samp_10, file = "Subsets/egos_samp_10.RData")
 
 ## Retrieve the ancestors of each simulation sample of egos alive in 2023
 ancestors_10 <- map2_dfr(egos_samp_10, sims_opop,
@@ -127,24 +127,24 @@ ancestors_dir_wod <- ancestors_10 %>%
 
 # Estimate age-specific fertility rates for the genealogical subset of direct ancestors without duplicates
 asfr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_fertility_rates(opop = .x,
-                                                              final_sim_year = 2022, #[Jan-Dec]
-                                                              year_min = 1750, # Closed [
-                                                              year_max = 2020, # Open )
-                                                              year_group = 5, 
-                                                              age_min_fert = 10, # Closed [
-                                                              age_max_fert = 55, # Open )
-                                                              age_group = 5), # [,)
+                                                                      final_sim_year = 2022, #[Jan-Dec]
+                                                                      year_min = 1750, # Closed [
+                                                                      year_max = 2020, # Open )
+                                                                      year_group = 5, 
+                                                                      age_min_fert = 10, # Closed [
+                                                                      age_max_fert = 55, # Open )
+                                                                      age_group = 5), # [,)
                              .id = "Sim_id") 
 save(asfr_dir_wod, file = "Measures/asfr_dir_wod.RData")
 
 # Estimate age-specific mortality rates for the genealogical subset of direct ancestors without duplicates
 asmr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates(opop = .x,
-                                                              final_sim_year = 2022, #[Jan-Dec]
-                                                              year_min = 1750, # Closed
-                                                              year_max = 2020, # Open )
-                                                              year_group = 5,
-                                                              age_max_mort = 110, # Open )
-                                                              age_group = 5), # [,)
+                                                                      final_sim_year = 2022, #[Jan-Dec]
+                                                                      year_min = 1750, # Closed
+                                                                      year_max = 2020, # Open )
+                                                                      year_group = 5,
+                                                                      age_max_mort = 110, # Open )
+                                                                      age_group = 5), # [,)
                    .id = "Sim_id") 
 save(asmr_dir_wod, file = "Measures/asmr_dir_wod.RData")
 
@@ -152,8 +152,8 @@ save(asmr_dir_wod, file = "Measures/asmr_dir_wod.RData")
 ## Plot estimates from genealogical subsets of direct ancestors ----
 
 # Load ASFR and ASMR for the genealogical subset of direct ancestors with duplicates
-# load("Measures/asfr_dir_wd.RData")
-# load("Measures/asmr_dir_wd.RData")
+load("Measures/asfr_dir_wd.RData")
+load("Measures/asmr_dir_wd.RData")
 
 # Load ASFR and ASMR for the genealogical subset of direct ancestors without duplicates
 # load("Measures/asfr_dir_wod.RData")
@@ -338,18 +338,19 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                        "Age-Specific Mortality Rates"),
          Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
                              Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
-                             TRUE ~ "Whole simulation")) %>% 
+                             TRUE ~ "Whole simulation")) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(linewidth = 1.3, show.legend = TRUE)+
   geom_point(aes(shape = Dataset), size = 7)+
   scale_color_manual(values = c("#B72779", "#2779B7"))+
-  scale_shape_manual(values = c(15,17,46)) + 
+  scale_shape_manual(values = c(15, 25 ,46)) + 
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
-  labs(x = "Age")
+  labs(x = "Age") +
+  guides(shape = guide_legend(order = 1), col = guide_legend(order = 2))
 ggsave(file="Graphs/Final_Socsim_Exp1_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
 ## Save as .svg file for poster
@@ -446,7 +447,7 @@ bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>%
 ggsave(file="Graphs/socsim_Exp1_TFR.jpeg", width=17, height=9, dpi=200)
 
 # Life Expectancy at birth ----
-# Calculate life expectancy at birth from asmr 1x1
+# Estimate life expectancy at birth from asmr 1x1
 
 # Estimate age-specific mortality rates for the genealogical subset of direct ancestor with duplicates
 asmr_dir_wd_1 <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates(opop = .x,
@@ -473,7 +474,7 @@ save(asmr_dir_wod_1, file = "Measures/asmr_dir_wod_1.RData")
 
 # Load mean Age-specific mortality rates 1x1 from the 10 simulations, calculated on 2_Compare_Input_Output
 load("Measures/asmr_whole_1.RData")
-# Compute life table from asmr 1x1 for Whole SOCSIM simulation
+# Compute life table from mean asmr 1x1 of 10 whole SOCSIM simulations
 lt_whole <- lt_socsim(asmr_whole_1)
 save(lt_whole, file = "Measures/lt_whole.RData")
 
@@ -487,7 +488,7 @@ lt_dir_wd <- lt_socsim(asmr_dir_wd_1)
 save(lt_dir_wd, file = "Measures/lt_dir_wd.RData")
 
 # Calculate the mean from asmr 1x1 for the genealogical subset of direct ancestors without duplicates
-asmr_dir_wod_1 <- asmr_dir_wd_1 %>%
+asmr_dir_wod_1 <- asmr_dir_wod_1 %>%
   group_by(year, sex, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup()
@@ -550,9 +551,9 @@ ggsave(file="Graphs/socsim_Exp1_e0.jpeg", width=17, height=9, dpi=200)
 yrs_plot2 <- c(1750, 1800, 1850, 1900, 1950, 2000)
 
 bind_rows(TFR_whole %>% 
-          rename(Estimate = TFR), 
+           rename(Estimate = TFR), 
           TFR_dir_wd %>% 
-          rename(Estimate = TFR), 
+          rename(Estimate = TFR),
           TFR_dir_wod %>%           
           rename(Estimate = TFR)) %>%  
   bind_rows(lt_whole2 %>% 
@@ -575,7 +576,7 @@ bind_rows(TFR_whole %>%
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 9)+
   geom_line(linewidth = 1.2, show.legend = TRUE) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
-  scale_shape_manual(values = c(15,17,46)) + 
+  scale_shape_manual(values = c(15,25,46)) + 
   scale_x_continuous(breaks = yrs_plot2)+
   theme_graphs()
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
@@ -583,6 +584,8 @@ bind_rows(TFR_whole %>%
 # Save the plot
 ggsave(file="Graphs/Final_Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
+#----------------------------------------------------------------------------------------------------
+# This section has not been modified yet for the multiple simulations
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate ----
 
@@ -657,7 +660,7 @@ filter(Year >= 1751 & !is.na(SRB)) %>% # No births after 2003
   geom_point(data = . %>% filter(Year %in% yrs_plot2), size = 9)+
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
-  scale_shape_manual(values = c(15,17,46)) + 
+  scale_shape_manual(values = c(15,25,46)) + 
   scale_x_continuous(breaks = yrs_plot2)+
   theme_graphs()
 
@@ -767,7 +770,7 @@ bind_rows(SRB_whole, SRB_dir_wd, SRB_dir_wod) %>%
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 9)+
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+
-  scale_shape_manual(values = c(15,17,46)) +
+  scale_shape_manual(values = c(15,25,46)) +
   theme_graphs() +
   facetted_pos_scales(y = list(SRB = scale_y_continuous(limits=c(0.7, 1.3)),
                                IMR =  scale_y_continuous())) +
@@ -829,7 +832,7 @@ bind_rows(Births_whole, Births_dir_wd, Births_dir_wod, Deaths_whole, Deaths_dir_
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 7)+
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#771A30", "#331A77", "#1A7761"))+ 
-  scale_shape_manual(values = c(15,17,46)) +
+  scale_shape_manual(values = c(15,25,46)) +
   theme_graphs() +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank())
