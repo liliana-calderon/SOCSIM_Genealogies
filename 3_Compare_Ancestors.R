@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 19-06-2023
+# Last modified by Liliana Calderon on 26-06-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 
@@ -219,7 +219,7 @@ load("Measures/asfr_whole.RData")
 # Whole SOCSIM simulation
 asfr_whole2 <- asfr_whole %>% 
   rename(ASFR = socsim) %>% 
-  mutate(Dataset = "Whole_simulation", 
+  mutate(Dataset = "Whole simulation", 
          Rate = "ASFR") 
 
 # Genealogical subset of direct ancestors with duplicates
@@ -228,7 +228,7 @@ asfr_dir_wd2 <- asfr_dir_wd %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>% 
   rename(ASFR = socsim) %>% 
-  mutate(Dataset = "Ancestors_w_dup",
+  mutate(Dataset = "Ancestors with duplicates",
          Rate = "ASFR") 
 
 # Genealogical subset of direct ancestors without duplicates
@@ -237,7 +237,7 @@ asfr_dir_wod2 <- asfr_dir_wod %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>% 
   rename(ASFR = socsim) %>% 
-  mutate(Dataset = "Ancestors_wo_dup", 
+  mutate(Dataset = "Ancestors without duplicates", 
          Rate = "ASFR") 
 
 ## Plot ASFR from whole SOCSIM simulation and the genealogical subset of direct ancestors
@@ -265,7 +265,7 @@ load("Measures/asmr_whole.RData")
 # Whole SOCSIM simulation
 asmr_whole2 <- asmr_whole %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),
-         Dataset = "Whole_simulation",
+         Dataset = "Whole simulation",
          Rate = "ASMR") %>% 
   select(year, age, Sex, mx = socsim, Dataset, Rate)
   
@@ -275,7 +275,7 @@ asmr_dir_wd2 <- asmr_dir_wd %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),
-         Dataset = "Ancestors_w_dup",
+         Dataset = "Ancestors with duplicates",
          Rate = "ASMR") %>% 
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
@@ -285,7 +285,7 @@ asmr_dir_wod2 <- asmr_dir_wod %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),
-         Dataset = "Ancestors_wo_dup",
+         Dataset = "Ancestors without duplicates",
          Rate = "ASMR") %>% 
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
@@ -335,10 +335,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   filter(Estimate != 0 & !is.infinite(Estimate) & !is.nan(Estimate)) %>% 
   mutate(age = factor(as.character(age), levels = age_levels), 
          Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
-                       "Age-Specific Mortality Rates"),
-         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
-                             Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
-                             TRUE ~ "Whole simulation")) %>%
+                       "Age-Specific Mortality Rates")) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(linewidth = 1.3, show.legend = TRUE)+
@@ -405,7 +402,7 @@ TFR_whole <- asfr_whole_1 %>%
   group_by(Year) %>% 
   summarise(TFR = sum(socsim)*age_group_fert) %>%
   ungroup() %>% 
-  mutate(Dataset = "Whole_simulation",
+  mutate(Dataset = "Whole simulation",
          Rate = "TFR", 
          sex = "female")
 
@@ -418,7 +415,7 @@ TFR_dir_wd <- asfr_dir_wd_1 %>%
   group_by(Year) %>% 
   summarise(TFR = sum(socsim)*age_group_fert) %>%
   ungroup() %>% 
-  mutate(Dataset = "Ancestors_w_dup",
+  mutate(Dataset = "Ancestors with duplicates",
          Rate = "TFR", 
          sex = "female") 
 
@@ -431,7 +428,7 @@ TFR_dir_wod <- asfr_dir_wod_1 %>%
   group_by(Year) %>% 
   summarise(TFR = sum(socsim)*age_group_fert) %>%
   ungroup() %>% 
-  mutate(Dataset = "Ancestors_wo_dup",
+  mutate(Dataset = "Ancestors without duplicates",
          Rate = "TFR", 
          sex = "female")
 
@@ -511,21 +508,21 @@ year_range_mort_1 <- min(year_breaks_mort_1):max(year_breaks_mort_1-1)
 # Whole SOCSIM simulation
 lt_whole2 <- lt_whole %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "Whole_simulation",
+         Dataset = "Whole simulation",
          Rate = "e0") %>% 
   select(Year, ex, Dataset, Rate, sex, Age)
 
 # Genealogical subset of direct ancestors with duplicates
 lt_dir_wd2 <- lt_dir_wd %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "Ancestors_w_dup",
+         Dataset = "Ancestors with duplicates",
          Rate = "e0") %>% 
   select(Year, ex, Dataset, Rate, sex, Age)
 
 # Genealogical subset of direct ancestors without duplicates
 lt_dir_wod2 <- lt_dir_wod %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "Ancestors_wo_dup",
+         Dataset = "Ancestors without duplicates",
          Rate = "e0") %>% 
   select(Year, ex, Dataset, Rate, sex, Age)
 
@@ -567,10 +564,7 @@ bind_rows(TFR_whole %>%
               filter(Age == 0)) %>% 
   filter(sex == "female") %>% 
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
-         Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth")),
-         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
-                             Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
-                             TRUE ~ "Whole simulation")) %>%
+         Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth"))) %>%
   ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 9)+
@@ -619,7 +613,7 @@ SRB_whole <- opop %>%
   pivot_wider(names_from = Sex, values_from = n) %>% 
   mutate(SRB = Male/Female, 
          Measure = "SRB",
-         Dataset = "Whole_simulation") 
+         Dataset = "Whole simulation") 
 
 # Sex Ratio at Birth by year for genealogical subset of direct ancestors with duplicates
 SRB_dir_wd <- ancestors_dir_wd %>% 
@@ -635,7 +629,7 @@ SRB_dir_wd <- ancestors_dir_wd %>%
   pivot_wider(names_from = Sex, values_from = n) %>% 
   mutate(SRB = Male/Female,         
          Measure = "SRB",
-         Dataset = "Ancestors_w_dup") 
+         Dataset = "Ancestors with duplicates") 
 
 # Sex Ratio at Birth by year for genealogical subset of direct ancestors without duplicates
 SRB_dir_wod <- ancestors_dir_wod %>% 
@@ -651,7 +645,7 @@ SRB_dir_wod <- ancestors_dir_wod %>%
   pivot_wider(names_from = Sex, values_from = n) %>% 
   mutate(SRB = Male/Female,         
          Measure = "SRB",
-         Dataset = "Ancestors_wo_dup") 
+         Dataset = "Ancestors without duplicates") 
   
 # Plotting SRB
 bind_rows(SRB_whole, SRB_dir_wd, SRB_dir_wod) %>% 
@@ -674,7 +668,7 @@ Births_whole <- opop %>%
     mutate(Year = factor(Year, levels = year_range)) %>% 
     complete(Year, fill = list(n = 0))  %>%
     mutate(Year = as.numeric(as.character(Year)),
-           Dataset = "Whole_simulation", 
+           Dataset = "Whole simulation", 
            Event = "Births")
   
 # Births by year from genealogical subset of direct ancestors with duplicates
@@ -685,7 +679,7 @@ Births_dir_wd <- ancestors_dir_wd %>%
     mutate(Year = factor(Year, levels = year_range)) %>% 
     complete(Year, fill = list(n = 0))  %>%
     mutate(Year = as.numeric(as.character(Year)),
-           Dataset = "Ancestors_w_dup", 
+           Dataset = "Ancestors with duplicates", 
            Event = "Births")
   
 # Births by year from genealogical subset of direct ancestors without duplicates
@@ -696,7 +690,7 @@ Births_dir_wod <- ancestors_dir_wod %>%
     mutate(Year = factor(Year, levels = year_range)) %>% 
     complete(Year, fill = list(n = 0))  %>%
     mutate(Year = as.numeric(as.character(Year)),
-           Dataset = "Ancestors_wo_dup", 
+           Dataset = "Ancestors without duplicates", 
            Event = "Births")
   
 # Deaths below age 1 (0-11 months) by year from the whole simulation
@@ -709,7 +703,7 @@ Deaths_0_whole <- opop %>%
   mutate(Year = factor(Year, levels = year_range)) %>% 
   complete(Year, fill = list(n = 0))  %>%
   mutate(Year = as.numeric(as.character(Year)),
-         Dataset = "Whole_simulation", 
+         Dataset = "Whole simulation", 
          Event = "Deaths")
 
 # Deaths below age 1 (0-11 months) from genealogical subset of direct ancestors with duplicates
@@ -723,7 +717,7 @@ Deaths_0_dir_wd <- ancestors_dir_wd %>%
   mutate(Year = factor(Year, levels = year_range)) %>% 
   complete(Year, fill = list(n = 0))  %>%
   mutate(Year = as.numeric(as.character(Year)),
-         Dataset = "Ancestors_w_dup", 
+         Dataset = "Ancestors with duplicates", 
          Event = "Deaths")
 
 # Deaths below age 1 (0-11 months) from genealogical subset of direct ancestors without duplicates
@@ -737,7 +731,7 @@ Deaths_0_dir_wod <- ancestors_dir_wod %>%
   mutate(Year = factor(Year, levels = year_range)) %>% 
   complete(Year, fill = list(n = 0))  %>%
   mutate(Year = as.numeric(as.character(Year)),
-         Dataset = "Ancestors_wo_dup", 
+         Dataset = "Ancestors without duplicates", 
          Event = "Deaths")
 
 # Calculate and Plot Infant Mortality Rate (IMR)
@@ -761,10 +755,7 @@ bind_rows(SRB_whole, SRB_dir_wd, SRB_dir_wod) %>%
   pivot_longer(SRB:IMR, names_to = "Measure", values_to = "Value") %>% 
   filter(Year >= 1751 & !is.na(Value)) %>%
   mutate(Measure = ifelse(Measure == "SRB", "Sex Ratio at Birth", "Infant Mortality Rate"), 
-         Measure = factor(Measure, levels = c("Sex Ratio at Birth", "Infant Mortality Rate")),
-         Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
-                             Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
-                             TRUE ~ "Whole simulation")) %>%
+         Measure = factor(Measure, levels = c("Sex Ratio at Birth", "Infant Mortality Rate"))) %>%
   ggplot(aes(x = Year, y = Value, group = Dataset, color = Dataset, shape = Dataset))+
   facet_wrap(. ~ Measure, scales = "free") + 
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 9)+
@@ -794,7 +785,7 @@ Deaths_whole <- opop %>%
   mutate(Year = factor(Year, levels = year_range)) %>%
   complete(Year, fill = list(n = 0))  %>%
   mutate(Year = as.numeric(as.character(Year)),
-         Dataset = "Whole_simulation", 
+         Dataset = "Whole simulation", 
          Event = "Deaths")
 
 # Death counts by year from genealogical subset of direct ancestors with duplicates
@@ -806,7 +797,7 @@ Deaths_dir_wd <- ancestors_dir_wd %>%
   mutate(Year = factor(Year, levels = year_range)) %>%
   complete(Year, fill = list(n = 0))  %>%
   mutate(Year = as.numeric(as.character(Year)),
-         Dataset = "Ancestors_w_dup", 
+         Dataset = "Ancestors with duplicates", 
          Event = "Deaths")
 
 # Death counts by year from genealogical subset of direct ancestors without duplicates
@@ -818,15 +809,12 @@ Deaths_dir_wod <- ancestors_dir_wod %>%
   mutate(Year = factor(Year, levels = year_range)) %>%
   complete(Year, fill = list(n = 0))  %>%
   mutate(Year = as.numeric(as.character(Year)),
-         Dataset = "Ancestors_wo_dup", 
+         Dataset = "Ancestors without duplicates", 
          Event = "Deaths")
 
 # Plotting birth and death counts together. 
 bind_rows(Births_whole, Births_dir_wd, Births_dir_wod, Deaths_whole, Deaths_dir_wd, Deaths_dir_wod) %>% 
   filter(Year >= 1751 & n!=0) %>%
-  mutate(Dataset = case_when(Dataset == "Ancestors_w_dup" ~ "Ancestors with duplicates",
-                             Dataset == "Ancestors_wo_dup" ~ "Ancestors without duplicates",
-                             TRUE ~ "Whole simulation")) %>%
   ggplot(aes(x = Year, y = n, group = Dataset, color = Dataset, shape = Dataset))+
   facet_wrap(. ~ Event) + 
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 7)+
