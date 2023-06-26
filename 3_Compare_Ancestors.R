@@ -249,7 +249,7 @@ bind_rows(asfr_whole2, asfr_dir_wd2, asfr_dir_wod2) %>%
   filter(year %in% yrs_plot) %>% 
   ggplot(aes(x = age, y = ASFR, group = interaction(year, Dataset)))+
   geom_line(aes(colour = year, linetype = Dataset), linewidth = 1.2)+ 
-  scale_color_viridis(option = "D", discrete = T, direction = -1) +
+  scale_color_manual(values = c("orange", "#B72779", "#2779B7")) +
   scale_linetype_manual(values = c("11", "22", "solid")) +
   theme_graphs()
 # labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
@@ -303,7 +303,7 @@ bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>%
   ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset)))+
   facet_wrap(~Sex) +
   geom_line(aes(colour = Year, linetype = Dataset), linewidth = 1.2)+ 
-  scale_color_viridis(option = "G", discrete = T, direction = -1) +
+  scale_color_manual(values = c("orange", "#B72779", "#2779B7")) +
   scale_linetype_manual(values = c("11", "22", "solid")) +
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
