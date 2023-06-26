@@ -563,7 +563,7 @@ retrieve_ancestors <- function(egos, opop = opop) {
     group_by(ego_id, pid) %>% 
     distinct(pid, .keep_all = TRUE) %>% 
     ungroup() %>% 
-    left_join(select(opop, c(pid, fem, dob, dod, mom, marid, mstat)), by = "pid") 
+    left_join(select(opop, c(pid, fem, dob, dod, mom, lborn, marid, mstat)), by = "pid") 
   
   return(opop2)
 }
