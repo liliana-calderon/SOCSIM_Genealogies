@@ -57,7 +57,7 @@ sample_egos <- function(opop = opop, final_sim_year, percentage) {
            Generation = asYr(dob, last_month, final_sim_year)) %>%  
     filter(dod == 0 & Generation <= final_sim_year-18) %>% 
     pull(pid)
-  sample_size <- round(length(egos)/percentage)
+  sample_size <- round(length(egos)*percentage/100)
   egos_samp <-  sample(egos, sample_size, replace = F)
   return(egos_samp)
 }
