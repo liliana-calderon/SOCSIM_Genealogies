@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------------------------------
-# SOCSIM - SOCSIM Sweden - Trace and compare a subset of kin of a given ego(s) 
+# SOCSIM - SOCSIM Sweden - Trace and compare genealogical subsets of kin of a given ego(s) 
 # U:/SOCSIM/SOCSIM_Genealogies/4_Compare_Kin.R
 
 ## Trace relevant ascending and lateral kin up to the 4th generation
@@ -9,7 +9,8 @@
 # Created by Liliana Calderon on 13-04-2022
 # Last modified by Liliana Calderon on 26-06-2023
 
-## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
+## NB: To run this code, it is necessary to have already run the scripts 
+# 1_Run_Simulations.R and 3_Compare_Ancestors.R
 
 #------------------------------------------------------------------------------------------------------
 ## General settings and functions ----
@@ -24,7 +25,7 @@ library(svglite) # To save svg files
 library(viridis)
 library(rsocsim) # Functions to estimate rates
 
-## Load theme for the graphs
+## Load theme for the graphs and to convert SOCSIM time
 source("Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
@@ -42,7 +43,7 @@ load("sims_opop.RData")
 # Load saved list with omar from 10 simulations, generated in 1_Run_Simulations.R
 load("sims_omar.RData")
 
-# Load same sample for each opop used to trace the ancestors in 3_Compare_Ancestors.R
+# Load same sample of egos for each opop used to trace the ancestors in 3_Compare_Ancestors.R
 # These are a 10% sample of people alive at the end of the simulation, i.e. dod == 0, 
 # who are older than 18 years old on 01-01-2023, i,e. dob 1914-2004 
 load("Subsets/egos_samp_10.RData")
@@ -108,11 +109,11 @@ save(anc_kin_10, file = "Subsets/anc_kin_10.RData")
 # Retrieve and compare rates derived from the whole simulation with those from the genealogical subsets
 # with direct and lateral kin up to the 4th degree of consanguinity
 
+load("Subsets/anc_kin_10.RData")
+
 ## This repeated code could be improved using a function to calculate the rates for each subset, 
 # c.f. trial on "progress/Functions_Rates_Kin.R". 
 # The function worked but I did not manage to assign a different name to each data frame
-
-load("Subsets/anc_kin_10.RData")
 
 ##  Estimate ASFR and ASMR for the genealogical subsets with direct ancestors and collateral kin
 
@@ -1203,11 +1204,6 @@ ggsave(file="Graphs/Final_Socsim_Exp2_TFR_e0.jpeg", width=17, height=9, dpi=200)
 # This section has not been modified yet for the multiple simulations
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate ----
-
-# Convert SOCSIM months to calendar years. 
-asYr <- function(month, last_month, final_sim_year) {
-  return(final_sim_year - trunc((last_month - month)/12))
-}
 
 ## Define years if not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
