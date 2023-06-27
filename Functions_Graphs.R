@@ -1,16 +1,13 @@
-############################################################################################################
+#---------------------------------------------------------------------------------------------------------------
 # Theme for the graphs 
-# Last modified by Liliana Calderon on 30-09-2022
-
-# ############################################################################################################
-# rm(list=ls(all=T))
-
+# Last modified by Liliana Calderon on 27-06-2023
+#---------------------------------------------------------------------------------------------------------------
 library(tidyverse)
 library(ggthemes)
 library(extrafont)
 
+## Creation of a theme for the graphs
 
-## Creation of a theme for the graphs•
 theme_graphs <- function() {
   theme(plot.title = element_text(family="serif", size = 24, face = "bold", 
                                   hjust=0.5, margin = margin(0, 0, 10, 0)),
@@ -42,4 +39,9 @@ theme_graphs <- function() {
         legend.position = "bottom",
         legend.direction = "horizontal"
   )
+}
+
+# Convert SOCSIM months to calendar years. 
+asYr <- function(month, last_month, final_sim_year) {
+  return(final_sim_year - trunc((last_month - month)/12))
 }
