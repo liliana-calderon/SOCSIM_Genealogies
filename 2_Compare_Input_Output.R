@@ -26,7 +26,7 @@ library(svglite) # To save svg files
 library(viridis)
 library(rsocsim) # Functions to estimate rates
 
-## Load theme for the graphs
+## Load theme for the graphs and to convert SOCSIM time
 source("Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
@@ -574,11 +574,6 @@ ggsave(file="Graphs/Socsim_Births_Deaths.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate ----
-
-# Convert SOCSIM months to calendar years. 
-asYr <- function(month, last_month, final_sim_year) {
-  return(final_sim_year - trunc((last_month - month)/12))
-}
 
 ## If not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
