@@ -96,6 +96,7 @@ ancestors_10 <- ancestors_10 %>%
   ungroup() 
 
 # Merge the two data frames and remove kin types included in both (i.e.g, parents, gparents, ggparents)
+# NB: This data still contains duplicates within each simulation, as someone can be a relative of different egos
 anc_kin_10 <- bind_rows(ancestors_10, kin_10) %>% 
   group_by(Sim_id, ego_id) %>% 
   distinct(pid, .keep_all= TRUE) %>% 
