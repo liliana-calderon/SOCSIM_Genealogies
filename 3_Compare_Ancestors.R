@@ -29,10 +29,9 @@ source("Functions_Ancestors.R")
 ## Load function to estimate age-specific fertility rates 
 # This is a slightly modified version of the function in the package 
 # that allows to handle the intentional duplicates in the data
-# The script also includes the asYr() function
 source("Functions_Fertility_Rates_Mod.R")
 
-## Load theme for the graphs
+## Load theme for the graphs and to convert SOCSIM time
 source("Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
@@ -46,7 +45,6 @@ source("Functions_Life_Table.R")
 load("sims_opop.RData")
 # Load saved list with omar from 10 simulations, generated in 1_Run_Simulations.R
 load("sims_omar.RData")
-
 # Create a sub-folder called "Subsets" to save the opop subsets used for each experiment
 ifelse(!dir.exists("Subsets"), dir.create("Subsets"), FALSE)
 
@@ -582,11 +580,6 @@ ggsave(file="Graphs/Final_Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
 # This section has not been modified yet for the multiple simulations
 #----------------------------------------------------------------------------------------------------
 ## Sex Ratio at Birth and Infant Mortality Rate ----
-
-# Convert SOCSIM months to calendar years. 
-asYr <- function(month, last_month, final_sim_year) {
-  return(final_sim_year - trunc((last_month - month)/12))
-}
 
 ## Define years of not set in the Global Environment
 final_sim_year <- 2022 #[Jan-Dec]
