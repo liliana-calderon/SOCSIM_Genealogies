@@ -66,7 +66,7 @@ sample_children <- function(opop = opop, age_threshold, percentage) {
 # Get samples of children dead before age 1 for each whole simulation, using different proportions of omission
 # and remove them from the anc_kin opop
 # NB: Not all these early deceased children are included in a genealogy. 
-# Hence, population in less_children is not equal to anc_opop - miss_children
+# Hence, population in less_children is not equal to anc_kin_10 - miss_children
 
 miss_children_1_05 <- map_dfr(sims_opop, ~ sample_children(opop = .x,
                                                            age_threshold = 1, 
@@ -1067,9 +1067,8 @@ lt_less_children_5_20b <- lt_less_children_5_20 %>%
 
 ## Plot
 bind_rows(lt_whole2, lt_anc_zaukgausc2,
-          lt_less_children_1_05b, lt_less_children_1_10b, lt_less_children_1_20b 
-          #lt_less_children_5_05b, lt_less_children_5_10b, lt_less_children_5_20b
-          ) %>% 
+          #lt_less_children_1_05b, lt_less_children_1_10b, lt_less_children_1_20b 
+          lt_less_children_5_05b, lt_less_children_5_10b, lt_less_children_5_20b) %>% 
   filter(Year >= 1850 & Age == 0) %>%
   ggplot(aes(x = Year, y = ex, group = Dataset, colour = Dataset)) +
   facet_grid(. ~ sex) +
