@@ -1097,9 +1097,9 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   mutate(sex = "female") %>%  
   bind_rows(lt_whole2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_anc_zaukgausc2 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            # lt_less_children_1_05 %>% rename(Estimate = ex) %>% filter(Age == 0), 
-            # lt_less_children_1_10 %>% rename(Estimate = ex) %>% filter(Age == 0), 
-            # lt_less_children_1_20 %>% rename(Estimate = ex) %>% filter(Age == 0), 
+            # lt_less_children_1_05b %>% rename(Estimate = ex) %>% filter(Age == 0), 
+            # lt_less_children_1_10b %>% rename(Estimate = ex) %>% filter(Age == 0), 
+            # lt_less_children_1_20b %>% rename(Estimate = ex) %>% filter(Age == 0), 
             lt_less_children_5_05b %>% rename(Estimate = ex) %>% filter(Age == 0), 
             lt_less_children_5_10b %>% rename(Estimate = ex) %>% filter(Age == 0), 
             lt_less_children_5_20b %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
