@@ -303,7 +303,7 @@ bind_rows(asfr_whole2, asfr_less_women_05b, asfr_less_women_10b, asfr_less_women
   scale_shape_manual(values = c(21, 22, 23, 46)) +
   theme_graphs()
 # labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
-# retrieved from a SOCSIM simulation and subsets of "direct" and "extended" family trees") 
+# retrieved from a SOCSIM simulation and genealogical subsets with missing women) 
 ggsave(file="Graphs/Socsim_Exp4_ASFR.jpeg", width=17, height=9, dpi=200)
 
 
@@ -368,7 +368,7 @@ yrs_plot <- c("[1900,1905)", "[2000,2005)")
 
 bind_rows(asmr_whole2, asmr_less_women_05b, asmr_less_women_10b, asmr_less_women_20b) %>% 
   rename(Year = year) %>% 
-  filter(Year %in% yrs_plot) %>%  # Otherwise don't bind
+  filter(Year %in% yrs_plot) %>%
   # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
   filter(mx != 0 & !is.infinite(mx) & !is.nan(mx)) %>% 
   ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset), colour = Year))+
@@ -382,13 +382,12 @@ bind_rows(asmr_whole2, asmr_less_women_05b, asmr_less_women_10b, asmr_less_women
   scale_y_log10() +
   theme_graphs()
 #labs(title = "Age-Specific Mortality Rates in Sweden (1751-2022), 
-# retrieved from a SOCSIM simulation and subsets of "extended" and direct" family trees without duplicates") 
+# retrieved from a SOCSIM simulation and genealogical subsets with omitted women") 
 ggsave(file="Graphs/Socsim_Exp4_ASMR.jpeg", width=17, height=9, dpi=200)
 
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
-# Here, we restrict to children below age 5 as the rates are calculated by 5-year age
 
 # Years to plot limited to  two years
 yrs_plot <- c("[1900,1905)", "[2000,2005)") 
@@ -396,7 +395,7 @@ yrs_plot <- c("[1900,1905)", "[2000,2005)")
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_whole2$age)
 
-## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and subsets of direct ancestors and all collateral kin
+## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and genealogical subsets
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
           asfr_anc_zaukgausc2 %>% rename(Estimate = ASFR), 
           asfr_less_women_05b %>% rename(Estimate = ASFR),
@@ -566,7 +565,7 @@ bind_rows(TFR_whole, TFR_anc_zaukgausc,
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   theme_graphs() 
 # labs(title = "Total Fertility Rate in Sweden (1751-2022), 
-#retrieved from a SOCSIM simulation and subsets with different proportions of omitted children") 
+#retrieved from a SOCSIM simulation and subsets with different proportions of omitted women") 
 ggsave(file="Graphs/socsim_Exp4_TFR.jpeg", width=17, height=9, dpi=200)
 
 
@@ -699,7 +698,7 @@ bind_rows(lt_whole2, lt_anc_zaukgausc2,
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   theme_graphs() 
 # labs(title = "Total Fertility Rate in Sweden (1751-2022), 
-#retrieved from a SOCSIM simulation and subsets with different proportions of omitted children") 
+#retrieved from a SOCSIM simulation and subsets with different proportions of omitted women") 
 ggsave(file="Graphs/socsim_Exp4_e0.jpeg", width=17, height=9, dpi=200)
 
 
@@ -717,9 +716,9 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   mutate(sex = "female") %>%  
   bind_rows(lt_whole2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_anc_zaukgausc2 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_less_women_05 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_less_women_10 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_less_women_20 %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
+            lt_less_women_05b %>% rename(Estimate = ex) %>% filter(Age == 0),
+            lt_less_women_10b %>% rename(Estimate = ex) %>% filter(Age == 0),
+            lt_less_women_20b %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
   filter(sex == "female" & Year >= 1850) %>%
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth"))) %>%
