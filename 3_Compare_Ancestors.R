@@ -389,16 +389,16 @@ load("Measures/asfr_dir_wd_1.RData")
 load("Measures/asfr_dir_wod_1.RData")
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
-age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
+age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
 
 # Estimate age_group size
-age_group_fert <- unique(diff(age_breaks_fert))
+age_group_fert_1 <- unique(diff(age_breaks_fert_1))
 
 # Whole SOCSIM simulation
 TFR_whole <- asfr_whole_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Whole simulation",
          Rate = "TFR", 
@@ -411,7 +411,7 @@ TFR_dir_wd <- asfr_dir_wd_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct ancestors with duplicates",
          Rate = "TFR", 
@@ -424,7 +424,7 @@ TFR_dir_wod <- asfr_dir_wod_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct ancestors without duplicates",
          Rate = "TFR", 
