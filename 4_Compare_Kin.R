@@ -671,7 +671,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   mutate(age = factor(as.character(age), levels = age_levels),
          Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
                        "Age-Specific Mortality Rates"), 
-         Dataset = factor(Dataset, levels =  c("Direct Ancestors (DA)", "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
+         Dataset = factor(Dataset, levels =  c("Direct Ancestors (DA)", "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(aes(colour = Year), linewidth = 1.2, show.legend = T)+ 
@@ -688,6 +688,7 @@ ggsave(file="Graphs/Final_Socsim_Exp2_ASFR_ASMR.jpeg", width=17, height=9, dpi=2
 
 
 ## For appendix
+## Modify here with neew kin types!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and subsets of direct ancestors and different collateral kin
 yrs_plot_1 <- c("[1900,1905)") 
 
