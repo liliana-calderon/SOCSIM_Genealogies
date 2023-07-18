@@ -339,13 +339,13 @@ load("Measures/asfr_10_1.RData")
 year_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$year, "\\d+", simplify = T)))
 
 # Year range to filter HFD data
-year_range_fert_1 <- min(year_breaks_fert):max(year_breaks_fert-1)
+year_range_fert_1 <- min(year_breaks_fert_1):max(year_breaks_fert_1-1)
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
-age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
+age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
 
 # Retrieve age_group size
-age_group_fert <- unique(diff(age_breaks_fert))
+age_group_fert_1 <- unique(diff(age_breaks_fert_1))
 
 
 # Calculate TFR from HFC and HFD
@@ -362,7 +362,7 @@ HFCD1 <- bind_rows(HFC, HFD) %>%
 SocsimF1 <-  asfr_10_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Source = "SOCSIM") 
 
@@ -384,12 +384,12 @@ ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
 
 # Retrieve age-specific mortality rates, by 1 year age group and 1 calendar year
 asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
-                                                  final_sim_year = 2022, #[Jan-Dec]
-                                                  year_min = 1750, # Closed
-                                                  year_max = 2023, # Open )
-                                                  year_group = 1,
-                                                  age_max_mort = 110, # Open )
-                                                  age_group = 1), # [,)
+                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                          year_min = 1750, # Closed
+                                                          year_max = 2023, # Open )
+                                                          year_group = 1,
+                                                          age_max_mort = 110, # Open )
+                                                          age_group = 1), # [,)
                      .id = "Sim_id") 
 save(asmr_10_1, file = "Measures/asmr_10_1.RData")
 load("Measures/asmr_10_1.RData")
