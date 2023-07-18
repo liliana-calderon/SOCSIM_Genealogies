@@ -834,16 +834,16 @@ load("Measures/asfr_anc_sc_1.RData")
 load("Measures/asfr_anc_zaukgausc_1.RData")
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
-age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
+age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
 
 # Retrieve age_group size
-age_group_fert <- unique(diff(age_breaks_fert))
+age_group_fert_1 <- unique(diff(age_breaks_fert_1))
 
 # Whole SOCSIM simulation
 TFR_whole <- asfr_whole_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Whole Simulation",
          Rate = "TFR", 
@@ -857,7 +857,7 @@ TFR_dir_wod <- asfr_dir_wod_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors (DA)",
          Rate = "TFR", 
@@ -870,7 +870,7 @@ TFR_anc_z <- asfr_anc_z_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "DA + Siblings",
          Rate = "TFR",           
@@ -883,7 +883,7 @@ TFR_anc_au <- asfr_anc_au_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "DA + Aunts/Uncles",
          Rate = "TFR",           
@@ -896,7 +896,7 @@ TFR_anc_k <- asfr_anc_k_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "DA + Cousins",
          Rate = "TFR",
@@ -909,7 +909,7 @@ TFR_anc_gau <- asfr_anc_gau_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "DA + Great-Aunts/Uncles",
          Rate = "TFR",           
@@ -922,7 +922,7 @@ TFR_anc_sc <- asfr_anc_sc_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "DA + Spouse and Children",
          Rate = "TFR",           
@@ -935,7 +935,7 @@ TFR_anc_zaukgausc <- asfr_anc_zaukgausc_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors + Collateral Kin",
          Rate = "TFR",           
