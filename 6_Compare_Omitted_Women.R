@@ -556,16 +556,16 @@ load("Measures/asfr_less_women_75_1.RData")
 load("Measures/asfr_less_women_100_1.RData")
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
-age_breaks_fert <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
+age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
 
 # Retrieve age_group size
-age_group_fert <- unique(diff(age_breaks_fert))
+age_group_fert_1 <- unique(diff(age_breaks_fert_1))
 
 # Whole SOCSIM simulation
 TFR_whole <- asfr_whole_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Whole Simulation",
          Rate = "TFR",
@@ -578,7 +578,7 @@ TFR_anc_zaukgausc <- asfr_anc_zaukgausc_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors + Collateral Kin",
          Rate = "TFR",           
@@ -592,7 +592,7 @@ TFR_less_women_25 <- asfr_less_women_25_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "25% Omission",
          Rate = "TFR",           
@@ -605,7 +605,7 @@ TFR_less_women_50 <- asfr_less_women_50_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "50% Omission",
          Rate = "TFR",           
@@ -618,7 +618,7 @@ TFR_less_women_75 <- asfr_less_women_75_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "75% Omission",
          Rate = "TFR",           
@@ -631,7 +631,7 @@ TFR_less_women_100 <- asfr_less_women_100_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>%
   group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert) %>%
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "100% Omission",
          Rate = "TFR",           
