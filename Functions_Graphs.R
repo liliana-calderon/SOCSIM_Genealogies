@@ -32,11 +32,12 @@ theme_graphs <- function() {
         axis.line.y = element_line(colour = "#000000"),
         axis.line.x = element_line(colour = "#000000"),
         axis.ticks = element_line(colour = "#000000", linewidth = 1),    
-        legend.title = element_text(family="serif", size = 20, colour = "#000000", face = "bold"),
+        legend.title = element_text(family="serif", size = 18, colour = "#000000", face = "bold"),
         legend.text = element_text(family="serif", size = 17, colour = "#000000"),
         legend.background = element_rect(fill = "#FFFFFF", colour = "#000000", linewidth = 0.3, linetype = "solid"), 
         legend.key = element_rect(fill = NA), 
-        legend.position = "bottom",
+        legend.position = "bottom", 
+        legend.justification = "left",
         legend.direction = "horizontal"
   )
 }
