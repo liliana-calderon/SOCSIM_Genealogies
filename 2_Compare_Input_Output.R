@@ -3,28 +3,28 @@
 # U:/SOCSIM/SOCSIM_Genealogies/2_Compare_Input_Output.R
 
 ## Compare input and output age-specific rates from 10 SOCSIM microsimulations for Sweden (1751-2022)
-# as well as summary measures such as TFR, e0, SRB, IMR
+# as well as summary measures such as TFR, e0
 
 ## To run the following code, it is necessary to have already run the simulations and read the .opop file
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 14-06-2023
+# Last modified by Liliana Calderon on 20-07-2023
 
 # NB: Some functions are adapted from external code specified under each section.
-
 #----------------------------------------------------------------------------------------------------
 ## General settings and functions -----
 # Prevent scientific notation (useful for the rate calculation)
 options(scipen=999999)
 
-# Load packages 
+## Load packages 
 library(tidyverse)
-library(ggh4x) # For facetted_pos_scales
+library(ggh4x)  # To facet scales-
 library(HMDHFDplus)
+library(patchwork) # To combine ggplots
+library(rsocsim) # Functions to estimate rates
 library(svglite) # To save svg files
 library(viridis)
-library(rsocsim) # Functions to estimate rates
 
 ## Load theme for the graphs and to convert SOCSIM time
 source("Functions_Graphs.R")
@@ -282,12 +282,13 @@ ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=200)
 ## Final plot combining ASFR and ASMR ----
 
 # Change years to plot only to two periods
-# yrs_plot <- c("[1900,1905)", "[2000,2005)") 
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(SocsimM$age)
 
 ## Plotting ASFR and ASMR (for females) from HFD/HMD vs SOCSIM 
+By_Age <- 
 bind_rows(HFCD0 %>% rename(Estimate = ASFR), 
             SocsimF0 %>% rename(Estimate = ASFR)) %>% 
     mutate(Sex = "Female") %>%   
@@ -304,16 +305,17 @@ bind_rows(HFCD0 %>% rename(Estimate = ASFR),
     ggplot(aes(x = age, y = Estimate, group = interaction(Year, Sim_id)))+
     facet_wrap(. ~ Rate, scales = "free") + 
     geom_line(aes(colour = Year, alpha = transp), linewidth = 1.5)+
-    scale_color_manual(values = c("#FC8961", "#781A4F", "#1A4F78"))+
+    scale_color_manual(values = c("#79B727", "#B72779", "#2779B7"))+
     scale_alpha_discrete(guide="none", range = c(0.2, 1))+
     facetted_pos_scales(y = list("Age-Specific Fertility Rates" = scale_y_continuous(),
                                  "Age-Specific Mortality Rates" =  scale_y_continuous(trans = "log10")))+
     scale_x_discrete(guide = guide_axis(angle = 90)) +
     labs(x = "Age") +
     # labs(title = "Age-Specific Fertility and Mortality rates in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
-    theme_graphs() 
+    theme_graphs()
 
 # Save the plot
+By_Age
 ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
@@ -371,7 +373,7 @@ bind_rows(HFCD1, SocsimF1) %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1")) %>% 
   ggplot(aes(x = Year, y = TFR, group = interaction(Source, Sim_id))) +
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.3)+
-  scale_color_manual(values = c("#30734A", "#CA650D"))+
+  scale_color_manual(values = c("#007A75", "#CA650D"))+
   scale_alpha_discrete(guide = "none", range = c(0.2, 1))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
@@ -443,7 +445,7 @@ bind_rows(HMD_lt, SOCSIM_lt) %>%
          Sex = ifelse(Sex == "female", "Female", "Male")) %>% 
   ggplot(aes(x = Year, y = ex, group = interaction(Source, Sim_id)))+
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.3)+
-  scale_color_manual(values = c("#0C0B7F", "#30734A"))+
+  scale_color_manual(values = c("#0C0B7F", "#007A75"))+
   scale_alpha_discrete(guide = "none", range = c(0.2, 1))+
   facet_wrap(~Sex) +
   theme_graphs()+
@@ -454,36 +456,51 @@ ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
 
-## Ploting TFR and e0 (for females) from HFD/HMD vs SOCSIM 
-bind_rows(HFCD1 %>% 
-            rename(Estimate = TFR) %>% 
-            mutate(Rate = "TFR"),
-          SocsimF1 %>% 
-            rename(Estimate = TFR) %>% 
-            mutate(Rate = "TFR")) %>% 
+## Plotting TFR and e0 (for females) from HFD/HMD vs SOCSIM 
+Summary <- 
+bind_rows(HFCD1 %>% rename(Estimate = TFR) %>%  mutate(Rate = "TFR"),
+          SocsimF1 %>% rename(Estimate = TFR) %>% mutate(Rate = "TFR")) %>% 
   mutate(Sex = "female") %>%   
-  bind_rows(HMD_lt %>% 
-              filter(Age == 0) %>% 
-              rename(Estimate = ex) %>% 
-              mutate(Rate = "e0"),
-            SOCSIM_lt %>% 
-              filter(Age == 0) %>% 
-              rename(Estimate = ex) %>% 
-              mutate(Rate = "e0")) %>% 
+  bind_rows(HMD_lt %>% filter(Age == 0) %>% rename(Estimate = ex) %>% mutate(Rate = "e0"),
+            SOCSIM_lt %>% filter(Age == 0) %>% rename(Estimate = ex) %>% mutate(Rate = "e0")) %>% 
   filter(Sex == "female") %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1"),
          Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
-         Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth"))) %>%
+         Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth"))) %>% 
   ggplot(aes(x = Year, y = Estimate, group = interaction(Source, Sim_id)))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.2) +
-  scale_color_manual(values = c("#CA650D", "#0C0B7F", "#30734A")) +
+  scale_color_manual(values = c("#CA650D", "#0C0B7F", "#007A75")) +
   scale_alpha_discrete(guide="none", range = c(0.1, 1)) +
   scale_x_continuous(breaks = c(1750, 1800, 1850, 1900, 1950, 2000))+
   theme_graphs()
   # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
-   # Save the plot
+# Save the plot
+Summary
 ggsave(file="Graphs/Final_Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
+
+#----------------------------------------------------------------------------------------------------
+#### Plot combining age-specific rates and summary measures -----
+
+plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
+                        x = c(1,2),
+                        y = c(0.22, 0.5),
+                        labels = c("a","b"))
+plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expectancy at Birth")),
+                        x = c(1755, 1755),
+                        y = c(5.3, 81),
+                        labels = c("c","d"))
+
+By_Age + 
+  geom_text(data = plot_labs1, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
+            size = 15, family="serif") + 
+  theme(plot.margin = margin(0,0,1,0, "cm")) +
+  Summary + 
+  geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
+            size = 15, family="serif") +
+  plot_layout(ncol = 1)
+
+ggsave(file="Graphs/Final_Socsim_HFD_HMD_Combined.jpeg", width=18, height=20, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Calculate the mean measures of the different simulations ----
@@ -519,207 +536,3 @@ asmr_whole_1 <- asmr_10_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup()
 save(asmr_whole_1, file = "Measures/asmr_whole_1.RData")
-
-#----------------------------------------------------------------------------------------------------
-## Births and Deaths counts by calendar year -----
-
-last_month <- map_dbl(sims_opop, ~ .x %>% 
-                       pull(dob) %>% 
-                       max()) %>%
-  unique()
-
-## If not set in the Global Environment
-final_sim_year <- 2022 #[Jan-Dec]
-year_min <- 1750 # Closed [
-year_max <- 2023 # Open )
-
-# Year range
-year_range <- year_min:(year_max-1)
-
-# Birth counts by year
-Births <- map_dfr(sims_opop, ~ .x %>% 
-                    mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
-                    filter(Year %in% year_range) %>% 
-                    count(Year) %>%
-                    mutate(Year = factor(Year, levels = year_range)) %>% 
-                    complete(Year, fill = list(n = 0))  %>%
-                    mutate(Year = as.numeric(as.character(Year))) %>% 
-                    rename(Births = n),
-                  .id = "Sim_id")
-
-
-# Death counts
-Deaths <- map_dfr(sims_opop, ~ .x %>% 
-                      filter(dod != 0) %>% 
-                      mutate(Year = asYr(dod, last_month, final_sim_year)) %>% 
-                      filter(Year %in% year_range) %>% 
-                      count(Year) %>%
-                      mutate(Year = factor(Year, levels = year_range)) %>% 
-                      complete(Year, fill = list(n = 0))  %>%
-                      mutate(Year = as.numeric(as.character(Year))) %>% 
-                      rename(Deaths = n),
-                    .id = "Sim_id")
-
-# Plotting birth and death counts together
-full_join(Births, Deaths,  by = c("Sim_id", "Year")) %>% 
-  filter(Year >= 1751) %>%
-  mutate(Sim_id = factor(Sim_id, levels = 1:10)) %>% 
-  pivot_longer(Births:Deaths, names_to = "Event", values_to = "Count") %>% 
-  ggplot(aes(x = Year, y = Count, group = interaction(Sim_id), color = Sim_id))+
-  facet_wrap(. ~ Event) + 
-  geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1, guide = "none") +
-  theme_graphs()
-ggsave(file="Graphs/Socsim_Births_Deaths.jpeg", width=17, height=9, dpi=200)
-
-#----------------------------------------------------------------------------------------------------
-## Sex Ratio at Birth and Infant Mortality Rate ----
-
-## If not set in the Global Environment
-final_sim_year <- 2022 #[Jan-Dec]
-year_min <- 1750 # Closed [
-year_max <- 2023 # Open )
-
-# Year range
-year_range <- year_min:(year_max-1)
-
-## Sex Ratio at Birth 
-
-# Birth counts by year and sex
-Births_Sex <- map_dfr(sims_opop, ~ .x %>% 
-                        mutate(Year = asYr(dob, last_month, final_sim_year), 
-                               Sex = ifelse(fem == 1, "Female", "Male")) %>% 
-                        filter(Year %in% year_range) %>% 
-                        count(Year, Sex) %>%
-                        mutate(Year = factor(Year, levels = year_range),
-                               Sex = factor(Sex, levels = c("Female", "Male"))) %>% 
-                        complete(Year, Sex, fill = list(n = 0))  %>%
-                        mutate(Year = as.numeric(as.character(Year)),
-                               Sex = as.character(Sex)) %>% 
-                        rename(Births = n),
-                      .id = "Sim_id")
-
-# Calculate and plot Sex Ratio at Birth (SRB)
-SRB <- Births_Sex %>% 
-  pivot_wider(names_from = Sex, values_from = Births) %>% 
-  mutate(SRB = Male/Female, 
-         Sim_id = factor(Sim_id, levels = 1:10)) 
-
-SRB %>% 
-  filter(Year >= 1751) %>% 
-  ggplot(aes(x = Year, y = SRB, group = Sim_id, color = Sim_id))+
-  geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1) +
-  theme_graphs()
-
-
-#### Infant Mortality Rate, both sexes
-
-# Birth counts by year
-Births <- map_dfr(sims_opop, ~ .x %>% 
-                    mutate(Year = asYr(dob, last_month, final_sim_year)) %>% 
-                    filter(Year %in% year_range) %>% 
-                    count(Year) %>%
-                    mutate(Year = factor(Year, levels = year_range)) %>% 
-                    complete(Year, fill = list(n = 0))  %>%
-                    mutate(Year = as.numeric(as.character(Year))) %>% 
-                    rename(Births = n),
-                  .id = "Sim_id")
-
-
-# Death counts below age 1 (0-11 months)
-Deaths_0 <- map_dfr(sims_opop, ~ .x %>% 
-                      filter(dod != 0) %>% 
-                      mutate(age_death_months = dod-dob,
-                             Year = asYr(dod, last_month, final_sim_year)) %>% 
-                      filter(age_death_months < 12 & Year %in% year_range) %>% 
-                      count(Year) %>%
-                      mutate(Year = factor(Year, levels = year_range)) %>% 
-                      complete(Year, fill = list(n = 0))  %>%
-                      mutate(Year = as.numeric(as.character(Year))) %>% 
-                     rename(Deaths = n),
-                    .id = "Sim_id")
-
-# Calculate and Plot Infant Mortality Rate (IMR)
-IMR <- full_join(Births, Deaths_0, 
-                 by = c("Sim_id", "Year")) %>% 
-  mutate(IMR = Deaths/Births, 
-         Sim_id = factor(Sim_id, levels = 1:10)) 
-
-IMR %>% 
-  filter(Year >= 1751) %>% 
-  ggplot(aes(x = Year, y = IMR, group = Sim_id, color = Sim_id))+
-  geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1) +
-  theme_graphs()
-
-
-# Plot SRB and IMR together
-
-full_join(SRB %>% select(Sim_id, Year, SRB),
-          IMR %>% select(Sim_id, Year, IMR),
-          by = c("Sim_id", "Year")) %>% 
-  filter(Year >= 1751) %>%
-  mutate(Sim_id = factor(Sim_id, levels = 1:10)) %>% 
-  pivot_longer(SRB:IMR, names_to = "Measure", values_to = "Value") %>% 
-  mutate(Measure = factor(ifelse(Measure == "SRB", "Sex Ratio at Birth", "Infant Mortality Rate"), 
-                          levels = c("Sex Ratio at Birth", "Infant Mortality Rate"))) %>%
-  ggplot(aes(x = Year, y = Value, group = Sim_id, color = Sim_id))+
-  facet_wrap(. ~ Measure, scales = "free") + 
-  geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1, guide = "none") +
-  facetted_pos_scales(y = list(SRB = scale_y_continuous(limits=c(0.75, 1.25)),
-                               IMR =  scale_y_continuous())) +
-  theme_graphs()
-ggsave(file="Graphs/Socsim_SRB_IMR.jpeg", width=17, height=9, dpi=200)
-
-#----------------------------------------------------------------------------------------------------
-## IMR vs ASMR at age 0 ----
-
-# Death counts by sex below age 1 (0-11 months)
-Deaths_Sex_0 <- map_dfr(sims_opop, ~ .x %>% 
-                      filter(dod != 0) %>% 
-                      mutate(age_death_months = dod-dob,
-                             Year = asYr(dod, last_month, final_sim_year),
-                             Sex = ifelse(fem == 1, "Female", "Male")) %>% 
-                      filter(age_death_months < 12 & Year %in% year_range) %>% 
-                      count(Year, Sex) %>%
-                      mutate(Year = factor(Year, levels = year_range),
-                             Sex = factor(Sex, levels = c("Female", "Male"))) %>% 
-                      complete(Year, Sex, fill = list(n = 0))  %>%
-                      mutate(Year = as.numeric(as.character(Year)),
-                             Sex = as.character(Sex)) %>% 
-                      rename(Deaths = n),
-                    .id = "Sim_id")
-
-# Calculate and Plot Infant Mortality Rate (IMR by sex)
-IMR_sex <- full_join(Births_Sex, Deaths_Sex_0, 
-          by = c("Sim_id", "Year", "Sex")) %>% 
-  mutate(IMR = Deaths/Births, 
-         Sim_id = factor(Sim_id, levels = 1:10)) 
-
-IMR_sex %>% 
-  filter(Year >= 1751) %>% 
-  ggplot(aes(x = Year, y = IMR, group = Sim_id, color = Sim_id))+
-  facet_wrap(. ~ Sex) + 
-  geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1) +
-  theme_graphs()
-
-# Compare with death rates at age 0 from asmr
-load("Measures/asmr_10_1.RData")
-
-# Rates from asmr (using mid-year pop aged 0) are a bit higher than IMR (using births as denominator)
-asmr_10_1 %>% 
-  filter(age == "[0,1)") %>% 
-  mutate(Sim_id = factor(Sim_id, levels = 1:10),
-         Year = as.numeric(str_extract(year, "\\d+")),
-         Sex = ifelse(sex =="female", "Female", "Male"),
-         Source = "Soc1") %>% 
-  select(Sim_id, Year, Sex, IMR = socsim, Source) %>% 
-  filter(Year >= 1751) %>%
-  ggplot(aes(x = Year, y = IMR, group = Sim_id, color = Sim_id))+
-  facet_wrap(. ~ Sex) + 
-  geom_line(linewidth = 1)+
-  scale_color_viridis(option = "C", discrete = T, direction = -1) +
-  theme_graphs()
