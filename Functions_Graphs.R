@@ -37,7 +37,6 @@ theme_graphs <- function() {
         legend.background = element_rect(fill = "#FFFFFF", colour = "#000000", linewidth = 0.3, linetype = "solid"), 
         legend.key = element_rect(fill = NA), 
         legend.position = "bottom", 
-        legend.justification = "left",
         legend.direction = "horizontal"
   )
 }
