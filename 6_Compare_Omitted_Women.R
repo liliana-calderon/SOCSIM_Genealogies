@@ -644,7 +644,6 @@ TFR_less_women_100 <- asfr_less_women_100_1 %>%
 
 bind_rows(TFR_whole, TFR_anc_zaukggggggausc,
           TFR_less_women_25, TFR_less_women_50, TFR_less_women_75, TFR_less_women_100) %>% 
-  filter(Year >= 1850) %>%
   ggplot(aes(x = Year, y = TFR, group = Dataset, colour = Dataset)) +
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
@@ -805,7 +804,7 @@ lt_less_women_100b <- lt_less_women_100 %>%
 ## Plot
 bind_rows(lt_whole2, lt_anc_zaukggggggausc2,
           lt_less_women_25b, lt_less_women_50b, lt_less_women_75b, lt_less_women_100b) %>% 
-  filter(Year >= 1850 & Age == 0) %>%
+  filter(Age == 0) %>%
   ggplot(aes(x = Year, y = ex, group = Dataset, colour = Dataset)) +
   facet_grid(. ~ sex) +
   geom_line(linewidth = 1.3)+ 

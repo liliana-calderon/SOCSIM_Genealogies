@@ -1029,7 +1029,6 @@ TFR_less_children_5_100 <- asfr_less_children_5_100_1 %>%
 bind_rows(TFR_whole, TFR_anc_zaukggggggausc,
           #TFR_less_children_1_25, TFR_less_children_1_50, TFR_less_children_1_75, TFR_less_children_1_100, 
           TFR_less_children_5_25, TFR_less_children_5_50, TFR_less_children_5_75, TFR_less_children_5_100) %>% 
-  filter(Year >= 1850) %>%
   ggplot(aes(x = Year, y = TFR, group = Dataset, colour = Dataset)) +
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
@@ -1306,7 +1305,7 @@ lt_less_children_5_100b <- lt_less_children_5_100 %>%
 bind_rows(lt_whole2, lt_anc_zaukggggggausc2,
           #lt_less_children_1_25b, lt_less_children_1_50b, lt_less_children_1_75b, lt_less_children_1_100b, 
           lt_less_children_5_25b, lt_less_children_5_50b, lt_less_children_5_75b, lt_less_children_5_100b) %>% 
-  filter(Year >= 1850 & Age == 0) %>%
+  filter(Age == 0) %>%
   ggplot(aes(x = Year, y = ex, group = Dataset, colour = Dataset)) +
   facet_grid(. ~ sex) +
   geom_line(linewidth = 1.3)+ 
@@ -1344,7 +1343,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
             lt_less_children_5_50b %>% rename(Estimate = ex) %>% filter(Age == 0), 
             lt_less_children_5_75b %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_less_children_5_100b %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
-  filter(sex == "female" & Year >= 1850) %>%
+  filter(sex == "female") %>%
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth")),
          Dataset = factor(Dataset, levels = c("25% Omission", "50% Omission", "75% Omission", "100% Omission",
