@@ -289,7 +289,7 @@ bind_rows(asfr_whole2, asfr_less_women_25b, asfr_less_women_50b, asfr_less_women
   theme_graphs()
 # labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
 # retrieved from a SOCSIM simulation and genealogical subsets with missing women) 
-ggsave(file="Graphs/Socsim_Exp4_ASFR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_ASFR.jpeg", width=17, height=9, dpi=200)
 
 
 # ASMR ----
@@ -392,7 +392,7 @@ bind_rows(asmr_whole2, asmr_less_women_25b, asmr_less_women_50b, asmr_less_women
   theme_graphs()
 #labs(title = "Age-Specific Mortality Rates in Sweden (1751-2022), 
 # retrieved from a SOCSIM simulation and genealogical subsets with omitted women") 
-ggsave(file="Graphs/Socsim_Exp4_ASMR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_ASMR.jpeg", width=17, height=9, dpi=200)
 
 
 #----------------------------------------------------------------------------------------------------
@@ -442,7 +442,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
   theme(legend.justification = "left")
 By_Age
-ggsave(file="Graphs/Final_Socsim_Exp4_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Final_Socsim_Exp3B_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
@@ -606,7 +606,7 @@ bind_rows(TFR_whole, TFR_anc_col,
   theme_graphs() 
 # labs(title = "Total Fertility Rate in Sweden (1751-2022), 
 #retrieved from a SOCSIM simulation and subsets with different proportions of omitted women") 
-ggsave(file="Graphs/Socsim_Exp4_TFR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_TFR.jpeg", width=17, height=9, dpi=200)
 
 
 # Life Expectancy at birth ----
@@ -768,7 +768,7 @@ bind_rows(lt_whole2, lt_anc_col2,
   theme_graphs() 
 # labs(title = "Total Fertility Rate in Sweden (1751-2022), 
 #retrieved from a SOCSIM simulation and subsets with different proportions of omitted women") 
-ggsave(file="Graphs/Socsim_Exp4_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_e0.jpeg", width=17, height=9, dpi=200)
 
 
 #----------------------------------------------------------------------------------------------------
@@ -810,7 +810,7 @@ Summary
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), 
 # retrieved from a SOCSIM simulation and subsets with different proportions of omitted children")
 # Save the plot
-ggsave(file="Graphs/Final_Socsim_Exp4_TFR_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Final_Socsim_Exp3B_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and summary measures -----
@@ -832,4 +832,4 @@ By_Age +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Graphs/Final_Socsim_Exp4_Combined.jpeg", width=18, height=21, dpi=200)
+ggsave(file="Graphs/Final_Socsim_Exp3B_Combined.jpeg", width=18, height=21, dpi=200)
