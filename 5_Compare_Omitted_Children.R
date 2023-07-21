@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created by Liliana Calderon on 27-06-2023
-# Last modified by Liliana Calderon on 20-07-2023
+# Last modified by Liliana Calderon on 21-07-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -33,7 +33,7 @@ source("Functions_Graphs.R")
 source("Functions_Life_Table.R")
 
 #------------------------------------------------------------------------------------------------------
-## Load data with simulation results, sample of egos alive in 2023, subset of ancestors and lateral kin 
+## Load necessary data and randomly removed proportions of early deceased children  ----
 
 # Load the data frame with the ancestors and relatives of 10 simulations samples
 load("Subsets/anc_kin_10.RData")
@@ -351,100 +351,30 @@ asmr_less_children_5_100 <- map_dfr(less_children_5_100, ~ estimate_mortality_ra
 save(asmr_less_children_5_100, file = "Measures/asmr_less_children_5_100.RData")
 
 #----------------------------------------------------------------------------------------------------
-## Plot estimates from genealogical subsets with some children removed ----
-
-# Load asfr for the subset of all direct ancestors and collateral kin
-load("Measures/asfr_anc_zaukggggggausc.RData")
-# Load asmr for the subset of all direct ancestors and collateral kin
-load("Measures/asmr_anc_zaukggggggausc.RData")
-
-# Load asfr for the genealogical subset without 25% children dead below age 1
-load("Measures/asfr_less_children_1_25.RData")
-# Load asmr for the genealogical subset without 25% children dead below age 1
-load("Measures/asmr_less_children_1_25.RData")
-# Load asfr for the genealogical subset without 50% children dead below age 1
-load("Measures/asfr_less_children_1_50.RData")
-# Load asmr for the genealogical subset without 50% children dead below age 1
-load("Measures/asmr_less_children_1_50.RData")
-# Load asfr for the genealogical subset without 75% children dead below age 1
-load("Measures/asfr_less_children_1_75.RData")
-# Load asmr for the genealogical subset without 75% children dead below age 1
-load("Measures/asmr_less_children_1_75.RData")
-# Load asfr for the genealogical subset without 100% children dead below age 1
-load("Measures/asfr_less_children_1_100.RData")
-# Load asmr for the genealogical subset without 100% children dead below age 1
-load("Measures/asmr_less_children_1_100.RData")
-
-# Load asfr for the genealogical subset without 25% children dead below age 5
-load("Measures/asfr_less_children_5_25.RData")
-# Load asmr for the genealogical subset without 25% children dead below age 5
-load("Measures/asmr_less_children_5_25.RData")
-# Load asfr for the genealogical subset without 50% children dead below age 5
-load("Measures/asfr_less_children_5_50.RData")
-# Load asmr for the genealogical subset without 50% children dead below age 5
-load("Measures/asmr_less_children_5_50.RData")
-# Load asfr for the genealogical subset without 75% children dead below age 5
-load("Measures/asfr_less_children_5_75.RData")
-# Load asmr for the genealogical subset without 75% children dead below age 5
-load("Measures/asmr_less_children_5_75.RData")
-# Load asfr for the genealogical subset without 100% children dead below age 5
-load("Measures/asfr_less_children_5_100.RData")
-# Load asmr for the genealogical subset without 100% children dead below age 5
-load("Measures/asmr_less_children_5_100.RData")
-
-# Choose years to plot (in intervals).
-yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
-
-# Get the age levels to define them before plotting and avoid wrong order
-age_levels <- levels(asmr_anc_zaukggggggausc$age)
-
-# Function to plot asfr and asmr from each subset, for women
-plot_asfr_asmr <- function(asfr, asmr, yrs_plot = yrs_plot, age_levels = age_levels) {
-  bind_rows(asfr %>% 
-              mutate(rate = "ASFR",
-                     sex = "female"),
-            asmr %>% 
-              mutate(rate = "ASMR") %>% 
-              filter(sex == "female")) %>% 
-    # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
-    filter(socsim !=0 & !is.infinite(socsim) & !is.nan(socsim)) %>% 
-    filter(year %in% yrs_plot) %>% 
-    mutate(age = factor(as.character(age), levels = age_levels)) %>% 
-    ggplot(aes(x = age, y = socsim, group = interaction(Sim_id, year), colour = year)) +
-    geom_line(linewidth = 1) +
-    facet_wrap(. ~ rate, scales = "free") + 
-    theme_graphs()  +
-    scale_x_discrete(guide = guide_axis(angle = 90)) +
-    facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                                 ASMR =  scale_y_continuous(trans = "log10"))) +
-    scale_color_viridis(option = "D", discrete = T, direction = -1)+
-    labs(x = "Age", y = "Estimate")
-}
-
-## Plot ASFR and ASMR (for women) for the subset with all direct ancestors and collateral kin
-plot_asfr_asmr(asfr_anc_zaukggggggausc, asmr_anc_zaukggggggausc, yrs_plot, age_levels)
-# Plot ASFR and ASMR (for women) for the subset without 25% children dead below age 1
-plot_asfr_asmr(asfr_less_children_1_25, asmr_less_children_1_25, yrs_plot, age_levels)
-# Plot ASFR and ASMR (for women) for the subset without 50% children dead below age 1
-plot_asfr_asmr(asfr_less_children_1_50, asmr_less_children_1_50, yrs_plot, age_levels)
-# Plot ASFR and ASMR (for women) for the subset without 75% children dead below age 1
-plot_asfr_asmr(asfr_less_children_1_75, asmr_less_children_1_75, yrs_plot, age_levels)
-# Plot ASFR and ASMR (for women) for the subset without 25% children dead below age 5
-plot_asfr_asmr(asfr_less_children_5_25, asmr_less_children_5_25, yrs_plot, age_levels)
-# Plot ASFR and ASMR (for women) for the subset without 50% children dead below age 5
-plot_asfr_asmr(asfr_less_children_5_50, asmr_less_children_5_50, yrs_plot, age_levels)
-# Plot ASFR and ASMR (for women) for the subset without 75% children dead below age 5
-plot_asfr_asmr(asfr_less_children_5_75, asmr_less_children_5_75, yrs_plot, age_levels)
-# Plot ASFR and ASMR (for women) for the subset without 100% children dead below age 5
-plot_asfr_asmr(asfr_less_children_5_100, asmr_less_children_5_100, yrs_plot, age_levels)
-
-#----------------------------------------------------------------------------------------------------
 ## Comparison of whole simulation with genealogical subsets with different proportions of missing children ----
 
 # ASFR ----
 
 # Load mean ASFR 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
 load("Measures/asfr_whole.RData")
+# Load asfr for the subset of all direct ancestors and collateral kin
+load("Measures/asfr_anc_col.RData")
+# Load asfr for the genealogical subset without 25% children dead below age 1
+load("Measures/asfr_less_children_1_25.RData")
+# Load asfr for the genealogical subset without 50% children dead below age 1
+load("Measures/asfr_less_children_1_50.RData")
+# Load asfr for the genealogical subset without 75% children dead below age 1
+load("Measures/asfr_less_children_1_75.RData")
+# Load asfr for the genealogical subset without 100% children dead below age 1
+load("Measures/asfr_less_children_1_100.RData")
+# Load asfr for the genealogical subset without 25% children dead below age 5
+load("Measures/asfr_less_children_5_25.RData")
+# Load asfr for the genealogical subset without 50% children dead below age 5
+load("Measures/asfr_less_children_5_50.RData")
+# Load asfr for the genealogical subset without 75% children dead below age 5
+load("Measures/asfr_less_children_5_75.RData")
+# Load asfr for the genealogical subset without 100% children dead below age 5
+load("Measures/asfr_less_children_5_100.RData")
 
 ## Calculate the mean of the different simulations and add relevant columns
 
@@ -453,10 +383,10 @@ asfr_whole2 <- asfr_whole %>%
   rename(ASFR = socsim) %>% 
   mutate(Dataset = "Whole Simulation", 
          Rate = "ASFR", 
-         Omitted = "NA") 
+         Omitted = NA) 
 
 # All Direct ancestors and collateral kin 
-asfr_anc_zaukggggggausc2 <- asfr_anc_zaukggggggausc %>% 
+asfr_anc_col2 <- asfr_anc_col %>% 
   group_by(year, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>% 
@@ -553,13 +483,13 @@ yrs_plot <- c("[1900,1905)", "[2000,2005)")
 
 bind_rows(asfr_whole2, asfr_less_children_1_25b, asfr_less_children_1_50b, asfr_less_children_1_75b, asfr_less_children_1_100b, 
           asfr_less_children_5_25b, asfr_less_children_5_50b, asfr_less_children_5_75b,  asfr_less_children_5_100b) %>% 
-  filter(year %in% yrs_plot & !is.nan(ASFR)) %>% 
+  filter(year %in% yrs_plot & !is.nan(ASFR) & !is.na(Omitted)) %>% 
   ggplot(aes(x = age, y = ASFR, group = interaction(year, Dataset, Omitted), colour = year))+
-  geom_line(aes(linetype = Omitted), linewidth = 1.2, show.legend = T)+ 
+  facet_wrap(~ Omitted)+
+  geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 6)+ 
   scale_color_manual(values = c("#B72779", "#2779B7"))+
   scale_shape_manual(values = c(21, 22, 23, 8, 46, 21, 22, 23, 9)) +
-  scale_linetype_manual(values=c("dotted", "dotdash", "solid"))+
   theme_graphs()
 # labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
 # retrieved from a SOCSIM simulation and subsets of "direct" and "extended" family trees") 
@@ -570,24 +500,42 @@ ggsave(file="Graphs/Socsim_Exp3_ASFR.jpeg", width=17, height=9, dpi=200)
 
 # Load mean ASMR rates 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
 load("Measures/asmr_whole.RData")
+# Load asmr for the subset of all direct ancestors and collateral kin
+load("Measures/asmr_anc_col.RData")
+# Load asmr for the genealogical subset without 25% children dead below age 1
+load("Measures/asmr_less_children_1_25.RData")
+# Load asmr for the genealogical subset without 50% children dead below age 1
+load("Measures/asmr_less_children_1_50.RData")
+# Load asmr for the genealogical subset without 75% children dead below age 1
+load("Measures/asmr_less_children_1_75.RData")
+# Load asmr for the genealogical subset without 100% children dead below age 1
+load("Measures/asmr_less_children_1_100.RData")
+# Load asmr for the genealogical subset without 25% children dead below age 5
+load("Measures/asmr_less_children_5_25.RData")
+# Load asmr for the genealogical subset without 50% children dead below age 5
+load("Measures/asmr_less_children_5_50.RData")
+# Load asmr for the genealogical subset without 75% children dead below age 5
+load("Measures/asmr_less_children_5_75.RData")
+# Load asmr for the genealogical subset without 100% children dead below age 5
+load("Measures/asmr_less_children_5_100.RData")
 
 # Whole SOCSIM simulation
 asmr_whole2 <- asmr_whole %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),          
          Dataset = "Whole Simulation", 
          Rate = "ASMR", 
-         Omitted = "NA") %>%    
+         Omitted = NA) %>%    
   select(year, age, Sex, mx = socsim, Dataset, Rate, Omitted)
 
 # All Direct ancestors and collateral kin 
-asmr_anc_zaukggggggausc2 <- asmr_anc_zaukggggggausc %>% 
+asmr_anc_col2 <- asmr_anc_col %>% 
   group_by(year, sex, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),          
          Dataset = "Direct Ancestors + Collateral Kin",
          Rate = "ASMR", 
-         Omitted = "NA") %>%    
+         Omitted = NA) %>%    
   select(year, age, Sex, mx = socsim, Dataset, Rate, Omitted)
 
 # All Direct ancestors and collateral kin without 25% children dead below age 1
@@ -684,14 +632,14 @@ asmr_less_children_5_100b <- asmr_less_children_5_100 %>%
 # Same years to plot than above (in intervals). Change if necessary
 yrs_plot <- c("[1900,1905)", "[2000,2005)") 
 
-bind_rows(asmr_whole2, asmr_less_children_1_25b, asmr_less_children_1_50b, asmr_less_children_1_75b, 
-          asmr_less_children_5_25b, asmr_less_children_5_50b, asmr_less_children_5_75b) %>% 
+bind_rows(asmr_whole2, asmr_less_children_1_25b, asmr_less_children_1_50b, asmr_less_children_1_75b,  asmr_less_children_1_100b, 
+          asmr_less_children_5_25b, asmr_less_children_5_50b, asmr_less_children_5_75b, asmr_less_children_1_100b, ) %>% 
   rename(Year = year) %>% 
   filter(Year %in% yrs_plot) %>%  # Otherwise don't bind
   # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
-  filter(mx != 0 & !is.infinite(mx) & !is.nan(mx)) %>% 
+  filter(mx != 0 & !is.infinite(mx) & !is.nan(mx) & !is.na(Omitted)) %>% 
   ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset, Omitted), colour = Year))+
-  facet_grid(. ~ Sex) +
+  facet_grid(Omitted ~ Sex) +
   geom_line(aes(linetype = Omitted), linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 11)+ 
   scale_color_manual(values = c("#B72779", "#2779B7"))+
@@ -720,7 +668,7 @@ age_levels <- levels(asmr_whole2$age)
 
 By_Age <- 
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
-          asfr_anc_zaukggggggausc2 %>% rename(Estimate = ASFR), 
+          asfr_anc_col2 %>% rename(Estimate = ASFR), 
           # asfr_less_children_1_25b %>% rename(Estimate = ASFR), 
           # asfr_less_children_1_50b %>% rename(Estimate = ASFR), 
           # asfr_less_children_1_75b %>% rename(Estimate = ASFR), 
@@ -730,7 +678,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
           asfr_less_children_5_100b %>% rename(Estimate = ASFR)) %>%  
   mutate(Sex = "Female") %>%  
   bind_rows(asmr_whole2 %>% rename(Estimate = mx), 
-            asmr_anc_zaukggggggausc2 %>% rename(Estimate = mx), 
+            asmr_anc_col2 %>% rename(Estimate = mx), 
             # asmr_less_children_1_25b %>% rename(Estimate = mx), 
             # asmr_less_children_1_50b %>% rename(Estimate = mx), 
             # asmr_less_children_1_75b %>% rename(Estimate = mx), 
@@ -757,10 +705,9 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                                ASMR =  scale_y_continuous(trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() + 
-  theme(legend.title = element_text(size = 15), 
-        legend.text = element_text(size = 15))+
   labs(x = "Age") +
-  guides(shape = guide_legend(order = 1), col = guide_legend(order = 2))
+  guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
+  theme(legend.justification = "left")
 By_Age
 ggsave(file="Graphs/Final_Socsim_Exp3_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
@@ -869,10 +816,12 @@ asfr_less_children_5_100_1 <- map_dfr(less_children_5_100, ~ estimate_fertility_
                                      .id = "Sim_id") 
 save(asfr_less_children_5_100_1, file = "Measures/asfr_less_children_5_100_1.RData")
 
+# Load ASFR 1x1 and calculate TFR for plotting ----
+
 # Load mean age-specific fertility rates 1x1 for the 10 simulations
 load("Measures/asfr_whole_1.RData")
 # Load asfr 1x1 for the subset with all direct ancestors and collateral kin
-load("Measures/asfr_anc_zaukggggggausc_1.RData")
+load("Measures/asfr_anc_col_1.RData")
 # Load asfr 1x1 for the subset without 25% children dead below age 1
 load("Measures/asfr_less_children_1_25_1.RData")
 # Load asfr 1x1 for the subset without 50% children dead below age 1
@@ -907,7 +856,7 @@ TFR_whole <- asfr_whole_1 %>%
          sex = "female")
 
 # All Direct ancestors and collateral kin # Not included
-TFR_anc_zaukggggggausc <- asfr_anc_zaukggggggausc_1 %>% 
+TFR_anc_col <- asfr_anc_col_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -1026,7 +975,7 @@ TFR_less_children_5_100 <- asfr_less_children_5_100_1 %>%
 
 ## Plot TFR from whole SOCSIM simulation and subsets with different proportions of omitted children
 
-bind_rows(TFR_whole, TFR_anc_zaukggggggausc,
+bind_rows(TFR_whole, TFR_anc_col,
           #TFR_less_children_1_25, TFR_less_children_1_50, TFR_less_children_1_75, TFR_less_children_1_100, 
           TFR_less_children_5_25, TFR_less_children_5_50, TFR_less_children_5_75, TFR_less_children_5_100) %>% 
   ggplot(aes(x = Year, y = TFR, group = Dataset, colour = Dataset)) +
@@ -1200,14 +1149,14 @@ lt_less_children_5_100 <- lt_socsim(asmr_less_children_5_100_1)
 save(lt_less_children_5_100, file = "Measures/lt_less_children_5_100.RData")
 
 
-# Wrangle data for plotting
+# Load and wrangle life tables for plotting ----
 
 # Load mean age-specific mortality rates 1x1 for the 10 simulations
 load("Measures/asmr_whole_1.RData")
 # Load life tables for the mean asmr for the 10 simulations
 load("Measures/lt_whole.RData")
 # Load life tables for the mean asmr from subset of all direct ancestors and collateral kin
-load("Measures/lt_anc_zaukggggggausc.RData")
+load("Measures/lt_anc_col.RData")
 # Load life tables for the mean asmr from subset without 25% children dead below age 1
 load("Measures/lt_less_children_1_25.RData")
 # Load life tables for the mean asmr from subset without 50% children dead below age 1
@@ -1239,7 +1188,7 @@ lt_whole2 <- lt_whole %>%
   select(Year, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin 
-lt_anc_zaukggggggausc2 <- lt_anc_zaukggggggausc %>% 
+lt_anc_col2 <- lt_anc_col %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "Direct Ancestors + Collateral Kin",
          Rate = "e0") %>%    
@@ -1302,7 +1251,7 @@ lt_less_children_5_100b <- lt_less_children_5_100 %>%
   select(Year, ex, Dataset, Rate, sex, Age)
 
 ## Plot
-bind_rows(lt_whole2, lt_anc_zaukggggggausc2,
+bind_rows(lt_whole2, lt_anc_col2,
           #lt_less_children_1_25b, lt_less_children_1_50b, lt_less_children_1_75b, lt_less_children_1_100b, 
           lt_less_children_5_25b, lt_less_children_5_50b, lt_less_children_5_75b, lt_less_children_5_100b) %>% 
   filter(Age == 0) %>%
@@ -1325,7 +1274,7 @@ yrs_plot2 <- c(1750, 1800, 1850, 1900, 1950, 2000)
 
 Summary <- 
 bind_rows(TFR_whole %>% rename(Estimate = TFR),
-          TFR_anc_zaukggggggausc %>% rename(Estimate = TFR),
+          TFR_anc_col %>% rename(Estimate = TFR),
           # TFR_less_children_1_25 %>% rename(Estimate = TFR), 
           # TFR_less_children_1_50 %>% rename(Estimate = TFR), 
           # TFR_less_children_1_75 %>% rename(Estimate = TFR), 
@@ -1335,7 +1284,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
           TFR_less_children_5_100 %>% rename(Estimate = TFR)) %>%  
   mutate(sex = "female") %>%  
   bind_rows(lt_whole2 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_anc_zaukggggggausc2 %>% rename(Estimate = ex) %>% filter(Age == 0),
+            lt_anc_col2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             # lt_less_children_1_25b %>% rename(Estimate = ex) %>% filter(Age == 0), 
             # lt_less_children_1_50b %>% rename(Estimate = ex) %>% filter(Age == 0), 
             # lt_less_children_1_75b %>% rename(Estimate = ex) %>% filter(Age == 0), 
@@ -1353,11 +1302,34 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   geom_point(data = . %>% filter(Year %in% yrs_plot2), 
              aes(shape = Dataset), size = 11) +
   geom_line(linewidth = 1.2) +
-  scale_color_manual(values = c("#8C463B", "#FF5D00", "#2890B6", "#1A3077","#75007A", "#007A75"))+
+  scale_color_manual(values = c("#FFBE4D", "#FF834C", "#E7495B", "#B90E6D","#75007A", "#007A75"))+
   scale_shape_manual(values = c(21, 22, 23, 8, 18, 46)) +
-  theme_graphs() 
+  theme_graphs() +
+  theme(legend.justification = "left")
 Summary
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), 
 # retrieved from a SOCSIM simulation and subsets with different proportions of omitted children")
 # Save the plot
 ggsave(file="Graphs/Final_Socsim_Exp3_TFR_e0.jpeg", width=17, height=9, dpi=200)
+
+#----------------------------------------------------------------------------------------------------
+## Plot combining age-specific rates and summary measures -----
+
+plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
+                         x = c(1,2),
+                         y = c(0.2, 0.55),
+                         labels = c("a","b"))
+plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expectancy at Birth")),
+                         x = c(1755, 1755),
+                         y = c(5.4, 84),
+                         labels = c("c","d"))
+
+By_Age + 
+  geom_text(data = plot_labs1, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
+            size = 15, family="serif") + 
+  theme(plot.margin = margin(0,0,1,0, "cm")) +
+  Summary + 
+  geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
+            size = 15, family="serif") +
+  plot_layout(ncol = 1)
+ggsave(file="Graphs/Final_Socsim_Exp3_Combined.jpeg", width=18, height=20, dpi=200)
