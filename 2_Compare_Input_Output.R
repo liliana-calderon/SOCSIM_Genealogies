@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 20-07-2023
+# Last modified by Liliana Calderon on 21-07-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -335,6 +335,9 @@ asfr_10_1 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
                                                           age_group = 1), # [,)
                    .id = "Sim_id") 
 save(asfr_10_1, file = "Measures/asfr_10_1.RData")
+
+# Load ASFR 1x1 and calculate TFR for plotting ----
+
 load("Measures/asfr_10_1.RData")
 
 # Year breaks. Extract all the unique numbers from the intervals. 
@@ -394,11 +397,13 @@ asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
                                                           age_group = 1), # [,)
                      .id = "Sim_id") 
 save(asmr_10_1, file = "Measures/asmr_10_1.RData")
-load("Measures/asmr_10_1.RData")
 
 # Compute life table from SOCSIM's asmr 1x1 for each simulation
 lt_10 <- lt_socsim_sims(asmr_socsim_sims = asmr_10_1)
 save(lt_10, file = "Measures/lt_10.RData")
+
+# Load and wrangle life tables for plotting ----
+load("Measures/asmr_10_1.RData")
 load("Measures/lt_10.RData")
 
 ## Compare with ex at age 0 for Sweden in HMD
@@ -480,7 +485,7 @@ Summary
 ggsave(file="Graphs/Final_Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
-#### Plot combining age-specific rates and summary measures -----
+## Plot combining age-specific rates and summary measures -----
 
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                         x = c(1,2),
