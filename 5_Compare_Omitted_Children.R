@@ -489,7 +489,7 @@ bind_rows(asfr_whole2, asfr_less_children_1_25b, asfr_less_children_1_50b, asfr_
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 6)+ 
   scale_color_manual(values = c("#B72779", "#2779B7"))+
-  scale_shape_manual(values = c(21, 22, 23, 8, 46, 21, 22, 23, 9)) +
+  scale_shape_manual(values = c(8, 23, 22, 21, 46, 8, 23, 22, 21, 46)) +
   theme_graphs()
 # labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
 # retrieved from a SOCSIM simulation and subsets of "direct" and "extended" family trees") 
@@ -638,13 +638,13 @@ bind_rows(asmr_whole2, asmr_less_children_1_25b, asmr_less_children_1_50b, asmr_
   filter(Year %in% yrs_plot) %>%  # Otherwise don't bind
   # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
   filter(mx != 0 & !is.infinite(mx) & !is.nan(mx) & !is.na(Omitted)) %>% 
+  mutate(Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", "Whole Simulation"))) %>% 
   ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset, Omitted), colour = Year))+
   facet_grid(Omitted ~ Sex) +
-  geom_line(aes(linetype = Omitted), linewidth = 1.2, show.legend = T)+ 
+  geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 11)+ 
   scale_color_manual(values = c("#B72779", "#2779B7"))+
-  scale_shape_manual(values = c(21, 22, 23, 8, 46, 21, 22, 23, 8)) +
-  scale_linetype_manual(values=c("dotted", "dotdash", "solid"))+
+  scale_shape_manual(values = c(8, 23, 22, 21, 46, 8, 23, 22, 21, 46)) +
   theme_graphs()+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
@@ -693,14 +693,14 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   mutate(age = factor(as.character(age), levels = age_levels),
          Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
                        "Age-Specific Mortality Rates"),
-         Dataset = factor(Dataset, levels = c("25% Omission", "50% Omission", "75% Omission", "100% Omission",
+         Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission",
                                               "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
     ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 11)+ 
   scale_color_manual(values = c("#B72779", "#2779B7"))+
-  scale_shape_manual(values = c(21, 22, 23, 8, 18, 46)) + 
+  scale_shape_manual(values = c(8, 23, 22, 21, 18, 46)) + 
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
@@ -710,7 +710,6 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left")
 By_Age
 ggsave(file="Graphs/Final_Socsim_Exp3_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
-
 
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
@@ -978,6 +977,8 @@ TFR_less_children_5_100 <- asfr_less_children_5_100_1 %>%
 bind_rows(TFR_whole, TFR_anc_col,
           #TFR_less_children_1_25, TFR_less_children_1_50, TFR_less_children_1_75, TFR_less_children_1_100, 
           TFR_less_children_5_25, TFR_less_children_5_50, TFR_less_children_5_75, TFR_less_children_5_100) %>% 
+  mutate(Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", 
+                                              "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>% 
   ggplot(aes(x = Year, y = TFR, group = Dataset, colour = Dataset)) +
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
@@ -1255,6 +1256,8 @@ bind_rows(lt_whole2, lt_anc_col2,
           #lt_less_children_1_25b, lt_less_children_1_50b, lt_less_children_1_75b, lt_less_children_1_100b, 
           lt_less_children_5_25b, lt_less_children_5_50b, lt_less_children_5_75b, lt_less_children_5_100b) %>% 
   filter(Age == 0) %>%
+  mutate(Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", 
+                                              "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>% 
   ggplot(aes(x = Year, y = ex, group = Dataset, colour = Dataset)) +
   facet_grid(. ~ sex) +
   geom_line(linewidth = 1.3)+ 
@@ -1295,7 +1298,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   filter(sex == "female") %>%
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth")),
-         Dataset = factor(Dataset, levels = c("25% Omission", "50% Omission", "75% Omission", "100% Omission",
+         Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission",
                                               "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
   ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
   facet_wrap(. ~ Rate, scales = "free") + 
@@ -1303,7 +1306,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
              aes(shape = Dataset), size = 11) +
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#FFBE4D", "#FF834C", "#E7495B", "#B90E6D","#75007A", "#007A75"))+
-  scale_shape_manual(values = c(21, 22, 23, 8, 18, 46)) +
+  scale_shape_manual(values = c(8, 23, 22, 21, 18, 46)) +
   theme_graphs() +
   theme(legend.justification = "left")
 Summary
@@ -1311,7 +1314,6 @@ Summary
 # retrieved from a SOCSIM simulation and subsets with different proportions of omitted children")
 # Save the plot
 ggsave(file="Graphs/Final_Socsim_Exp3_TFR_e0.jpeg", width=17, height=9, dpi=200)
-
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and summary measures -----
 
@@ -1332,4 +1334,4 @@ By_Age +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Graphs/Final_Socsim_Exp3_Combined.jpeg", width=18, height=20, dpi=200)
+ggsave(file="Graphs/Final_Socsim_Exp3_Combined.jpeg", width=18, height=21, dpi=200)

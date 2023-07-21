@@ -155,8 +155,8 @@ save(asmr_dir_wod, file = "Measures/asmr_dir_wod.RData")
 load("Measures/asfr_whole.RData")
 # Load ASFR for the genealogical subset of direct ancestors with duplicates
 load("Measures/asfr_dir_wd.RData")
-# Load ASMR for the genealogical subset of direct ancestors with duplicates
-load("Measures/asmr_dir_wd.RData")
+# Load ASFR for the genealogical subset of direct ancestors without duplicates
+load("Measures/asfr_dir_wod.RData")
 
 ## Calculate the mean of the different simulations and add relevant columns
 
@@ -205,10 +205,10 @@ ggsave(file="Graphs/Socsim_Exp1_ASFR.jpeg", width=17, height=9, dpi=200)
 
 # Load mean ASMR rates 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
 load("Measures/asmr_whole.RData")
-# Load ASFR for the genealogical subset of direct ancestors without duplicates
-load("Measures/asfr_dir_wod.RData")
 # Load ASMR for the genealogical subset of direct ancestors without duplicates
 load("Measures/asmr_dir_wod.RData")
+# Load ASMR for the genealogical subset of direct ancestors with duplicates
+load("Measures/asmr_dir_wd.RData")
 
 # Whole SOCSIM simulation
 asmr_whole2 <- asmr_whole %>% 
@@ -299,7 +299,9 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme_graphs() +
   labs(x = "Age") +
   guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
-  theme(legend.justification = "left")
+  theme(legend.justification = "left", 
+        legend.title = element_text(size = 18),
+        legend.text = element_text(size = 17))
 
 # Save the plot
 By_Age
@@ -549,4 +551,4 @@ By_Age +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=20, dpi=200)
+ggsave(file="Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=21, dpi=200)

@@ -481,9 +481,6 @@ ggsave(file="Graphs/Socsim_Exp2_ASFR.jpeg", width=17, height=14, dpi=200)
 
 # ASMR ----
 
-# Get the age levels to define them before plotting and avoid wrong order
-age_levels <- levels(asmr_dir_wod$age)
-
 # Load mean ASMR rates 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
 load("Measures/asmr_whole.RData")
 # Load ASFR for the subset of "direct" family trees without duplicates
@@ -579,6 +576,9 @@ asmr_anc_sc2 <- asmr_anc_sc %>%
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
 ## Plotting ASMR from whole SOCSIM simulation and subsets of "direct" and "extended" family trees without duplicates
+
+# Get the age levels to define them before plotting and avoid wrong order
+age_levels <- levels(asmr_dir_wod$age)
 
 # Same years to plot than above (in intervals). Change if necessary
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
@@ -1137,7 +1137,7 @@ By_Age +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Graphs/Final_Socsim_Exp2_Combined.jpeg", width=18, height=20, dpi=200)
+ggsave(file="Graphs/Final_Socsim_Exp2_Combined.jpeg", width=18, height=21, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Plots adding kin progressively For appendix ----

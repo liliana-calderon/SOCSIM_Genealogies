@@ -337,7 +337,6 @@ asfr_10_1 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
 save(asfr_10_1, file = "Measures/asfr_10_1.RData")
 
 # Load ASFR 1x1 and calculate TFR for plotting ----
-
 load("Measures/asfr_10_1.RData")
 
 # Year breaks. Extract all the unique numbers from the intervals. 
@@ -505,7 +504,7 @@ By_Age +
             size = 15, family="serif") +
   plot_layout(ncol = 1)
 
-ggsave(file="Graphs/Final_Socsim_HFD_HMD_Combined.jpeg", width=18, height=20, dpi=200)
+ggsave(file="Graphs/Final_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Calculate the mean measures of the different simulations ----
