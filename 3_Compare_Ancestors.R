@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 20-07-2023
+# Last modified by Liliana Calderon on 21-07-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -147,70 +147,16 @@ asmr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates(opop = .x,
 save(asmr_dir_wod, file = "Measures/asmr_dir_wod.RData")
 
 #----------------------------------------------------------------------------------------------------
-## Plot estimates from genealogical subsets of direct ancestors ----
-
-# Load ASFR and ASMR for the genealogical subset of direct ancestors with duplicates
-load("Measures/asfr_dir_wd.RData")
-load("Measures/asmr_dir_wd.RData")
-
-# Load ASFR and ASMR for the genealogical subset of direct ancestors without duplicates
-load("Measures/asfr_dir_wod.RData")
-load("Measures/asmr_dir_wod.RData")
-
-# Choose years to plot (in intervals).
-yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
-
-# Get the age levels to define them before plotting and avoid wrong order
-age_levels <- levels(asmr_dir_wd$age)
-
-## ASFR and ASMR (for women) genealogical subset of direct ancestors with duplicates
-bind_rows(asfr_dir_wd %>%
-            mutate(rate = "ASFR",
-                   sex = "female"),
-          asmr_dir_wd %>%
-            mutate(rate = "ASMR") %>%
-            filter(sex == "female")) %>% 
-  # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
-  filter(socsim !=0 & !is.infinite(socsim) & !is.nan(socsim)) %>% 
-  filter(year %in% yrs_plot) %>% 
-  ggplot(aes(x = age, y = socsim, group = interaction(Sim_id, year), colour = year)) +
-  geom_line(linewidth = 1) +
-  facet_wrap(. ~ rate, scales = "free") + 
-  theme_graphs()  +
-  scale_x_discrete(guide = guide_axis(angle = 90)) +
-  facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                               ASMR =  scale_y_continuous(trans = "log10"))) +
-  scale_color_viridis(option = "D", discrete = T, direction = -1)+
-  labs(x = "Age", y = "Estimate")
-
-
-## ASFR and ASMR (for women) genealogical subset of direct ancestors without duplicates
-bind_rows(asfr_dir_wod %>% 
-            mutate(rate = "ASFR",
-                   sex = "female"),
-          asmr_dir_wod %>% 
-            mutate(rate = "ASMR") %>% 
-            filter(sex == "female")) %>% 
-  # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
-  filter(socsim !=0 & !is.infinite(socsim) & !is.nan(socsim)) %>% 
-  filter(year %in% yrs_plot) %>% 
-  ggplot(aes(x = age, y = socsim, group = interaction(Sim_id, year), colour = year)) +
-  geom_line(linewidth = 1) +
-  facet_wrap(. ~ rate, scales = "free") + 
-  theme_graphs()  +
-  scale_x_discrete(guide = guide_axis(angle = 90)) +
-  facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                               ASMR =  scale_y_continuous(trans = "log10"))) +
-  scale_color_viridis(option = "D", discrete = T, direction = -1)+
-  labs(x = "Age", y = "Estimate")
-
-#----------------------------------------------------------------------------------------------------
-## Comparison of whole simulation with subsets of direct ancestors ----
+## Comparison of whole simulation with subsets of direct ancestors, with and without duplicates ----
 
 # ASFR ----
 
 # Load mean ASFR 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
 load("Measures/asfr_whole.RData")
+# Load ASFR for the genealogical subset of direct ancestors with duplicates
+load("Measures/asfr_dir_wd.RData")
+# Load ASMR for the genealogical subset of direct ancestors with duplicates
+load("Measures/asmr_dir_wd.RData")
 
 ## Calculate the mean of the different simulations and add relevant columns
 
@@ -259,6 +205,10 @@ ggsave(file="Graphs/Socsim_Exp1_ASFR.jpeg", width=17, height=9, dpi=200)
 
 # Load mean ASMR rates 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
 load("Measures/asmr_whole.RData")
+# Load ASFR for the genealogical subset of direct ancestors without duplicates
+load("Measures/asfr_dir_wod.RData")
+# Load ASMR for the genealogical subset of direct ancestors without duplicates
+load("Measures/asmr_dir_wod.RData")
 
 # Whole SOCSIM simulation
 asmr_whole2 <- asmr_whole %>% 
@@ -292,6 +242,9 @@ asmr_dir_wod2 <- asmr_dir_wod %>%
 
 # Same years to plot than above (in intervals). Change if necessary
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+
+# Get the age levels to define them before plotting and avoid wrong order
+age_levels <- levels(asmr_dir_wd$age)
 
 bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>% 
   rename(Year = year) %>% 
@@ -387,7 +340,9 @@ asfr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_fertility_rates(opop = .
                     .id = "Sim_id") 
 save(asfr_dir_wod_1, file = "Measures/asfr_dir_wod_1.RData")
 
-# Load mean Age-specific fertility rates 1x1 from the 10 simulations, calculated on 2_Compare_Input_Output
+# Load ASFR 1x1 and calculate TFR for plotting ----
+
+# Load mean ASFR 1x1 from the 10 simulations, calculated on 2_Compare_Input_Output\
 load("Measures/asfr_whole_1.RData")
 load("Measures/asfr_dir_wd_1.RData")
 load("Measures/asfr_dir_wod_1.RData")
@@ -495,7 +450,7 @@ asmr_dir_wod_1 <- asmr_dir_wod_1 %>%
 lt_dir_wod <- lt_socsim(asmr_dir_wod_1)
 save(lt_dir_wod, file = "Measures/lt_dir_wod.RData")
 
-## Load life tables
+# Load and wrangle life tables for plotting ----
 load("Measures/lt_whole.RData")
 load("Measures/lt_dir_wd.RData")
 load("Measures/lt_dir_wod.RData")
@@ -575,7 +530,7 @@ Summary
 ggsave(file="Graphs/Final_Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
-#### Plot combining age-specific rates and summary measures -----
+## Plot combining age-specific rates and summary measures -----
 
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                          x = c(1,2),
@@ -594,5 +549,4 @@ By_Age +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-
 ggsave(file="Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=20, dpi=200)
