@@ -1142,12 +1142,38 @@ ggsave(file="Graphs/Final_Socsim_Exp2_Combined.jpeg", width=18, height=21, dpi=2
 #----------------------------------------------------------------------------------------------------
 ## Plots adding kin progressively For appendix ----
 ## Modify here with new kin types!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+# We already have direct ancestors plus one of the collateral. 
+type_anc_xxx <- c("ego", "parents", "gparents", "ggparents", 
+                  "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
+                  "siblings", 
+                  "unclesaunts", 
+                  "firstcousins", 
+                  "gunclesaunts", 
+                  "spouse", "children")
+
+# We may need to add the x-great-aunts/uncles
+type_anc_ggau <- c("ego", "parents", "gparents", "ggparents", 
+                  "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents",                   "ggunclesaunts", "gggunclesaunts", "ggggunclesaunts", "gggggunclesaunts", "ggggggunclesaunts",
+                  "ggunclesaunts")
+type_anc_gggau <- c("ego", "parents", "gparents", "ggparents", 
+                   "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents",                   "ggunclesaunts", "gggunclesaunts", "ggggunclesaunts", "gggggunclesaunts", "ggggggunclesaunts",
+                   "gggunclesaunts")
+type_anc_ggggau <- c("ego", "parents", "gparents", "ggparents", 
+                    "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents",                   "ggunclesaunts", "gggunclesaunts", "ggggunclesaunts", "gggggunclesaunts", "ggggggunclesaunts",
+                    "ggggunclesaunts")
+type_anc_gggggau <- c("ego", "parents", "gparents", "ggparents", 
+                     "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents",                   "ggunclesaunts", "gggunclesaunts", "ggggunclesaunts", "gggggunclesaunts", "ggggggunclesaunts",
+                     "gggggunclesaunts")
+type_anc_gggggau <- c("ego", "parents", "gparents", "ggparents", 
+                      "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents",                   "ggunclesaunts", "gggunclesaunts", "ggggunclesaunts", "gggggunclesaunts", "ggggggunclesaunts",
+                      "ggggggunclesaunts")                 
+                   
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and subsets of direct ancestors and different collateral kin
 yrs_plot_1 <- c("[1900,1905)") 
 
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
           asfr_dir_wod2 %>% rename(Estimate = ASFR),
-          asfr_anc_z2 %>% rename(Estimate = ASFR),
           asfr_anc_z2 %>% rename(Estimate = ASFR),
           asfr_anc_au2 %>% rename(Estimate = ASFR),
           asfr_anc_k2 %>% rename(Estimate = ASFR),
@@ -1156,7 +1182,6 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   mutate(Sex = "Female") %>%  
   bind_rows(asmr_whole2 %>% rename(Estimate = mx),
             asmr_dir_wod2 %>% rename(Estimate = mx),
-            asmr_anc_z2 %>% rename(Estimate = mx),
             asmr_anc_z2 %>% rename(Estimate = mx),
             asmr_anc_au2 %>% rename(Estimate = mx),
             asmr_anc_k2 %>% rename(Estimate = mx),
