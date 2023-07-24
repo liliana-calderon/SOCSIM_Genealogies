@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 13-04-2022
-# Last modified by Liliana Calderon on 21-07-2023
+# Last modified by Liliana Calderon on 24-07-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -176,7 +176,7 @@ asmr_anc_col <- map_dfr(anc_col, ~ estimate_mortality_rates(opop = .x,
                         .id = "Sim_id") 
 save(asmr_anc_col, file = "Measures/asmr_anc_col.RData")
 
-## Direct ancestors and siblings, 2.4 ----
+# Direct ancestors and siblings, 2.4 ----
 type_anc_z <- c("ego", "parents", "gparents", "ggparents", 
                 "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                 "siblings") 
@@ -213,7 +213,7 @@ asmr_anc_z <- map_dfr(anc_z, ~ estimate_mortality_rates(opop = .x,
 save(asmr_anc_z, file = "Measures/asmr_anc_z.RData")
 
 
-## Direct ancestors and aunts/uncles 3.5% ----
+# Direct ancestors and aunts/uncles 3.5% ----
 type_anc_au <- c("ego", "parents", "gparents", "ggparents", 
                  "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                  "unclesaunts")
@@ -250,7 +250,7 @@ asmr_anc_au <- map_dfr(anc_au, ~ estimate_mortality_rates(opop = .x,
 save(asmr_anc_au, file = "Measures/asmr_anc_au.RData")
 
 
-## Direct ancestors and first cousins, 9.5% ----
+# Direct ancestors and first cousins, 9.5% ----
 type_anc_k <- c("ego", "parents", "gparents", "ggparents", 
                 "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                 "firstcousins") 
@@ -287,7 +287,7 @@ asmr_anc_k <- map_dfr(anc_k, ~ estimate_mortality_rates(opop = .x,
 save(asmr_anc_k, file = "Measures/asmr_anc_k.RData")
 
 
-## Direct ancestors and great-aunt/uncles 5.2% ----
+# Direct ancestors and great-aunt/uncles 5.2% ----
 type_anc_gau <- c("ego", "parents", "gparents", "ggparents", 
                   "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                   "gunclesaunts") 
@@ -323,7 +323,7 @@ asmr_anc_gau <- map_dfr(anc_gau, ~ estimate_mortality_rates(opop = .x,
                         .id = "Sim_id") 
 save(asmr_anc_gau, file = "Measures/asmr_anc_gau.RData")
 
-## Direct ancestors and spouse 0.9% and children 2.8%  ----
+# Direct ancestors and spouse 0.9% and children 2.8%  ----
 
 type_anc_sc <- c("ego", "parents", "gparents", "ggparents", 
                  "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
@@ -867,7 +867,7 @@ bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_z, TFR_anc_au,
 ggsave(file="Graphs/Socsim_Exp2_TFR.jpeg", width=17, height=9, dpi=200)
 
 # Life Expectancy at birth ----
-# Estimate life expectancy at birth from asmr 1x1 for the different genealogical subsets
+# Estimate life expectancy at birth from asmr 1x1 for the different genealogical subsets ----
 
 # Estimate age-specific mortality rates 1x1 for the subset of all direct ancestors and collateral kin
 asmr_anc_col_1 <- map_dfr(anc_col, ~ estimate_mortality_rates(opop = .x,
@@ -1107,7 +1107,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   geom_point(data = . %>% filter(Year %in% yrs_plot2), 
              aes(shape = Dataset), size = 11) +
   geom_line(linewidth = 1.2) +
-  scale_color_manual(values = c("#38007A", "#75007A", "#007A75"))+
+  scale_color_manual(values = c("#7A7500", "#75007A", "#007A75"))+
   scale_shape_manual(values = c(19, 18, 46)) +
   theme_graphs() +
   theme(legend.justification = "left")
