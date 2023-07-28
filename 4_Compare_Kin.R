@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 13-04-2022
-# Last modified by Liliana Calderon on 27-07-2023
+# Last modified by Liliana Calderon on 28-07-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -755,7 +755,7 @@ bind_rows(asfr_whole2, asfr_dir_wod2, asfr_anc_z2, asfr_anc_z2, asfr_anc_au2,
   mutate(Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", 
                                                "4. + Great-Aunts/Uncles", "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", 
                                                "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
-                                               "10. + Spouse and Children", "Whole Simulation"))) %>%
+                                               "10. + Spouse and Children", "Whole Simulation"))) %>% 
   ggplot(aes(x = age, y = ASFR, group = interaction(year, Dataset), colour = Dataset))+
   facet_grid(year ~ . , scales = "free") +
   geom_line(linewidth = 1.2, show.legend = T)+
@@ -1703,15 +1703,16 @@ lt_anc_col2 <- lt_anc_col %>%
          Rate = "e0") %>% 
   select(Year, ex, Dataset, Rate, sex, Age)
 
-bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_z2, lt_anc_au2,
+bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2,
           lt_anc_k2, lt_anc_gau2, 
           lt_anc_ggau2, lt_anc_gggau2, lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2,
-          lt_anc_sc2, lt_anc_col2)  %>%
+          lt_anc_sc2)  %>%
   filter(Age == 0) %>%
   mutate(Sex = ifelse(sex == "female", "Female", "Male"),
-         Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", "4. + Great-Aunts/Uncles",
-                                               "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
-                                               "10. + Spouse and Children", "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
+         Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", 
+                                               "4. + Great-Aunts/Uncles", "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", 
+                                               "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
+                                               "10. + Spouse and Children", "Whole Simulation"))) %>%
   ggplot(aes(x = Year, y = ex, group = Dataset))+
   geom_line(aes(colour = Dataset), linewidth = 1.3)+
   scale_color_viridis(option = "H", discrete = T, direction = -1)+
@@ -1779,8 +1780,7 @@ ggsave(file="Graphs/Final_Socsim_Exp2_Combined.jpeg", width=18, height=21, dpi=2
 
 #----------------------------------------------------------------------------------------------------
 ## Plots adding kin progressively For appendix ----
-## Modify here with new kin types!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                   
+
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and subsets of direct ancestors and different collateral kin
 yrs_plot_1 <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
