@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 24-07-2023
+# Last modified by Liliana Calderon on 31-07-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -266,7 +266,7 @@ ggsave(file="Graphs/Socsim_Exp1_ASMR.jpeg", width=17, height=9, dpi=200)
 ## Final plot combining ASFR and ASMR ----
 
 # Change years to plot only to two periods
-yrs_plot <- c("[1900,1905)", "[2000,2005)") 
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_whole2$age)
@@ -291,16 +291,17 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(linewidth = 1.3, show.legend = TRUE)+
   geom_point(aes(shape = Dataset), size = 11)+
-  scale_color_manual(values = c( "#B72779", "#2779B7"))+
+  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
   scale_shape_manual(values = c(15, 19 ,46)) + 
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(x = "Age") +
-  guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
+  guides(shape = guide_legend(order = 1), 
+         col = guide_legend(order = 2, nrow=2,byrow=TRUE))+
   theme(legend.justification = "left", 
-        legend.title = element_text(size = 18),
+        legend.title = element_text(size = 20),
         legend.text = element_text(size = 17))
 
 # Save the plot
@@ -525,7 +526,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_x_continuous(breaks = yrs_plot2)+
   theme_graphs() + 
   theme(legend.justification = "left", 
-        legend.title = element_text(size = 18),
+        legend.title = element_text(size = 20),
         legend.text = element_text(size = 17))
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
 
@@ -538,7 +539,7 @@ ggsave(file="Graphs/Final_Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                          x = c(1,2),
-                         y = c(0.19, 0.5),
+                         y = c(0.23, 0.5),
                          labels = c("a","b"))
 plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expectancy at Birth")),
                          x = c(1755, 1755),
