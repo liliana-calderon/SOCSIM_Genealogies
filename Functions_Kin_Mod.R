@@ -9,7 +9,7 @@
 # The name of the vectors for grandparents and great-grand parents is also different, 
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 19-07-2023
+# Last modified by Liliana Calderon on 31-07-2023
 #----------------------------------------------------------------------------------------------------
 
 retrieve_kin_mod <- function (opop = opop, omar = omar, pid, KidsOf = KidsOf) {
@@ -680,9 +680,9 @@ retrieve_kin_mod <- function (opop = opop, omar = omar, pid, KidsOf = KidsOf) {
   g7 <- ko(KidsOf = KidsOf, p = res$gggggggparents)
   res$ggggggunclesaunts <- lapply(seq_along(g7), function(i) g7[[i]][g7[[i]] %ni% res$ggggggparents[[i]]])
   
-  res$spouse <- so(opop = opop, p = pid)
-  
-  res$children <- ko(KidsOf = KidsOf, p = pid)
+  # res$spouse <- so(opop = opop, p = pid)
+  # 
+  # res$children <- ko(KidsOf = KidsOf, p = pid)
  
   for (i in 1:length(names(res))) {
     res[[i]][sapply(res[[i]], function(x) length(x) == 0)] <- NA
