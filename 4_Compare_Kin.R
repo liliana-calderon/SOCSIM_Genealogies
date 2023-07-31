@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 13-04-2022
-# Last modified by Liliana Calderon on 28-07-2023
+# Last modified by Liliana Calderon on 31-07-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -69,6 +69,7 @@ kin_10 <- kin_10_lc %>%
   pivot_longer(-c(Sim_id, ego_id), names_to = "kin_type", values_to = "pid") %>% 
   unnest_longer(kin_type:pid) %>%
   filter(!is.na(pid) & pid != 0) %>% 
+  filter(!kin_type %in% c("spouse", "children")) %>%
   # Sometimes, a pid is included as more than one kin type, 
   # e.g. siblings and firstcousins or gunclesaunts and ggparents of the same ego
   # Also,  "gggparents" and "ggunclesaunts", "ggggparents" and "gggunclesaunts" 
@@ -132,8 +133,9 @@ type_anc_col <- c("ego", "parents", "gparents", "ggparents",
                   "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                   "siblings", "unclesaunts", "firstcousins", 
                   "gunclesaunts", "ggunclesaunts", "gggunclesaunts", "ggggunclesaunts",
-                  "gggggunclesaunts", "ggggggunclesaunts",
-                  "spouse", "children")
+                  "gggggunclesaunts", "ggggggunclesaunts"
+                  #,"spouse", "children"
+                  )
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
 anc_col <- anc_kin_10 %>%
@@ -143,7 +145,7 @@ anc_col <- anc_kin_10 %>%
   ungroup() %>% 
   split(.$Sim_id)
 
-# Direct ancestors and siblings, 2.4%
+# Direct ancestors and siblings, 2.7%
 type_anc_z <- c("ego", "parents", "gparents", "ggparents", 
                 "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                 "siblings") 
@@ -157,7 +159,7 @@ anc_z <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors and aunts/uncles, 3.5%
+# Direct ancestors and aunts/uncles, 3.7%
 type_anc_au <- c("ego", "parents", "gparents", "ggparents", 
                  "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                  "siblings", "unclesaunts")
@@ -170,7 +172,7 @@ anc_au <- anc_kin_10 %>%
   ungroup() %>% 
   split(.$Sim_id)
 
-# Direct ancestors and first cousins, 9.5%
+# Direct ancestors and first cousins, 10.5%
 type_anc_k <- c("ego", "parents", "gparents", "ggparents", 
                 "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                 "siblings", "unclesaunts", "firstcousins")
@@ -184,7 +186,7 @@ anc_k <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-## Direct ancestors and great-aunt/uncles, 5.3%
+## Direct ancestors and great-aunt/uncles, 5.4%
 type_anc_gau <- c("ego", "parents", "gparents", "ggparents", 
                   "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                   "siblings", "unclesaunts", "firstcousins", 
@@ -199,7 +201,7 @@ anc_gau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors and great-great-aunt/uncles, 6.7%
+# Direct ancestors and great-great-aunt/uncles, 6.9%
 
 type_anc_ggau <- c("ego", "parents", "gparents", "ggparents", 
                    "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
@@ -215,7 +217,7 @@ anc_ggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors and great-great-great-aunt/, 5.6 %
+# Direct ancestors and great-great-great-aunt/uncle, 5.7 %
 type_anc_gggau <- c("ego", "parents", "gparents", "ggparents", 
                     "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                     "siblings", "unclesaunts", "firstcousins", 
@@ -230,7 +232,7 @@ anc_gggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors and great-great-great-great-aunt/uncles, 4% %
+# Direct ancestors and great-great-great-great-aunt/uncles, 4.1 %
 type_anc_ggggau <- c("ego", "parents", "gparents", "ggparents", 
                      "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                      "siblings", "unclesaunts", "firstcousins", 
@@ -245,7 +247,7 @@ anc_ggggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors and great-great-great-great-great-aunt/uncles, 3.8 %
+# Direct ancestors and great-great-great-great-great-aunt/uncles, 3.9 %
 type_anc_gggggau <- c("ego", "parents", "gparents", "ggparents", 
                       "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                       "siblings", "unclesaunts", "firstcousins", 
@@ -261,7 +263,7 @@ anc_gggggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors and great-great-great-great-great-aunt/uncles, 7.3 %
+# Direct ancestors and great-great-great-great-great-aunt/uncles, 7.5 %
 type_anc_ggggggau <- c("ego", "parents", "gparents", "ggparents", 
                        "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                        "siblings", "unclesaunts", "firstcousins", 
@@ -279,22 +281,20 @@ anc_ggggggau <- anc_kin_10 %>%
 
 # Direct ancestors and spouse 0.9% and children 2.8%
 
-type_anc_sc <- c("ego", "parents", "gparents", "ggparents", 
-                "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
-                "siblings", "unclesaunts", "firstcousins", 
-                "gunclesaunts", "ggunclesaunts", "gggunclesaunts", "ggggunclesaunts",
-                "gggggunclesaunts", "ggggggunclesaunts",
-                "spouse", "children")
-
- 
-
-# Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
-anc_sc <- anc_kin_10 %>% 
-  filter(kin_type %in% type_anc_sc) %>% 
-  group_by(Sim_id) %>% 
-  distinct(pid, .keep_all= TRUE) %>% 
-  ungroup() %>% 
-  split(.$Sim_id)
+# type_anc_sc <- c("ego", "parents", "gparents", "ggparents", 
+#                 "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
+#                 "siblings", "unclesaunts", "firstcousins", 
+#                 "gunclesaunts", "ggunclesaunts", "gggunclesaunts", "ggggunclesaunts",
+#                 "gggggunclesaunts", "ggggggunclesaunts",
+#                 "spouse", "children")
+# 
+# # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
+# anc_sc <- anc_kin_10 %>% 
+#   filter(kin_type %in% type_anc_sc) %>% 
+#   group_by(Sim_id) %>% 
+#   distinct(pid, .keep_all= TRUE) %>% 
+#   ungroup() %>% 
+#   split(.$Sim_id)
 
 #----------------------------------------------------------------------------------------------------
 ## Age-Specific Fertility and Mortality rates, 5x5  -----
@@ -568,27 +568,27 @@ save(asmr_anc_ggggggau, file = "Measures/asmr_anc_ggggggau.RData")
 ## Direct ancestors and spouse 0.9% and children 2.8%  
 
 # Estimate age-specific fertility rates for the subset of direct ancestors, collateral kin and spouse, children
-asfr_anc_sc <- map_dfr(anc_sc, ~ estimate_fertility_rates(opop = .x,
-                                                          final_sim_year = 2022, #[Jan-Dec]
-                                                          year_min = 1750, # Closed [
-                                                          year_max = 2020, # Open )
-                                                          year_group = 5, 
-                                                          age_min_fert = 10, # Closed [
-                                                          age_max_fert = 55, # Open )
-                                                          age_group = 5), # [,)
-                       .id = "Sim_id") 
-save(asfr_anc_sc, file = "Measures/asfr_anc_sc.RData")
+# asfr_anc_sc <- map_dfr(anc_sc, ~ estimate_fertility_rates(opop = .x,
+#                                                           final_sim_year = 2022, #[Jan-Dec]
+#                                                           year_min = 1750, # Closed [
+#                                                           year_max = 2020, # Open )
+#                                                           year_group = 5, 
+#                                                           age_min_fert = 10, # Closed [
+#                                                           age_max_fert = 55, # Open )
+#                                                           age_group = 5), # [,)
+#                        .id = "Sim_id") 
+# save(asfr_anc_sc, file = "Measures/asfr_anc_sc.RData")
 
 # Estimate age-specific mortality rates for the subset of direct ancestors, collateral kin and spouse, children
-asmr_anc_sc <- map_dfr(anc_sc, ~ estimate_mortality_rates(opop = .x,
-                                                          final_sim_year = 2022, #[Jan-Dec]
-                                                          year_min = 1750, # Closed
-                                                          year_max = 2020, # Open )
-                                                          year_group = 5,
-                                                          age_max_mort = 110, # Open )
-                                                          age_group = 5), # [,)
-                       .id = "Sim_id") 
-save(asmr_anc_sc, file = "Measures/asmr_anc_sc.RData")
+# asmr_anc_sc <- map_dfr(anc_sc, ~ estimate_mortality_rates(opop = .x,
+#                                                           final_sim_year = 2022, #[Jan-Dec]
+#                                                           year_min = 1750, # Closed
+#                                                           year_max = 2020, # Open )
+#                                                           year_group = 5,
+#                                                           age_max_mort = 110, # Open )
+#                                                           age_group = 5), # [,)
+#                        .id = "Sim_id") 
+# save(asmr_anc_sc, file = "Measures/asmr_anc_sc.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Comparison of whole simulation with subsets of direct and with collateral kin ----
@@ -620,7 +620,7 @@ load("Measures/asfr_anc_gggggau.RData")
 # Load asfr for the subset of direct ancestors, collateral kin and 6x-great-aunts/uncles
 load("Measures/asfr_anc_ggggggau.RData")
 # Load asfr for the subset of direct ancestors, spouse and children
-load("Measures/asfr_anc_sc.RData")
+# load("Measures/asfr_anc_sc.RData")
 
 # Choose years to plot (in intervals).
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
@@ -732,14 +732,14 @@ asfr_anc_ggggggau2 <- asfr_anc_ggggggau %>%
   mutate(Dataset = "9. + 6x-Great-Aunts/Uncles",
          Rate = "ASFR") 
 
-# Direct ancestors, spouse and children
-asfr_anc_sc2 <- asfr_anc_sc %>% 
-  group_by(year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>% 
-  rename(ASFR = socsim) %>% 
-  mutate(Dataset = "10. + Spouse and Children",
-         Rate = "ASFR") 
+# # Direct ancestors, spouse and children
+# asfr_anc_sc2 <- asfr_anc_sc %>% 
+#   group_by(year, age) %>% 
+#   summarise(socsim = mean(socsim, na.rm = T)) %>% 
+#   ungroup() %>% 
+#   rename(ASFR = socsim) %>% 
+#   mutate(Dataset = "10. + Spouse and Children",
+#          Rate = "ASFR") 
 
 
 ## Plot ASFR from whole SOCSIM simulation and subsets of direct and extended family trees without duplicates
@@ -749,13 +749,15 @@ yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 
 bind_rows(asfr_whole2, asfr_dir_wod2, asfr_anc_z2, asfr_anc_z2, asfr_anc_au2,
           asfr_anc_k2, asfr_anc_gau2,
-          asfr_anc_ggau2, asfr_anc_gggau2, asfr_anc_ggggau2, asfr_anc_gggggau2, asfr_anc_ggggggau2,
-          asfr_anc_sc2)  %>%
+          asfr_anc_ggau2, asfr_anc_gggau2, asfr_anc_ggggau2, asfr_anc_gggggau2, asfr_anc_ggggggau2
+          #, asfr_anc_sc2
+          )  %>%
   filter(year %in% yrs_plot & !is.nan(ASFR)) %>%
   mutate(Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", 
                                                "4. + Great-Aunts/Uncles", "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", 
                                                "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
-                                               "10. + Spouse and Children", "Whole Simulation"))) %>% 
+                                               #"10. + Spouse and Children", 
+                                               "Whole Simulation"))) %>% 
   ggplot(aes(x = age, y = ASFR, group = interaction(year, Dataset), colour = Dataset))+
   facet_grid(year ~ . , scales = "free") +
   geom_line(linewidth = 1.2, show.legend = T)+
@@ -794,7 +796,7 @@ load("Measures/asmr_anc_gggggau.RData")
 # Load asmr for the subset of direct ancestors, collateral kin and 6x-great-aunts/uncles
 load("Measures/asmr_anc_ggggggau.RData")
 # Load asmr for the subset of direct ancestors, spouse and children
-load("Measures/asmr_anc_sc.RData")
+# load("Measures/asmr_anc_sc.RData")
 
 # Whole SOCSIM simulation
 asmr_whole2 <- asmr_whole %>% 
@@ -914,14 +916,14 @@ asmr_anc_ggggggau2 <- asmr_anc_ggggggau %>%
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
 # Direct ancestors,spouse and children
-asmr_anc_sc2 <- asmr_anc_sc %>% 
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>% 
-  mutate(Sex = ifelse(sex == "male", "Male", "Female"),          
-         Dataset = "10. + Spouse and Children",
-         Rate = "ASMR") %>%    
-  select(year, age, Sex, mx = socsim, Dataset, Rate)
+# asmr_anc_sc2 <- asmr_anc_sc %>% 
+#   group_by(year, sex, age) %>% 
+#   summarise(socsim = mean(socsim, na.rm = T)) %>% 
+#   ungroup() %>% 
+#   mutate(Sex = ifelse(sex == "male", "Male", "Female"),          
+#          Dataset = "10. + Spouse and Children",
+#          Rate = "ASMR") %>%    
+#   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
 ## Plotting ASMR from whole SOCSIM simulation and subsets of "direct" and "extended" family trees without duplicates
 
@@ -933,8 +935,9 @@ yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 
 bind_rows(asmr_whole2, asmr_dir_wod2, asmr_anc_z2, asmr_anc_z2, asmr_anc_au2,
           asmr_anc_k2, asmr_anc_gau2, 
-          asmr_anc_ggau2, asmr_anc_gggau2, asmr_anc_ggggau2, asmr_anc_gggggau2, asmr_anc_ggggggau2,
-          asmr_anc_sc2)  %>%
+          asmr_anc_ggau2, asmr_anc_gggau2, asmr_anc_ggggau2, asmr_anc_gggggau2, asmr_anc_ggggggau2
+          # , asmr_anc_sc2
+          )  %>%
   rename(Year = year) %>%
   filter(Year %in% yrs_plot) %>%
   # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
@@ -942,7 +945,8 @@ bind_rows(asmr_whole2, asmr_dir_wod2, asmr_anc_z2, asmr_anc_z2, asmr_anc_au2,
   mutate(Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", 
                                                "4. + Great-Aunts/Uncles", "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", 
                                                "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
-                                               "10. + Spouse and Children", "Whole Simulation"))) %>%
+                                               #"10. + Spouse and Children", 
+                                               "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset), colour = Dataset))+
   facet_grid(Year ~ Sex) +
   geom_line(linewidth = 1.2, show.legend = T)+
@@ -1125,16 +1129,16 @@ asfr_anc_ggggggau_1 <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates(opop = .
 save(asfr_anc_ggggggau_1, file = "Measures/asfr_anc_ggggggau_1.RData")
 
 # Estimate age-specific fertility rates 1x1 for the subset of direct ancestors, collateral kin and spouse and children
-asfr_anc_sc_1 <- map_dfr(anc_sc, ~ estimate_fertility_rates(opop = .x,
-                                                            final_sim_year = 2022, #[Jan-Dec]
-                                                            year_min = 1750, # Closed [
-                                                            year_max = 2023, # Open )
-                                                            year_group = 1, 
-                                                            age_min_fert = 10, # Closed [
-                                                            age_max_fert = 55, # Open )
-                                                            age_group = 1), # [,)
-                         .id = "Sim_id") 
-save(asfr_anc_sc_1, file = "Measures/asfr_anc_sc_1.RData")
+# asfr_anc_sc_1 <- map_dfr(anc_sc, ~ estimate_fertility_rates(opop = .x,
+#                                                             final_sim_year = 2022, #[Jan-Dec]
+#                                                             year_min = 1750, # Closed [
+#                                                             year_max = 2023, # Open )
+#                                                             year_group = 1, 
+#                                                             age_min_fert = 10, # Closed [
+#                                                             age_max_fert = 55, # Open )
+#                                                             age_group = 1), # [,)
+#                          .id = "Sim_id") 
+# save(asfr_anc_sc_1, file = "Measures/asfr_anc_sc_1.RData")
 
 
 # Load ASFR 1x1 and calculate TFR for plotting ----
@@ -1164,7 +1168,7 @@ load("Measures/asfr_anc_gggggau_1.RData")
 # Load asfr 1x1 for the subset of direct ancestors, collateral kin and 6x-great-aunts/uncles
 load("Measures/asfr_anc_ggggggau_1.RData")
 # Load asfr 1x1 for the subset of direct ancestors, collateral kin and spouse and children
-load("Measures/asfr_anc_sc_1.RData")
+# load("Measures/asfr_anc_sc_1.RData")
 
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
@@ -1313,7 +1317,7 @@ TFR_anc_gggggau <- asfr_anc_gggggau_1 %>%
          Rate = "TFR",           
          sex = "female") 
 
-# Direct ancestors and 5x-great-aunts/uncles
+# Direct ancestors and 6x-great-aunts/uncles
 TFR_anc_ggggggau <- asfr_anc_ggggggau_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, age) %>% 
@@ -1327,28 +1331,30 @@ TFR_anc_ggggggau <- asfr_anc_ggggggau_1 %>%
          sex = "female") 
 
 # Direct ancestors and spouse and children
-TFR_anc_sc <- asfr_anc_sc_1 %>% 
-  mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
-  ungroup() %>% 
-  mutate(Dataset = "10. + Spouse and Children",
-         Rate = "TFR",           
-         sex = "female") 
+# TFR_anc_sc <- asfr_anc_sc_1 %>% 
+#   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+#   group_by(Year, age) %>% 
+#   summarise(socsim = mean(socsim, na.rm = T)) %>% 
+#   ungroup() %>%
+#   group_by(Year) %>% 
+#   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+#   ungroup() %>% 
+#   mutate(Dataset = "10. + Spouse and Children",
+#          Rate = "TFR",           
+#          sex = "female") 
 
 ## Plot TFR from whole SOCSIM simulation and subsets of "direct" and "extended"  family trees without duplicates
 
 bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_au,
           TFR_anc_k, TFR_anc_gau, 
-          TFR_anc_ggau, TFR_anc_gggau, TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau,
-          TFR_anc_sc) %>%
+          TFR_anc_ggau, TFR_anc_gggau, TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau
+          #,TFR_anc_sc
+          ) %>%
   mutate(Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", 
                                                "4. + Great-Aunts/Uncles", "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", 
                                                "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
-                                               "10. + Spouse and Children", "Whole Simulation"))) %>%
+                                               #"10. + Spouse and Children", 
+                                               "Whole Simulation"))) %>%
   ggplot(aes(x = Year, y = TFR)) +
   geom_line(aes(colour = Dataset), linewidth = 1.3)+
   scale_color_viridis(option = "H", discrete = T, direction = -1)+
@@ -1597,7 +1603,7 @@ load("Measures/lt_anc_gggggau.RData")
 # Load life tables for the mean asmr from subset of direct ancestors and 6x-great-aunts/uncles
 load("Measures/lt_anc_ggggggau.RData")
 # Load life tables for the mean asmr from subset of direct ancestors and spouse and children
-load("Measures/lt_anc_sc.RData")
+# load("Measures/lt_anc_sc.RData")
 # Load life tables for the mean asmr from subset of direct ancestors and all collateral kin
 load("Measures/lt_anc_col.RData")
 
@@ -1690,11 +1696,11 @@ lt_anc_ggggggau2 <- lt_anc_ggggggau %>%
   select(Year, ex, Dataset, Rate, sex, Age)
 
 # Direct ancestors and spouse and children
-lt_anc_sc2 <- lt_anc_sc %>% 
-  mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "10. + Spouse and Children",
-         Rate = "e0") %>% 
-  select(Year, ex, Dataset, Rate, sex, Age)
+# lt_anc_sc2 <- lt_anc_sc %>% 
+#   mutate(Year = as.numeric(str_extract(year, "\\d+")),
+#          Dataset = "10. + Spouse and Children",
+#          Rate = "e0") %>% 
+#   select(Year, ex, Dataset, Rate, sex, Age)
 
 # All direct ancestors and collateral kin
 lt_anc_col2 <- lt_anc_col %>% 
@@ -1705,14 +1711,16 @@ lt_anc_col2 <- lt_anc_col %>%
 
 bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2,
           lt_anc_k2, lt_anc_gau2, 
-          lt_anc_ggau2, lt_anc_gggau2, lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2,
-          lt_anc_sc2)  %>%
+          lt_anc_ggau2, lt_anc_gggau2, lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2
+          #,lt_anc_sc2
+          )  %>%
   filter(Age == 0) %>%
   mutate(Sex = ifelse(sex == "female", "Female", "Male"),
          Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", 
                                                "4. + Great-Aunts/Uncles", "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", 
                                                "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
-                                               "10. + Spouse and Children", "Whole Simulation"))) %>%
+                                               # "10. + Spouse and Children", 
+                                               "Whole Simulation"))) %>%
   ggplot(aes(x = Year, y = ex, group = Dataset))+
   geom_line(aes(colour = Dataset), linewidth = 1.3)+
   scale_color_viridis(option = "H", discrete = T, direction = -1)+
@@ -1794,8 +1802,9 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
           asfr_anc_gggau2 %>% rename(Estimate = ASFR),
           asfr_anc_ggggau2 %>% rename(Estimate = ASFR),
           asfr_anc_gggggau2 %>% rename(Estimate = ASFR),
-          asfr_anc_ggggggau2 %>% rename(Estimate = ASFR),
-          asfr_anc_sc2 %>% rename(Estimate = ASFR)) %>%  
+          asfr_anc_ggggggau2 %>% rename(Estimate = ASFR)
+         # ,asfr_anc_sc2 %>% rename(Estimate = ASFR)
+          ) %>%  
   mutate(Sex = "Female") %>%  
   bind_rows(asmr_whole2 %>% rename(Estimate = mx),
             asmr_dir_wod2 %>% rename(Estimate = mx),
@@ -1807,8 +1816,9 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
             asmr_anc_gggau2 %>% rename(Estimate = mx),
             asmr_anc_ggggau2 %>% rename(Estimate = mx),
             asmr_anc_gggggau2 %>% rename(Estimate = mx),
-            asmr_anc_ggggggau2 %>% rename(Estimate = mx),
-            asmr_anc_sc2 %>% rename(Estimate = mx)) %>% 
+            asmr_anc_ggggggau2 %>% rename(Estimate = mx)
+           # ,asmr_anc_sc2 %>% rename(Estimate = mx)
+            ) %>% 
   rename(Year = year) %>% 
   filter(Sex == "Female" & Year %in% yrs_plot_1) %>%
   # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
@@ -1820,12 +1830,13 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
          Dataset = factor(Dataset, levels =  c("0. Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", 
                                                "4. + Great-Aunts/Uncles", "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", 
                                                "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
-                                               "10. + Spouse and Children", "Whole Simulation"))) %>%
+                                               # "10. + Spouse and Children", 
+                                               "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Dataset))+
   facet_wrap(Year ~ Rate, nrow = 3, ncol = 2, scales = "free") + 
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(size = 9)+ 
-  scale_color_manual(values = c("#7A7500", "#F0F921FF", "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF",
+  scale_color_manual(values = c("#7A7500",  "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF", #"#F0F921FF",
                                 "#E4695EFF", "#D45270FF", "#C23C81FF", "#AC2694FF", "#75007A", "#007A75"))+
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR = scale_y_continuous(trans = "log10"),
@@ -1853,8 +1864,9 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
           TFR_anc_gggau %>% rename(Estimate = TFR),
           TFR_anc_ggggau %>% rename(Estimate = TFR),
           TFR_anc_gggggau %>% rename(Estimate = TFR),
-          TFR_anc_ggggggau %>% rename(Estimate = TFR),
-          TFR_anc_sc %>% rename(Estimate = TFR)) %>%  
+          TFR_anc_ggggggau %>% rename(Estimate = TFR)
+         # ,TFR_anc_sc %>% rename(Estimate = TFR)
+          ) %>%  
   mutate(sex = "female") %>%  
   bind_rows(lt_whole2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_dir_wod2 %>% rename(Estimate = ex) %>% filter(Age == 0),
@@ -1866,8 +1878,9 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
             lt_anc_gggau2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_anc_ggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_anc_gggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_anc_ggggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_anc_sc2 %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
+            lt_anc_ggggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0)
+          #  lt_anc_sc2 %>% rename(Estimate = ex) %>% filter(Age == 0)
+          ) %>%
   filter(sex == "female") %>%
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth")), 
@@ -1875,11 +1888,12 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
          Dataset = factor(Dataset, levels =  c("0. Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Cousins", 
                                                "4. + Great-Aunts/Uncles", "5. + 2x-Great-Aunts/Uncles", "6. + 3x-Great-Aunts/Uncles", 
                                                "7. + 4x-Great-Aunts/Uncles", "8. + 5x-Great-Aunts/Uncles", "9. + 6x-Great-Aunts/Uncles",
-                                               "10. + Spouse and Children", "Whole Simulation"))) %>%
+                                               #"10. + Spouse and Children", 
+                                               "Whole Simulation"))) %>%
   ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(linewidth = 1.2) +
-  scale_color_manual(values = c("#7A7500", "#F0F921FF", "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF",
+  scale_color_manual(values = c("#7A7500", "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF", #"#F0F921FF", 
                                 "#E4695EFF", "#D45270FF", "#C23C81FF", "#AC2694FF", "#75007A", "#007A75"))+
   theme_graphs()
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved 
