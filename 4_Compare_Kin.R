@@ -69,7 +69,6 @@ kin_10 <- kin_10_lc %>%
   pivot_longer(-c(Sim_id, ego_id), names_to = "kin_type", values_to = "pid") %>% 
   unnest_longer(kin_type:pid) %>%
   filter(!is.na(pid) & pid != 0) %>% 
-  filter(!kin_type %in% c("spouse", "children")) %>%
   # Sometimes, a pid is included as more than one kin type, 
   # e.g. siblings and firstcousins or gunclesaunts and ggparents of the same ego
   # Also,  "gggparents" and "ggunclesaunts", "ggggparents" and "gggunclesaunts" 
@@ -745,7 +744,7 @@ asfr_anc_ggggggau2 <- asfr_anc_ggggggau %>%
 ## Plot ASFR from whole SOCSIM simulation and subsets of direct and extended family trees without duplicates
 
 # Same years to plot than above (in intervals). Change if necessary
-yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 
 bind_rows(asfr_whole2, asfr_dir_wod2, asfr_anc_z2, asfr_anc_z2, asfr_anc_au2,
           asfr_anc_k2, asfr_anc_gau2,
@@ -964,8 +963,8 @@ ggsave(file="Graphs/Socsim_Exp2_ASMR.jpeg", width=17, height=15, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 
-# Years to plot limited to  two years
-yrs_plot <- c("[1900,1905)", "[2000,2005)") 
+# Years to plot
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_whole2$age)
@@ -991,7 +990,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(aes(colour = Year), linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(colour = Year, shape = Dataset), size = 11)+ 
-  scale_color_manual(values = c("#B72779", "#2779B7"))+
+  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
   scale_shape_manual(values = c(19, 18, 46)) +
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10")))+
@@ -999,7 +998,9 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme_graphs() + theme(legend.title = element_text(size = 18)) +
   labs(x = "Age") +
   guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
-  theme(legend.justification = "left")
+  theme(legend.justification = "left", 
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18))
 By_Age
 ggsave(file="Graphs/Final_Socsim_Exp2_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 #----------------------------------------------------------------------------------------------------
@@ -1757,7 +1758,9 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_color_manual(values = c("#7A7500", "#75007A", "#007A75"))+
   scale_shape_manual(values = c(19, 18, 46)) +
   theme_graphs() +
-  theme(legend.justification = "left")
+  theme(legend.justification = "left",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18))
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved 
 # from SOCSIM microsimulation and subsets of "direct" and extended" family trees") + 
 # Save the plot
@@ -1769,7 +1772,7 @@ ggsave(file="Graphs/Final_Socsim_Exp2_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                          x = c(1,2),
-                         y = c(0.2, 0.55),
+                         y = c(0.23, 0.55),
                          labels = c("a","b"))
 plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expectancy at Birth")),
                          x = c(1755, 1755),
@@ -1790,7 +1793,7 @@ ggsave(file="Graphs/Final_Socsim_Exp2_Combined.jpeg", width=18, height=21, dpi=2
 ## Plots adding kin progressively For appendix ----
 
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and subsets of direct ancestors and different collateral kin
-yrs_plot_1 <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
           asfr_dir_wod2 %>% rename(Estimate = ASFR),
@@ -1820,7 +1823,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
            # ,asmr_anc_sc2 %>% rename(Estimate = mx)
             ) %>% 
   rename(Year = year) %>% 
-  filter(Sex == "Female" & Year %in% yrs_plot_1) %>%
+  filter(Sex == "Female" & Year %in% yrs_plot) %>%
   # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
   filter(Estimate != 0 & !is.infinite(Estimate) & !is.nan(Estimate)) %>% 
   mutate(age = factor(as.character(age), levels = age_levels),
