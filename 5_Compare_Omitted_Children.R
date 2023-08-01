@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created by Liliana Calderon on 27-06-2023
-# Last modified by Liliana Calderon on 21-07-2023
+# Last modified by Liliana Calderon on 01-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -478,8 +478,8 @@ asfr_less_children_5_100b <- asfr_less_children_5_100 %>%
 
 ## Plot ASFR from whole simulation with genealogical subsets with different proportions of missing children
 
-# Same years to plot than above (in intervals). Change if necessary
-yrs_plot <- c("[1900,1905)", "[2000,2005)") 
+# Same years to plot. Change if necessary
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asfr_whole2, asfr_less_children_1_25b, asfr_less_children_1_50b, asfr_less_children_1_75b, asfr_less_children_1_100b, 
           asfr_less_children_5_25b, asfr_less_children_5_50b, asfr_less_children_5_75b,  asfr_less_children_5_100b) %>% 
@@ -488,7 +488,7 @@ bind_rows(asfr_whole2, asfr_less_children_1_25b, asfr_less_children_1_50b, asfr_
   facet_wrap(~ Omitted)+
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 6)+ 
-  scale_color_manual(values = c("#B72779", "#2779B7"))+
+  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
   scale_shape_manual(values = c(8, 23, 22, 21, 46, 8, 23, 22, 21, 46)) +
   theme_graphs()
 # labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
@@ -630,20 +630,20 @@ asmr_less_children_5_100b <- asmr_less_children_5_100 %>%
 ## Plotting ASMR from whole simulation with genealogical subsets with different proportions of missing children
 
 # Same years to plot than above (in intervals). Change if necessary
-yrs_plot <- c("[1900,1905)", "[2000,2005)") 
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asmr_whole2, asmr_less_children_1_25b, asmr_less_children_1_50b, asmr_less_children_1_75b,  asmr_less_children_1_100b, 
           asmr_less_children_5_25b, asmr_less_children_5_50b, asmr_less_children_5_75b, asmr_less_children_1_100b, ) %>% 
   rename(Year = year) %>% 
-  filter(Year %in% yrs_plot) %>%  # Otherwise don't bind
+  filter(Year %in% yrs_plot) %>%
   # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
   filter(mx != 0 & !is.infinite(mx) & !is.nan(mx) & !is.na(Omitted)) %>% 
   mutate(Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", "Whole Simulation"))) %>% 
   ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset, Omitted), colour = Year))+
-  facet_grid(Omitted ~ Sex) +
+  facet_grid(Sex ~ Omitted) +
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 11)+ 
-  scale_color_manual(values = c("#B72779", "#2779B7"))+
+  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
   scale_shape_manual(values = c(8, 23, 22, 21, 46, 8, 23, 22, 21, 46)) +
   theme_graphs()+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
@@ -653,13 +653,12 @@ bind_rows(asmr_whole2, asmr_less_children_1_25b, asmr_less_children_1_50b, asmr_
 # retrieved from a SOCSIM simulation and genealogical subsets with removed children") 
 ggsave(file="Graphs/Socsim_Exp3A_ASMR.jpeg", width=17, height=9, dpi=200)
 
-
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 # Here, we restrict to children below age 5 as the rates are calculated by 5-year age
 
-# Years to plot limited to  two years
-yrs_plot <- c("[1900,1905)", "[2000,2005)") 
+# Years to plot 
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_whole2$age)
@@ -699,7 +698,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 11)+ 
-  scale_color_manual(values = c("#B72779", "#2779B7"))+
+  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
   scale_shape_manual(values = c(8, 23, 22, 21, 18, 46)) + 
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10")))+
@@ -707,7 +706,9 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme_graphs() + 
   labs(x = "Age") +
   guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
-  theme(legend.justification = "left")
+  theme(legend.justification = "left", 
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18))
 By_Age
 ggsave(file="Graphs/Final_Socsim_Exp3A_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
@@ -1308,7 +1309,9 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_color_manual(values = c("#FFBE4D", "#FF834C", "#E7495B", "#B90E6D","#75007A", "#007A75"))+
   scale_shape_manual(values = c(8, 23, 22, 21, 18, 46)) +
   theme_graphs() +
-  theme(legend.justification = "left")
+  theme(legend.justification = "left",
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18))
 Summary
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), 
 # retrieved from a SOCSIM simulation and subsets with different proportions of omitted children")
@@ -1319,7 +1322,7 @@ ggsave(file="Graphs/Final_Socsim_Exp3A_TFR_e0.jpeg", width=17, height=9, dpi=200
 
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                          x = c(1,2),
-                         y = c(0.2, 0.55),
+                         y = c(0.23, 0.55),
                          labels = c("a","b"))
 plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expectancy at Birth")),
                          x = c(1755, 1755),
