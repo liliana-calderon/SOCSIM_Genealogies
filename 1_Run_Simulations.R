@@ -58,7 +58,7 @@ folder <- getwd()
 # Otherwise, the working directory must be specified after "folder <- "
 
 # Name of the supervisory file stored in the above folder:
-supfile <- "Sweden.sup"
+supfile <- "Sweden_0.sup"
 # Sup file for rates retrieved from HFC/HFD and HMD (1751-2022), created with the 0_Write_Input_Rates.R,  
 # using marry after childbirth and heterogeneous fertility directives
 
