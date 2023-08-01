@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 21-07-2023
+# Last modified by Liliana Calderon on 01-08-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -321,7 +321,6 @@ ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the socsim rates by 1 year age group and 1 calendar year
-
 # Total Fertility Rate ----
 
 ## Retrieve age-specific fertility rates, by 1 year age group and 1 calendar year
@@ -382,6 +381,38 @@ bind_rows(HFCD1, SocsimF1) %>%
   labs(title = "Total Fertility rates in Sweden (1751-2022), retrieved from HFD and 10 Socsim simulation outputs") 
 ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
 
+# Summary measure of error of different simulations ----
+
+# Differences of means
+DM_TFR <- bind_rows(HFCD1, SocsimF1) %>%
+  filter(Year > 1750) %>% 
+  group_by(Year, Source) %>% 
+  summarise(TFR = mean(TFR, na.rm = T)) %>% 
+  ungroup() %>% 
+  pivot_wider(id_cols = Year, names_from = "Source", values_from = "TFR") %>% 
+  mutate(Error = SOCSIM - `HFC/HFD`, 
+         Type = "DM") %>% 
+  select(Year, Error, Type) 
+
+# Mean of differences
+MD_TFR <- bind_rows(HFCD1, SocsimF1) %>% 
+  filter(Year > 1750) %>% 
+  pivot_wider(id_cols = Year, names_from = "Sim_id", values_from = "TFR") %>% 
+  rename("HFC/HFD" = '0') %>%
+  pivot_longer(cols = 3:12, names_to = "Sim_id", values_to = "SOCSIM") %>% 
+  mutate(Error = SOCSIM - `HFC/HFD`) %>% 
+  group_by(Year) %>% 
+  summarise(Error = mean(Error, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(Type = "MD")
+
+bind_rows(DM_TFR, MD_TFR) %>%
+  ggplot(aes(x = Year, y = Error, colour = Type)) +
+  geom_line(linewidth = 1.3)+
+  geom_point(aes(shape = Type), size = 2)+
+  theme_graphs()
+ggsave(file="Graphs/HFD_SOCSIM_TFR_Error.jpeg", width=17, height=9, dpi=200)
+# The difference between both measure is almost imperceptible. 
 
 # Life Expectancy at birth ----
 # Calculate life expectancy at birth 1x1 for the 10 SOCSIM simulations
@@ -456,6 +487,39 @@ bind_rows(HMD_lt, SOCSIM_lt) %>%
   labs(title = "Life Expectancy at Birth in Sweden (e0), 1751-2022, retrieved from HMD and 10 SOCSIM simulation outputs",
        y = "e0") 
 ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
+
+# Summary measure of error of different simulations ----
+
+# Differences of means
+DM_e0 <- bind_rows(HMD_lt, SOCSIM_lt) %>%
+  filter(Year > 1750 & Age == 0) %>% 
+  group_by(Year, Sex, Source) %>% 
+  summarise(ex = mean(ex, na.rm = T)) %>% 
+  ungroup() %>% 
+  pivot_wider(id_cols = c(Year:Sex), names_from = "Source", values_from = "ex") %>% 
+  mutate(Error = SOCSIM - HMD, 
+         Type = "DM") %>% 
+  select(Year, Sex, Error, Type) 
+
+# Mean of differences
+MD_e0 <- bind_rows(HMD_lt, SOCSIM_lt) %>% 
+  filter(Year > 1750 & Age == 0) %>% 
+  pivot_wider(id_cols = c(Year:Sex), names_from = "Sim_id", values_from = "ex") %>% 
+  rename(HMD = '0') %>%
+  pivot_longer(cols = 5:14, names_to = "Sim_id", values_to = "SOCSIM") %>% 
+  mutate(Error = SOCSIM - HMD) %>% 
+  group_by(Year, Sex) %>% 
+  summarise(Error = mean(Error, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(Type = "MD")
+
+bind_rows(DM_e0, MD_e0) %>%
+  ggplot(aes(x = Year, y = Error, colour = Type)) +
+  geom_line(linewidth = 1.3)+
+  geom_point(aes(shape = Type), size = 3)+
+  theme_graphs()
+# The difference between both measures is almost imperceptible. 
+ggsave(file="Graphs/HFD_SOCSIM_e0_Error.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
@@ -540,3 +604,6 @@ asmr_whole_1 <- asmr_10_1 %>%
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup()
 save(asmr_whole_1, file = "Measures/asmr_whole_1.RData")
+
+#----------------------------------------------------------------------------------------------------
+## Calculate differences of mean measures of the different simulations ----
