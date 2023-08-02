@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 31-07-2023
+# Last modified by Liliana Calderon on 02-08-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -151,8 +151,8 @@ save(asmr_dir_wod, file = "Measures/asmr_dir_wod.RData")
 
 # ASFR ----
 
-# Load mean ASFR 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
-load("Measures/asfr_whole.RData")
+# Load ASFR 5x5 from the 10 simulations
+load("Measures/asfr_10.RData")
 # Load ASFR for the genealogical subset of Direct Ancestors (with duplicates)
 load("Measures/asfr_dir_wd.RData")
 # Load ASFR for the genealogical subset of Direct Ancestors (without duplicates)
@@ -160,10 +160,12 @@ load("Measures/asfr_dir_wod.RData")
 
 ## Calculate the mean of the different simulations and add relevant columns
 
-# Whole SOCSIM simulation
-asfr_whole2 <- asfr_whole %>% 
-  rename(ASFR = socsim) %>% 
-  mutate(Dataset = "Whole simulation", 
+# Whole SOCSIM simulations
+asfr_whole2 <- asfr_10 %>%
+  group_by(year, age) %>% 
+  summarise(ASFR = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(Dataset = "Whole Simulation", 
          Rate = "ASFR") 
 
 # Genealogical subset of Direct Ancestors (with duplicates)
@@ -203,20 +205,23 @@ ggsave(file="Graphs/Socsim_Exp1_ASFR.jpeg", width=17, height=9, dpi=200)
 
 # ASMR ----
 
-# Load mean ASMR rates 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
-load("Measures/asmr_whole.RData")
+# Load ASMR 5x5 from the 10 simulations
+load("Measures/asmr_10.RData")
 # Load ASMR for the genealogical subset of Direct Ancestors (without duplicates)
 load("Measures/asmr_dir_wod.RData")
 # Load ASMR for the genealogical subset of Direct Ancestors (with duplicates)
 load("Measures/asmr_dir_wd.RData")
 
-# Whole SOCSIM simulation
-asmr_whole2 <- asmr_whole %>% 
+# Whole SOCSIM simulations
+asmr_whole2 <- asmr_10 %>%
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),
-         Dataset = "Whole simulation",
+         Dataset = "Whole Simulation",
          Rate = "ASMR") %>% 
   select(year, age, Sex, mx = socsim, Dataset, Rate)
-  
+
 # Genealogical subset of Direct Ancestors (with duplicates)
 asmr_dir_wd2 <- asmr_dir_wd %>% 
   group_by(year, sex, age) %>% 
@@ -272,7 +277,7 @@ yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 age_levels <- levels(asmr_whole2$age)
 
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and some genealogical subsets
-By_Age <- 
+By_Age_Exp1 <- 
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
           asfr_dir_wd2 %>% rename(Estimate = ASFR),
           asfr_dir_wod2 %>% rename(Estimate = ASFR)) %>%  
@@ -305,7 +310,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
         legend.text = element_text(size = 17))
 
 # Save the plot
-By_Age
+By_Age_Exp1
 ggsave(file="Graphs/Final_Socsim_Exp1_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
 ## Save as .svg file for poster
@@ -316,7 +321,7 @@ ggsave(file="Graphs/Final_Socsim_Exp1_ASFR_ASMR.jpeg", width=17, height=9, dpi=2
 # Here, we use the rates by 1 year age group and 1 calendar year
 
 # Total Fertility Rate ----
-# Calculate Total Fertility Rate from asfr 1x1
+# Estimate Total Fertility Rate from asfr 1x1 ----
 
 # Estimate age-specific fertility rates 1x1 for the genealogical subset of Direct Ancestors (with duplicates)
 # We need to use here the modified function that allows the joining of data frames with duplicates
@@ -345,55 +350,54 @@ save(asfr_dir_wod_1, file = "Measures/asfr_dir_wod_1.RData")
 
 # Load ASFR 1x1 and calculate TFR for plotting ----
 
-# Load mean ASFR 1x1 from the 10 simulations, calculated on 2_Compare_Input_Output\
-load("Measures/asfr_whole_1.RData")
+# Load asfr 1x1 from the 10 simulations
+load("Measures/asfr_10_1.RData")
+# Load asfr 1x1 from the subset of direct ancestors with duplicates
 load("Measures/asfr_dir_wd_1.RData")
+# Load asfr 1x1 from the subset of direct ancestors without duplicates
 load("Measures/asfr_dir_wod_1.RData")
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
-age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
+age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
 
-# Estimate age_group size
+# Retrieve age_group size
 age_group_fert_1 <- unique(diff(age_breaks_fert_1))
 
-# Whole SOCSIM simulation
-TFR_whole <- asfr_whole_1 %>% 
+# Whole SOCSIM simulations
+TFR_whole <- asfr_10_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
-  mutate(Dataset = "Whole simulation",
+  mutate(Dataset = "Whole Simulation",
          Rate = "TFR", 
          sex = "female")
 
-# Genealogical subset of Direct Ancestors (with duplicates)
+# Direct Ancestors (with duplicates)
 TFR_dir_wd <- asfr_dir_wd_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors (with duplicates)",
          Rate = "TFR", 
          sex = "female") 
 
-# Genealogical subset of Direct Ancestors (without duplicates)
+# Direct Ancestors (without duplicates)
 TFR_dir_wod <- asfr_dir_wod_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors (without duplicates)",
          Rate = "TFR", 
          sex = "female")
 
-## Plott TFR from whole SOCSIM simulation and genealogical subsets of direct ancestors with(out) duplicates
+## Plot TFR from whole SOCSIM simulation and genealogical subsets of direct ancestors with(out) duplicates
 bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>% 
+  group_by(Year, Dataset) %>% 
+  summarise(TFR = mean(TFR, na.rm = T)) %>% 
+  ungroup() %>% 
   filter(Year >= 1751) %>%
   ggplot(aes(x = Year, y = TFR)) +
   geom_line(aes(colour = Dataset, linetype = Dataset), linewidth = 1.3)+ 
@@ -403,66 +407,31 @@ bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>%
 # labs(title = "Total Fertility Rate in Sweden (1751-2022), retrieved from a SOCSIM simulation and genealogical subset of direct ancestors") 
 ggsave(file="Graphs/Socsim_Exp1_TFR.jpeg", width=17, height=9, dpi=200)
 
-
-# Summary measure of error for different simulations ----
-
-# Load ASFR 1x1 from different simulations and calculate TFR
-load("Measures/asfr_10_1.RData")
-
-# Age breaks of fertility rates. Extract all the unique numbers from the intervals 
-age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
-
-# Retrieve age_group size
-age_group_fert_1 <- unique(diff(age_breaks_fert_1))
-
-# SOCSIM for each simulation
-SocsimF_10 <-  asfr_10_1 %>% 
-  mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
-  ungroup() %>% 
-  mutate(Dataset = "SOCSIM") 
-
-# Genealogical subset of Direct Ancestors (with duplicates)
-TFR_dir_wd_10 <- asfr_dir_wd_1 %>% 
-  mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
-  ungroup() %>% 
-  mutate(Dataset = "Direct Ancestors (with duplicates)") 
-
-# Genealogical subset of Direct Ancestors (without duplicates)
-TFR_dir_wod_10 <- asfr_dir_wod_1 %>% 
-  mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
-  ungroup() %>% 
-  mutate(Dataset = "Direct Ancestors (without duplicates)")
+# Summary measure of error in TFR ----
 
 # Differences of means
-DM_TFR <- bind_rows(SocsimF_10, TFR_dir_wd_10,  TFR_dir_wod_10) %>%
+DM_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
   filter(Year > 1750) %>% 
   group_by(Year, Dataset) %>% 
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
   ungroup() %>% 
   pivot_wider(id_cols = Year, names_from = "Dataset", values_from = "TFR") %>% 
   pivot_longer(cols = 2:3, names_to = "Dataset", values_to = "Genealogy") %>% 
-  mutate(Error = SOCSIM - Genealogy, 
-         Type = "DM") %>% 
-  select(-c(SOCSIM, Genealogy))
+  mutate(Error = `Whole Simulation` - Genealogy, 
+         Type = "DM")
 
 # Mean of differences
-MD_TFR <- bind_rows(SocsimF_10, TFR_dir_wd_10,  TFR_dir_wod_10) %>%
+MD_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
   filter(Year > 1750) %>% 
   pivot_wider(id_cols = c(Year, Sim_id), names_from = "Dataset", values_from = "TFR") %>% 
   pivot_longer(cols = 4:5, names_to = "Dataset", values_to = "Genealogy") %>% 
-  mutate(Error = SOCSIM - Genealogy) %>% 
+  mutate(Error = `Whole Simulation` - Genealogy) %>% 
   group_by(Year, Dataset) %>% 
   summarise(Error = mean(Error, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Type = "MD")
 
-bind_rows(DM_TFR, MD_TFR) %>%
+bind_rows(DM_TFR_Exp1, MD_TFR_Exp1) %>%
   ggplot(aes(x = Year, y = Error, colour = Dataset, group = Dataset)) +
   geom_line(linewidth = 1.3)+
   geom_point(aes(shape = Type), size = 3)+
@@ -470,7 +439,7 @@ bind_rows(DM_TFR, MD_TFR) %>%
 ggsave(file="Graphs/Socsim_Exp1_TFR_Error.jpeg", width=17, height=9, dpi=200)
 
 # Life Expectancy at birth ----
-# Estimate life expectancy at birth from asmr 1x1
+# Estimate life expectancy at birth from asmr 1x1 for the different genealogical subsets ----
 
 # Estimate age-specific mortality rates for the genealogical subset of direct ancestor with duplicates
 asmr_dir_wd_1 <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates(opop = .x,
@@ -483,6 +452,10 @@ asmr_dir_wd_1 <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates(opop = .x,
                      .id = "Sim_id") 
 save(asmr_dir_wd_1, file = "Measures/asmr_dir_wd_1.RData")
 
+# Compute life tables for the genealogical subset of Direct Ancestors (with duplicates)
+lt_dir_wd <- lt_socsim_sims(asmr_socsim_sims = asmr_dir_wd_1)
+save(lt_dir_wd, file = "Measures/lt_dir_wd.RData")
+
 # Estimate age-specific mortality rates for the genealogical subset of Direct Ancestors (without duplicates)
 asmr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates(opop = .x,
                                                                        final_sim_year = 2022, #[Jan-Dec]
@@ -494,67 +467,56 @@ asmr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates(opop = .
                     .id = "Sim_id") 
 save(asmr_dir_wod_1, file = "Measures/asmr_dir_wod_1.RData")
 
-
-# Load mean Age-specific mortality rates 1x1 from the 10 simulations, calculated on 2_Compare_Input_Output
-load("Measures/asmr_whole_1.RData")
-# Compute life table from mean asmr 1x1 of 10 whole SOCSIM simulations
-lt_whole <- lt_socsim(asmr_whole_1)
-save(lt_whole, file = "Measures/lt_whole.RData")
-
-# Calculate the mean from asmr 1x1 for the genealogical subset of Direct Ancestors (with duplicates)
-asmr_dir_wd_1 <- asmr_dir_wd_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-# Compute life table for the genealogical subset of Direct Ancestors (with duplicates)
-lt_dir_wd <- lt_socsim(asmr_dir_wd_1)
-save(lt_dir_wd, file = "Measures/lt_dir_wd.RData")
-
-# Calculate the mean from asmr 1x1 for the genealogical subset of Direct Ancestors (without duplicates)
-asmr_dir_wod_1 <- asmr_dir_wod_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-# Compute life table for the genealogical subset of Direct Ancestors (without duplicates)
-lt_dir_wod <- lt_socsim(asmr_dir_wod_1)
+# Compute life tables for the genealogical subset of Direct Ancestors (without duplicates)
+lt_dir_wod <- lt_socsim_sims(asmr_socsim_sims = asmr_dir_wod_1)
 save(lt_dir_wod, file = "Measures/lt_dir_wod.RData")
 
 # Load and wrangle life tables for plotting ----
-load("Measures/lt_whole.RData")
+
+# Load life tables from each whole SOCSIM simulation
+load("Measures/lt_10.RData")
+# Load life tables from the subset of direct ancestors (with duplicates)
 load("Measures/lt_dir_wd.RData")
+# Load life tables from the subset of direct ancestors (without duplicates)
 load("Measures/lt_dir_wod.RData")
 
+# Load asmr 1x1 for the 10 simulations, calculated on 2_Compare_Input_Output
+load("Measures/asmr_10_1.RData")
 # Year breaks. Extract all the unique numbers from the intervals 
-load("Measures/asmr_whole_1.RData")
-year_breaks_mort_1 <- unique(as.numeric(str_extract_all(asmr_whole_1$year, "\\d+", simplify = T)))
+year_breaks_mort_1 <- unique(as.numeric(str_extract_all(asmr_10_1$year, "\\d+", simplify = T)))
 
-# Year range to filter HMD data
+# Year range to filter data
 year_range_mort_1 <- min(year_breaks_mort_1):max(year_breaks_mort_1-1)
 
 # Whole SOCSIM simulation
-lt_whole2 <- lt_whole %>%
+lt_whole2 <-  lt_10 %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "Whole simulation",
-         Rate = "e0") %>% 
-  select(Year, ex, Dataset, Rate, sex, Age)
+         Dataset = "Whole Simulation",
+         Rate = "e0")  %>% 
+  select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # Genealogical subset of Direct Ancestors (with duplicates)
 lt_dir_wd2 <- lt_dir_wd %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "Direct Ancestors (with duplicates)",
          Rate = "e0") %>% 
-  select(Year, ex, Dataset, Rate, sex, Age)
+  select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # Genealogical subset of Direct Ancestors (without duplicates)
 lt_dir_wod2 <- lt_dir_wod %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "Direct Ancestors (without duplicates)",
          Rate = "e0") %>% 
-  select(Year, ex, Dataset, Rate, sex, Age)
+  select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
+
+# Plot the estimates of life expectancy at birth
 bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>% 
   filter(Age == 0 ) %>%
   mutate(Sex = ifelse(sex == "female", "Female", "Male")) %>% 
+  group_by(Year, Sex, Dataset) %>% 
+  summarise(ex = mean(ex, na.rm = T)) %>% 
+  ungroup() %>% 
   ggplot(aes(x = Year, y = ex, group = Dataset))+
   geom_line(aes(colour = Dataset, linetype = Dataset), linewidth = 1.3)+
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
@@ -565,55 +527,34 @@ bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>%
        y = "e0") 
 ggsave(file="Graphs/Socsim_Exp1_e0.jpeg", width=17, height=9, dpi=200)
 
-# Summary measure of error for different simulations ----
-
-# Load life table from SOCSIM's asmr 1x1 for each simulation, calculated on 2_Compare_Input_Output
-load("Measures/lt_10.RData")
-lt_SOCSIM_10 <- lt_10 %>%
-  mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "SOCSIM") %>% 
-  select(Year, Age, ex, Sex = sex, Dataset, Sim_id)
-
-# Compute life table for each simulation for the genealogical subset of Direct Ancestors (with duplicates)
-load("Measures/asmr_dir_wd_1.RData")
-lt_dir_wd_10 <- lt_socsim_sims(asmr_socsim_sims = asmr_dir_wd_1) %>% 
-  mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "Direct Ancestors (with duplicates)") %>% 
-  select(Year, Age, ex, Sex = sex, Dataset, Sim_id)
-
-# Compute life table for each simulation for the genealogical subset of Direct Ancestors (without duplicates)
-load("Measures/asmr_dir_wod_1.RData")
-lt_dir_wod_10 <- lt_socsim_sims(asmr_socsim_sims = asmr_dir_wod_1) %>% 
-  mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "Direct Ancestors (without duplicates)") %>% 
-  select(Year, Age, ex, Sex = sex, Dataset, Sim_id)
+# Summary measure of error in e0 ----
 
 # Differences of means
-DM_e0 <- bind_rows(lt_SOCSIM_10, lt_dir_wd_10,  lt_dir_wod_10) %>%
+DM_e0_Exp1 <- bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>%
   filter(Year > 1750 & Age == 0) %>% 
-  group_by(Year, Sex, Dataset) %>% 
+  group_by(Year, sex, Dataset) %>% 
   summarise(ex = mean(ex, na.rm = T)) %>% 
   ungroup() %>% 
-  pivot_wider(id_cols = c(Year:Sex), names_from = "Dataset", values_from = "ex") %>% 
+  pivot_wider(id_cols = c(Year:sex), names_from = "Dataset", values_from = "ex") %>% 
   pivot_longer(cols = 3:4, names_to = "Dataset", values_to = "Genealogy") %>% 
-  mutate(Error = SOCSIM - Genealogy, 
+  mutate(Error = `Whole Simulation` - Genealogy, 
          Type = "DM") %>% 
-  select(Year, Sex, Dataset, Error, Type) 
+  select(Year, sex, Dataset, Error, Type) 
 
 # Mean of differences
-MD_e0 <- bind_rows(lt_SOCSIM_10, lt_dir_wd_10,  lt_dir_wod_10) %>%
+MD_e0_Exp1 <- bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>%
   filter(Year > 1750 & Age == 0) %>% 
-  pivot_wider(id_cols = c(Year, Sex, Sim_id), names_from = "Dataset", values_from = "ex") %>% 
+  pivot_wider(id_cols = c(Year, sex, Sim_id), names_from = "Dataset", values_from = "ex") %>% 
   pivot_longer(cols = 5:6, names_to = "Dataset", values_to = "Genealogy") %>% 
-  mutate(Error = SOCSIM - Genealogy) %>% 
-  group_by(Year, Sex, Dataset) %>% 
+  mutate(Error = `Whole Simulation` - Genealogy) %>% 
+  group_by(Year, sex, Dataset) %>% 
   summarise(Error = mean(Error, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Type = "MD")
 
-bind_rows(DM_e0, MD_e0) %>%
+bind_rows(DM_e0_Exp1, MD_e0_Exp1) %>%
   ggplot(aes(x = Year, y = Error, colour = Dataset, group = Dataset)) +
-  facet_wrap(. ~ Sex)+
+  facet_wrap(. ~ sex)+
   geom_line(linewidth = 1.3)+
   geom_point(aes(shape = Type), size = 3)+
   theme_graphs()
@@ -626,7 +567,7 @@ ggsave(file="Graphs/Socsim_Exp1_e0_Error.jpeg", width=17, height=9, dpi=200)
 
 yrs_plot2 <- c(1750, 1800, 1850, 1900, 1950, 2000)
 
-Summary <-
+Summary_Exp1 <-
 bind_rows(TFR_whole %>% rename(Estimate = TFR), 
           TFR_dir_wd %>% rename(Estimate = TFR),
           TFR_dir_wod %>% rename(Estimate = TFR)) %>%  
@@ -634,6 +575,9 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
             lt_dir_wd2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_dir_wod2 %>% rename(Estimate = ex) %>% filter(Age == 0)) %>% 
   filter(sex == "female") %>% 
+  group_by(Year, Dataset, Rate, sex) %>% 
+  summarise(Estimate = mean(Estimate, na.rm = T)) %>% 
+  ungroup() %>% 
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth"))) %>%
   ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
@@ -650,26 +594,26 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
 
 # Save the plot
-Summary
+Summary_Exp1
 ggsave(file="Graphs/Final_Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
-## Plot combining age-specific rates and summary measures -----
+## Plot combining age-specific rates and Summary measures -----
 
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                          x = c(1,2),
-                         y = c(0.23, 0.5),
+                         y = c(0.23, 0.55),
                          labels = c("a","b"))
 plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expectancy at Birth")),
                          x = c(1755, 1755),
-                         y = c(5.2, 82),
+                         y = c(5.4, 84),
                          labels = c("c","d"))
 
-By_Age + 
+By_Age_Exp1 + 
   geom_text(data = plot_labs1, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") + 
   theme(plot.margin = margin(0,0,1,0, "cm")) +
-  Summary + 
+  Summary_Exp1 + 
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
