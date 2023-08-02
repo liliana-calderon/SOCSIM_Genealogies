@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created by Liliana Calderon on 27-06-2023
-# Last modified by Liliana Calderon on 01-08-2023
+# Last modified by Liliana Calderon on 02-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -130,7 +130,7 @@ save(less_children_5_100, file = "Subsets/less_children_5_100.RData")
 # Create a list of data frames with opop of the filter data
 less_children_1_25 <- less_children_1_25 %>% split(.$Sim_id)
 
-# Estimate age-specific fertility rates for the subset without 25% children dead below age 1
+# Estimate age-specific fertility rates from the subset without 25% children dead below age 1
 asfr_less_children_1_25 <- map_dfr(less_children_1_25, ~ estimate_fertility_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -142,7 +142,7 @@ asfr_less_children_1_25 <- map_dfr(less_children_1_25, ~ estimate_fertility_rate
                                    .id = "Sim_id") 
 save(asfr_less_children_1_25, file = "Measures/asfr_less_children_1_25.RData")
 
-# Estimate age-specific mortality rates for the subset without 25% children dead below age 1
+# Estimate age-specific mortality rates from the subset without 25% children dead below age 1
 asmr_less_children_1_25 <- map_dfr(less_children_1_25, ~ estimate_mortality_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -158,7 +158,7 @@ save(asmr_less_children_1_25, file = "Measures/asmr_less_children_1_25.RData")
 # Create a list of data frames with opop of the filter data
 less_children_1_50 <- less_children_1_50 %>% split(.$Sim_id)
 
-# Estimate age-specific fertility rates for the subset without 50% children dead below age 1
+# Estimate age-specific fertility rates from the subset without 50% children dead below age 1
 asfr_less_children_1_50 <- map_dfr(less_children_1_50, ~ estimate_fertility_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -170,7 +170,7 @@ asfr_less_children_1_50 <- map_dfr(less_children_1_50, ~ estimate_fertility_rate
                                    .id = "Sim_id") 
 save(asfr_less_children_1_50, file = "Measures/asfr_less_children_1_50.RData")
 
-# Estimate age-specific mortality rates for the subset without 50% children dead below age 1
+# Estimate age-specific mortality rates from the subset without 50% children dead below age 1
 asmr_less_children_1_50 <- map_dfr(less_children_1_50, ~ estimate_mortality_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -186,7 +186,7 @@ save(asmr_less_children_1_50, file = "Measures/asmr_less_children_1_50.RData")
 # Create a list of data frames with opop of the filter data
 less_children_1_75 <- less_children_1_75 %>% split(.$Sim_id)
 
-# Estimate age-specific fertility rates for the subset without 75% children dead below age 1
+# Estimate age-specific fertility rates from the subset without 75% children dead below age 1
 asfr_less_children_1_75 <- map_dfr(less_children_1_75, ~ estimate_fertility_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -198,7 +198,7 @@ asfr_less_children_1_75 <- map_dfr(less_children_1_75, ~ estimate_fertility_rate
                                    .id = "Sim_id") 
 save(asfr_less_children_1_75, file = "Measures/asfr_less_children_1_75.RData")
 
-# Estimate age-specific mortality rates for the subset without 75% children dead below age 1
+# Estimate age-specific mortality rates from the subset without 75% children dead below age 1
 asmr_less_children_1_75 <- map_dfr(less_children_1_75, ~ estimate_mortality_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -214,7 +214,7 @@ save(asmr_less_children_1_75, file = "Measures/asmr_less_children_1_75.RData")
 # Create a list of data frames with opop of the filter data
 less_children_1_100 <- less_children_1_100 %>% split(.$Sim_id)
 
-# Estimate age-specific fertility rates for the subset without 75% children dead below age 1
+# Estimate age-specific fertility rates from the subset without 75% children dead below age 1
 asfr_less_children_1_100 <- map_dfr(less_children_1_100, ~ estimate_fertility_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -226,7 +226,7 @@ asfr_less_children_1_100 <- map_dfr(less_children_1_100, ~ estimate_fertility_ra
                                    .id = "Sim_id") 
 save(asfr_less_children_1_100, file = "Measures/asfr_less_children_1_100.RData")
 
-# Estimate age-specific mortality rates for the subset without 100% children dead below age 1
+# Estimate age-specific mortality rates from the subset without 100% children dead below age 1
 asmr_less_children_1_100 <- map_dfr(less_children_1_100, ~ estimate_mortality_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -243,7 +243,7 @@ save(asmr_less_children_1_100, file = "Measures/asmr_less_children_1_100.RData")
 # Create a list of data frames with opop of the filter data
 less_children_5_25 <- less_children_5_25 %>% split(.$Sim_id)
 
-# Estimate age-specific fertility rates for the subset without 25% children dead below age 5
+# Estimate age-specific fertility rates from the subset without 25% children dead below age 5
 asfr_less_children_5_25 <- map_dfr(less_children_5_25, ~ estimate_fertility_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -255,7 +255,7 @@ asfr_less_children_5_25 <- map_dfr(less_children_5_25, ~ estimate_fertility_rate
                                    .id = "Sim_id") 
 save(asfr_less_children_5_25, file = "Measures/asfr_less_children_5_25.RData")
 
-# Estimate age-specific mortality rates for the subset without 25% children dead below age 5
+# Estimate age-specific mortality rates from the subset without 25% children dead below age 5
 asmr_less_children_5_25 <- map_dfr(less_children_5_25, ~ estimate_mortality_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -271,7 +271,7 @@ save(asmr_less_children_5_25, file = "Measures/asmr_less_children_5_25.RData")
 # Create a list of data frames with opop of the filter data
 less_children_5_50 <- less_children_5_50 %>% split(.$Sim_id)
 
-# Estimate age-specific fertility rates for the subset without 50% children dead below age 5
+# Estimate age-specific fertility rates from the subset without 50% children dead below age 5
 asfr_less_children_5_50 <- map_dfr(less_children_5_50, ~ estimate_fertility_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -283,7 +283,7 @@ asfr_less_children_5_50 <- map_dfr(less_children_5_50, ~ estimate_fertility_rate
                                    .id = "Sim_id") 
 save(asfr_less_children_5_50, file = "Measures/asfr_less_children_5_50.RData")
 
-# Estimate age-specific mortality rates for the subset without 50% children dead below age 5
+# Estimate age-specific mortality rates from the subset without 50% children dead below age 5
 asmr_less_children_5_50 <- map_dfr(less_children_5_50, ~ estimate_mortality_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -299,7 +299,7 @@ save(asmr_less_children_5_50, file = "Measures/asmr_less_children_5_50.RData")
 # Create a list of data frames with opop of the filter data
 less_children_5_75 <- less_children_5_75 %>% split(.$Sim_id)
 
-# Estimate age-specific fertility rates for the subset without 75% children dead below age 5
+# Estimate age-specific fertility rates from the subset without 75% children dead below age 5
 asfr_less_children_5_75 <- map_dfr(less_children_5_75, ~ estimate_fertility_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -311,7 +311,7 @@ asfr_less_children_5_75 <- map_dfr(less_children_5_75, ~ estimate_fertility_rate
                                    .id = "Sim_id") 
 save(asfr_less_children_5_75, file = "Measures/asfr_less_children_5_75.RData")
 
-# Estimate age-specific mortality rates for the subset without 75% children dead below age 5
+# Estimate age-specific mortality rates from the subset without 75% children dead below age 5
 asmr_less_children_5_75 <- map_dfr(less_children_5_75, ~ estimate_mortality_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -327,7 +327,7 @@ save(asmr_less_children_5_75, file = "Measures/asmr_less_children_5_75.RData")
 # Create a list of data frames with opop of the filter data
 less_children_5_100 <- less_children_5_100 %>% split(.$Sim_id)
 
-# Estimate age-specific fertility rates for the subset without 100% children dead below age 5
+# Estimate age-specific fertility rates from the subset without 100% children dead below age 5
 asfr_less_children_5_100 <- map_dfr(less_children_5_100, ~ estimate_fertility_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -339,7 +339,7 @@ asfr_less_children_5_100 <- map_dfr(less_children_5_100, ~ estimate_fertility_ra
                                    .id = "Sim_id") 
 save(asfr_less_children_5_100, file = "Measures/asfr_less_children_5_100.RData")
 
-# Estimate age-specific mortality rates for the subset without 100% children dead below age 5
+# Estimate age-specific mortality rates from the subset without 100% children dead below age 5
 asmr_less_children_5_100 <- map_dfr(less_children_5_100, ~ estimate_mortality_rates(opop = .x,
                                                                                   final_sim_year = 2022, 
                                                                                   year_min = 1750, 
@@ -352,12 +352,11 @@ save(asmr_less_children_5_100, file = "Measures/asmr_less_children_5_100.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Comparison of whole simulation with genealogical subsets with different proportions of missing children ----
-
 # ASFR ----
 
-# Load mean ASFR 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
-load("Measures/asfr_whole.RData")
-# Load asfr for the subset of all direct ancestors and collateral kin
+# Load ASFR 5x5 from the 10 simulations
+load("Measures/asfr_10.RData")
+# Load asfr from the subset of all direct ancestors and collateral kin
 load("Measures/asfr_anc_col.RData")
 # Load asfr for the genealogical subset without 25% children dead below age 1
 load("Measures/asfr_less_children_1_25.RData")
@@ -378,9 +377,11 @@ load("Measures/asfr_less_children_5_100.RData")
 
 ## Calculate the mean of the different simulations and add relevant columns
 
-# Whole SOCSIM simulation
-asfr_whole2 <- asfr_whole %>% 
-  rename(ASFR = socsim) %>% 
+# Whole SOCSIM simulations
+asfr_whole2 <- asfr_10 %>%
+  group_by(year, age) %>% 
+  summarise(ASFR = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
   mutate(Dataset = "Whole Simulation", 
          Rate = "ASFR", 
          Omitted = NA) 
@@ -498,9 +499,9 @@ ggsave(file="Graphs/Socsim_Exp3A_ASFR.jpeg", width=17, height=9, dpi=200)
 
 # ASMR ----
 
-# Load mean ASMR rates 5x5 from the 10 simulations, calculated on 2_Compare_Input_Output
-load("Measures/asmr_whole.RData")
-# Load asmr for the subset of all direct ancestors and collateral kin
+# Load ASMR 5x5 from the 10 simulations
+load("Measures/asmr_10.RData")
+# Load asmr from the subset of all direct ancestors and collateral kin
 load("Measures/asmr_anc_col.RData")
 # Load asmr for the genealogical subset without 25% children dead below age 1
 load("Measures/asmr_less_children_1_25.RData")
@@ -519,13 +520,16 @@ load("Measures/asmr_less_children_5_75.RData")
 # Load asmr for the genealogical subset without 100% children dead below age 5
 load("Measures/asmr_less_children_5_100.RData")
 
-# Whole SOCSIM simulation
-asmr_whole2 <- asmr_whole %>% 
+# Whole SOCSIM simulations
+asmr_whole2 <- asmr_10 %>%
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),          
          Dataset = "Whole Simulation", 
          Rate = "ASMR", 
          Omitted = NA) %>%    
-  select(year, age, Sex, mx = socsim, Dataset, Rate, Omitted)
+  select(year, age, Sex, mx = socsim, Dataset, Rate)
 
 # All Direct ancestors and collateral kin 
 asmr_anc_col2 <- asmr_anc_col %>% 
@@ -665,7 +669,7 @@ age_levels <- levels(asmr_whole2$age)
 
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and subsets of direct ancestors and all collateral kin
 
-By_Age <- 
+By_Age_Exp3A <- 
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
           asfr_anc_col2 %>% rename(Estimate = ASFR), 
           # asfr_less_children_1_25b %>% rename(Estimate = ASFR), 
@@ -709,7 +713,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-By_Age
+By_Age_Exp3A
 ggsave(file="Graphs/Final_Socsim_Exp3A_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
@@ -717,9 +721,9 @@ ggsave(file="Graphs/Final_Socsim_Exp3A_ASFR_ASMR.jpeg", width=17, height=9, dpi=
 # Here, we use the rates by 1 year age group and 1 calendar year
 
 # Total Fertility Rate ----
-# Estimate Total Fertility Rate from asfr 1x1
+# Estimate Total Fertility Rate from asfr 1x1 ----
 
-# Estimate age-specific fertility rates 1x1 for the subset without 25% children dead below age 1
+# Estimate age-specific fertility rates 1x1 from the subset without 25% children dead below age 1
 asfr_less_children_1_25_1 <- map_dfr(less_children_1_25, ~ estimate_fertility_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -731,7 +735,7 @@ asfr_less_children_1_25_1 <- map_dfr(less_children_1_25, ~ estimate_fertility_ra
                                      .id = "Sim_id") 
 save(asfr_less_children_1_25_1, file = "Measures/asfr_less_children_1_25_1.RData")
 
-# Estimate age-specific fertility rates 1x1 for the subset without 50% children dead below age 1
+# Estimate age-specific fertility rates 1x1 from the subset without 50% children dead below age 1
 asfr_less_children_1_50_1 <- map_dfr(less_children_1_50, ~ estimate_fertility_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -743,7 +747,7 @@ asfr_less_children_1_50_1 <- map_dfr(less_children_1_50, ~ estimate_fertility_ra
                                      .id = "Sim_id") 
 save(asfr_less_children_1_50_1, file = "Measures/asfr_less_children_1_50_1.RData")
 
-# Estimate age-specific fertility rates 1x1 for the subset without 75% children dead below age 1
+# Estimate age-specific fertility rates 1x1 from the subset without 75% children dead below age 1
 asfr_less_children_1_75_1 <- map_dfr(less_children_1_75, ~ estimate_fertility_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -755,7 +759,7 @@ asfr_less_children_1_75_1 <- map_dfr(less_children_1_75, ~ estimate_fertility_ra
                                      .id = "Sim_id") 
 save(asfr_less_children_1_75_1, file = "Measures/asfr_less_children_1_75_1.RData")
 
-# Estimate age-specific fertility rates 1x1 for the subset without 100% children dead below age 1
+# Estimate age-specific fertility rates 1x1 from the subset without 100% children dead below age 1
 asfr_less_children_1_100_1 <- map_dfr(less_children_1_100, ~ estimate_fertility_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -768,7 +772,7 @@ asfr_less_children_1_100_1 <- map_dfr(less_children_1_100, ~ estimate_fertility_
 save(asfr_less_children_1_100_1, file = "Measures/asfr_less_children_1_100_1.RData")
 
 
-# Estimate age-specific fertility rates 1x1 for the subset without 25% children dead below age 5
+# Estimate age-specific fertility rates 1x1 from the subset without 25% children dead below age 5
 asfr_less_children_5_25_1 <- map_dfr(less_children_5_25, ~ estimate_fertility_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -780,7 +784,7 @@ asfr_less_children_5_25_1 <- map_dfr(less_children_5_25, ~ estimate_fertility_ra
                                      .id = "Sim_id") 
 save(asfr_less_children_5_25_1, file = "Measures/asfr_less_children_5_25_1.RData")
 
-# Estimate age-specific fertility rates 1x1 for the subset without 50% children dead below age 5
+# Estimate age-specific fertility rates 1x1 from the subset without 50% children dead below age 5
 asfr_less_children_5_50_1 <- map_dfr(less_children_5_50, ~ estimate_fertility_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -792,7 +796,7 @@ asfr_less_children_5_50_1 <- map_dfr(less_children_5_50, ~ estimate_fertility_ra
                                      .id = "Sim_id") 
 save(asfr_less_children_5_50_1, file = "Measures/asfr_less_children_5_50_1.RData")
 
-# Estimate age-specific fertility rates 1x1 for the subset without 75% children dead below age 5
+# Estimate age-specific fertility rates 1x1 from the subset without 75% children dead below age 5
 asfr_less_children_5_75_1 <- map_dfr(less_children_5_75, ~ estimate_fertility_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -804,7 +808,7 @@ asfr_less_children_5_75_1 <- map_dfr(less_children_5_75, ~ estimate_fertility_ra
                                      .id = "Sim_id") 
 save(asfr_less_children_5_75_1, file = "Measures/asfr_less_children_5_75_1.RData")
 
-# Estimate age-specific fertility rates 1x1 for the subset without 100% children dead below age 5
+# Estimate age-specific fertility rates 1x1 from the subset without 100% children dead below age 5
 asfr_less_children_5_100_1 <- map_dfr(less_children_5_100, ~ estimate_fertility_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -818,50 +822,47 @@ save(asfr_less_children_5_100_1, file = "Measures/asfr_less_children_5_100_1.RDa
 
 # Load ASFR 1x1 and calculate TFR for plotting ----
 
-# Load mean age-specific fertility rates 1x1 for the 10 simulations
-load("Measures/asfr_whole_1.RData")
-# Load asfr 1x1 for the subset with all direct ancestors and collateral kin
+# Load asfr 1x1 from the 10 simulations
+load("Measures/asfr_10_1.RData")
+# Load asfr 1x1 from the subset with all direct ancestors and collateral kin
 load("Measures/asfr_anc_col_1.RData")
-# Load asfr 1x1 for the subset without 25% children dead below age 1
+# Load asfr 1x1 from the subset without 25% children dead below age 1
 load("Measures/asfr_less_children_1_25_1.RData")
-# Load asfr 1x1 for the subset without 50% children dead below age 1
+# Load asfr 1x1 from the subset without 50% children dead below age 1
 load("Measures/asfr_less_children_1_50_1.RData")
-# Load asfr 1x1 for the subset without 75% children dead below age 1
+# Load asfr 1x1 from the subset without 75% children dead below age 1
 load("Measures/asfr_less_children_1_75_1.RData")
-# Load asfr 1x1 for the subset without 100% children dead below age 1
+# Load asfr 1x1 from the subset without 100% children dead below age 1
 load("Measures/asfr_less_children_1_100_1.RData")
-# Load asfr 1x1 for the subset without 25% children dead below age 5
+# Load asfr 1x1 from the subset without 25% children dead below age 5
 load("Measures/asfr_less_children_5_25_1.RData")
-# Load asfr 1x1 for the subset without 50% children dead below age 5
+# Load asfr 1x1 from the subset without 50% children dead below age 5
 load("Measures/asfr_less_children_5_50_1.RData")
-# Load asfr 1x1 for the subset without 75% children dead below age 5
+# Load asfr 1x1 from the subset without 75% children dead below age 5
 load("Measures/asfr_less_children_5_75_1.RData")
-# Load asfr 1x1 for the subset without 100% children dead below age 5
+# Load asfr 1x1 from the subset without 100% children dead below age 5
 load("Measures/asfr_less_children_5_100_1.RData")
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
-age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_whole_1$age, "\\d+", simplify = T)))
+age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
 
 # Retrieve age_group size
 age_group_fert_1 <- unique(diff(age_breaks_fert_1))
 
-# Whole SOCSIM simulation
-TFR_whole <- asfr_whole_1 %>% 
+# Whole SOCSIM simulations
+TFR_whole <- asfr_10_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Whole Simulation",
-         Rate = "TFR",
+         Rate = "TFR", 
          sex = "female")
 
-# All Direct ancestors and collateral kin # Not included
+# All Direct ancestors and collateral kin
 TFR_anc_col <- asfr_anc_col_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors + Collateral Kin",
@@ -871,10 +872,7 @@ TFR_anc_col <- asfr_anc_col_1 %>%
 # All Direct ancestors and collateral kin without 25% children dead below age 1
 TFR_less_children_1_25 <- asfr_less_children_1_25_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "25% Omission",
@@ -884,10 +882,7 @@ TFR_less_children_1_25 <- asfr_less_children_1_25_1 %>%
 # All Direct ancestors and collateral kin without 50% children dead below age 1
 TFR_less_children_1_50 <- asfr_less_children_1_50_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "50% Omission",
@@ -897,10 +892,7 @@ TFR_less_children_1_50 <- asfr_less_children_1_50_1 %>%
 # All Direct ancestors and collateral kin without 75% children dead below age 1
 TFR_less_children_1_75 <- asfr_less_children_1_75_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "75% Omission",
@@ -910,10 +902,7 @@ TFR_less_children_1_75 <- asfr_less_children_1_75_1 %>%
 # All Direct ancestors and collateral kin without 100% children dead below age 1
 TFR_less_children_1_100 <- asfr_less_children_1_100_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "100% Omission",
@@ -923,10 +912,7 @@ TFR_less_children_1_100 <- asfr_less_children_1_100_1 %>%
 # All Direct ancestors and collateral kin without 25% children dead below age 5
 TFR_less_children_5_25 <- asfr_less_children_5_25_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "25% Omission",
@@ -936,10 +922,7 @@ TFR_less_children_5_25 <- asfr_less_children_5_25_1 %>%
 # All Direct ancestors and collateral kin without 50% children dead below age 5
 TFR_less_children_5_50 <- asfr_less_children_5_50_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "50% Omission",
@@ -949,10 +932,7 @@ TFR_less_children_5_50 <- asfr_less_children_5_50_1 %>%
 # All Direct ancestors and collateral kin without 75% children dead below age 5
 TFR_less_children_5_75 <- asfr_less_children_5_75_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "75% Omission",
@@ -962,16 +942,12 @@ TFR_less_children_5_75 <- asfr_less_children_5_75_1 %>%
 # All Direct ancestors and collateral kin without 100% children dead below age 5
 TFR_less_children_5_100 <- asfr_less_children_5_100_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
-  group_by(Year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup() %>%
-  group_by(Year) %>% 
+  group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
   mutate(Dataset = "100% Omission",
          Rate = "TFR",           
          sex = "female")
-
 
 ## Plot TFR from whole SOCSIM simulation and subsets with different proportions of omitted children
 
@@ -980,6 +956,9 @@ bind_rows(TFR_whole, TFR_anc_col,
           TFR_less_children_5_25, TFR_less_children_5_50, TFR_less_children_5_75, TFR_less_children_5_100) %>% 
   mutate(Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", 
                                               "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>% 
+  group_by(Year, Dataset) %>% 
+  summarise(TFR = mean(TFR, na.rm = T)) %>% 
+  ungroup() %>% 
   ggplot(aes(x = Year, y = TFR, group = Dataset, colour = Dataset)) +
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
@@ -989,11 +968,46 @@ bind_rows(TFR_whole, TFR_anc_col,
 ggsave(file="Graphs/Socsim_Exp3A_TFR.jpeg", width=17, height=9, dpi=200)
 
 
+# Summary measure of error in TFR ----
+
+# Differences of means
+DM_TFR_Exp3A <- bind_rows(TFR_whole, TFR_anc_col,
+                    #TFR_less_children_1_25, TFR_less_children_1_50, TFR_less_children_1_75, TFR_less_children_1_100, 
+                    TFR_less_children_5_25, TFR_less_children_5_50, TFR_less_children_5_75, TFR_less_children_5_100) %>%
+  filter(Year > 1750) %>% 
+  group_by(Year, Dataset) %>% 
+  summarise(TFR = mean(TFR, na.rm = T)) %>% 
+  ungroup() %>% 
+  pivot_wider(id_cols = Year, names_from = "Dataset", values_from = "TFR") %>% 
+  pivot_longer(cols = 2:6, names_to = "Dataset", values_to = "Genealogy") %>% 
+  mutate(Error = `Whole Simulation` - Genealogy, 
+         Type = "DM")
+
+# Mean of differences
+MD_TFR_Exp3A <- bind_rows(TFR_whole, TFR_anc_col,
+                    #TFR_less_children_1_25, TFR_less_children_1_50, TFR_less_children_1_75, TFR_less_children_1_100, 
+                    TFR_less_children_5_25, TFR_less_children_5_50, TFR_less_children_5_75, TFR_less_children_5_100) %>%
+  filter(Year > 1750) %>% 
+  pivot_wider(id_cols = c(Year, Sim_id), names_from = "Dataset", values_from = "TFR") %>% 
+  pivot_longer(cols = 4:8, names_to = "Dataset", values_to = "Genealogy") %>% 
+  mutate(Error = `Whole Simulation` - Genealogy) %>% 
+  group_by(Year, Dataset) %>% 
+  summarise(Error = mean(Error, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(Type = "MD")
+
+bind_rows(DM_TFR_Exp3A, MD_TFR_Exp3A) %>%
+  ggplot(aes(x = Year, y = Error, colour = Dataset, group = Dataset)) +
+  geom_line(linewidth = 1.3)+
+  geom_point(aes(shape = Type), size = 3)+
+  theme_graphs()
+ggsave(file="Graphs/Socsim_Exp3A_TFR_Error.jpeg", width=17, height=9, dpi=200)
+
 # Life Expectancy at birth ----
-# Estimate life expectancy at birth from asmr 1x1 for the genealogical subsets 
+# Estimate life expectancy at birth from asmr 1x1 for the genealogical subsets ----
 # with different proportions of omitted early deceased children
 
-# Estimate age-specific mortality rates for the subset without 25% children dead below age 1
+# Estimate age-specific mortality rates from the subset without 25% children dead below age 1
 asmr_less_children_1_25_1 <- map_dfr(less_children_1_25, ~ estimate_mortality_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -1004,16 +1018,12 @@ asmr_less_children_1_25_1 <- map_dfr(less_children_1_25, ~ estimate_mortality_ra
                                      .id = "Sim_id") 
 save(asmr_less_children_1_25_1, file = "Measures/asmr_less_children_1_25_1.RData")
 
-# Calculate the mean and compute the life table
-asmr_less_children_1_25_1 <- asmr_less_children_1_25_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-lt_less_children_1_25 <- lt_socsim(asmr_less_children_1_25_1)
+# Compute life tables from the subset from the subset without 25% children dead below age 1
+lt_less_children_1_25 <- lt_socsim_sims(asmr_socsim_sims = asmr_less_children_1_25_1)
 save(lt_less_children_1_25, file = "Measures/lt_less_children_1_25.RData")
 
 
-# Estimate age-specific mortality rates for the subset without 50% children dead below age 1
+# Estimate age-specific mortality rates from the subset without 50% children dead below age 1
 asmr_less_children_1_50_1 <- map_dfr(less_children_1_50, ~ estimate_mortality_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -1024,16 +1034,12 @@ asmr_less_children_1_50_1 <- map_dfr(less_children_1_50, ~ estimate_mortality_ra
                                      .id = "Sim_id") 
 save(asmr_less_children_1_50_1, file = "Measures/asmr_less_children_1_50_1.RData")
 
-# Calculate the mean and compute the life table
-asmr_less_children_1_50_1 <- asmr_less_children_1_50_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-lt_less_children_1_50 <- lt_socsim(asmr_less_children_1_50_1)
+# Compute life tables from the subset from the subset without 50% children dead below age 1
+lt_less_children_1_50 <- lt_socsim_sims(asmr_socsim_sims = asmr_less_children_1_50_1)
 save(lt_less_children_1_50, file = "Measures/lt_less_children_1_50.RData")
 
 
-# Estimate age-specific mortality rates for the subset without 75% children dead below age 1
+# Estimate age-specific mortality rates from the subset without 75% children dead below age 1
 asmr_less_children_1_75_1 <- map_dfr(less_children_1_75, ~ estimate_mortality_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -1044,15 +1050,11 @@ asmr_less_children_1_75_1 <- map_dfr(less_children_1_75, ~ estimate_mortality_ra
                                      .id = "Sim_id") 
 save(asmr_less_children_1_75_1, file = "Measures/asmr_less_children_1_75_1.RData")
 
-# Calculate the mean and compute the life table
-asmr_less_children_1_75_1 <- asmr_less_children_1_75_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-lt_less_children_1_75 <- lt_socsim(asmr_less_children_1_75_1)
+# Compute life tables from the subset from the subset without 75% children dead below age 1
+lt_less_children_1_75 <- lt_socsim_sims(asmr_socsim_sims = asmr_less_children_1_75_1)
 save(lt_less_children_1_75, file = "Measures/lt_less_children_1_75.RData")
 
-# Estimate age-specific mortality rates for the subset without 100% children dead below age 1
+# Estimate age-specific mortality rates from the subset without 100% children dead below age 1
 asmr_less_children_1_100_1 <- map_dfr(less_children_1_100, ~ estimate_mortality_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -1063,16 +1065,12 @@ asmr_less_children_1_100_1 <- map_dfr(less_children_1_100, ~ estimate_mortality_
                                      .id = "Sim_id") 
 save(asmr_less_children_1_100_1, file = "Measures/asmr_less_children_1_100_1.RData")
 
-# Calculate the mean and compute the life table
-asmr_less_children_1_100_1 <- asmr_less_children_1_100_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-lt_less_children_1_100 <- lt_socsim(asmr_less_children_1_100_1)
+# Compute life tables from the subset from the subset without 100% children dead below age 1
+lt_less_children_1_100 <- lt_socsim_sims(asmr_socsim_sims = asmr_less_children_1_100_1)
 save(lt_less_children_1_100, file = "Measures/lt_less_children_1_100.RData")
 
 
-# Estimate age-specific mortality rates for the subset without 25% children dead below age 5
+# Estimate age-specific mortality rates from the subset without 25% children dead below age 5
 asmr_less_children_5_25_1 <- map_dfr(less_children_5_25, ~ estimate_mortality_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -1083,16 +1081,12 @@ asmr_less_children_5_25_1 <- map_dfr(less_children_5_25, ~ estimate_mortality_ra
                                      .id = "Sim_id") 
 save(asmr_less_children_5_25_1, file = "Measures/asmr_less_children_5_25_1.RData")
 
-# Calculate the mean and compute the life table
-asmr_less_children_5_25_1 <- asmr_less_children_5_25_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-lt_less_children_5_25 <- lt_socsim(asmr_less_children_5_25_1)
+# Compute life tables from the subset without 25% children dead below age 5
+lt_less_children_5_25 <- lt_socsim_sims(asmr_socsim_sims = asmr_less_children_5_25_1)
 save(lt_less_children_5_25, file = "Measures/lt_less_children_5_25.RData")
 
 
-# Estimate age-specific mortality rates for the subset without 50% children dead below age 5
+# Estimate age-specific mortality rates from the subset without 50% children dead below age 5
 asmr_less_children_5_50_1 <- map_dfr(less_children_5_50, ~ estimate_mortality_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -1103,16 +1097,12 @@ asmr_less_children_5_50_1 <- map_dfr(less_children_5_50, ~ estimate_mortality_ra
                                      .id = "Sim_id") 
 save(asmr_less_children_5_50_1, file = "Measures/asmr_less_children_5_50_1.RData")
 
-# Calculate the mean and compute the life table
-asmr_less_children_5_50_1 <- asmr_less_children_5_50_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-lt_less_children_5_50 <- lt_socsim(asmr_less_children_5_50_1)
+# Compute life tables from the subset without 50% children dead below age 5
+lt_less_children_5_50 <- lt_socsim_sims(asmr_socsim_sims = asmr_less_children_5_50_1)
 save(lt_less_children_5_50, file = "Measures/lt_less_children_5_50.RData")
 
 
-# Estimate age-specific mortality rates for the subset without 75% children dead below age 5
+# Estimate age-specific mortality rates from the subset without 75% children dead below age 5
 asmr_less_children_5_75_1 <- map_dfr(less_children_5_75, ~ estimate_mortality_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -1123,15 +1113,11 @@ asmr_less_children_5_75_1 <- map_dfr(less_children_5_75, ~ estimate_mortality_ra
                                      .id = "Sim_id") 
 save(asmr_less_children_5_75_1, file = "Measures/asmr_less_children_5_75_1.RData")
 
-# Calculate the mean and compute the life table
-asmr_less_children_5_75_1 <- asmr_less_children_5_75_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-lt_less_children_5_75 <- lt_socsim(asmr_less_children_5_75_1)
+# Compute life tables from the subset without 75% children dead below age 5
+lt_less_children_5_75 <- lt_socsim_sims(asmr_socsim_sims = asmr_less_children_5_75_1)
 save(lt_less_children_5_75, file = "Measures/lt_less_children_5_75.RData")
 
-# Estimate age-specific mortality rates for the subset without 100% children dead below age 5
+# Estimate age-specific mortality rates from the subset without 100% children dead below age 5
 asmr_less_children_5_100_1 <- map_dfr(less_children_5_100, ~ estimate_mortality_rates(opop = .x,
                                                                                     final_sim_year = 2022, 
                                                                                     year_min = 1750, 
@@ -1142,132 +1128,168 @@ asmr_less_children_5_100_1 <- map_dfr(less_children_5_100, ~ estimate_mortality_
                                      .id = "Sim_id") 
 save(asmr_less_children_5_100_1, file = "Measures/asmr_less_children_5_100_1.RData")
 
-# Calculate the mean and compute the life table
-asmr_less_children_5_100_1 <- asmr_less_children_5_100_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-lt_less_children_5_100 <- lt_socsim(asmr_less_children_5_100_1)
+# Compute life tables from the subset without 100% children dead below age 5
+lt_less_children_5_100 <- lt_socsim_sims(asmr_socsim_sims = asmr_less_children_5_100_1)
 save(lt_less_children_5_100, file = "Measures/lt_less_children_5_100.RData")
 
 
 # Load and wrangle life tables for plotting ----
 
-# Load mean age-specific mortality rates 1x1 for the 10 simulations
-load("Measures/asmr_whole_1.RData")
-# Load life tables for the mean asmr for the 10 simulations
-load("Measures/lt_whole.RData")
-# Load life tables for the mean asmr from subset of all direct ancestors and collateral kin
+# Load life tables from each whole SOCSIM simulation
+load("Measures/lt_10.RData")
+# Load life tables from subset of all direct ancestors and collateral kin
 load("Measures/lt_anc_col.RData")
-# Load life tables for the mean asmr from subset without 25% children dead below age 1
+# Load life tables from subset without 25% children dead below age 1
 load("Measures/lt_less_children_1_25.RData")
-# Load life tables for the mean asmr from subset without 50% children dead below age 1
+# Load life tables from subset without 50% children dead below age 1
 load("Measures/lt_less_children_1_50.RData")
-# Load life tables for the mean asmr from subset without 75% children dead below age 1
+# Load life tables from subset without 75% children dead below age 1
 load("Measures/lt_less_children_1_75.RData")
-# Load life tables for the mean asmr from subset without 100% children dead below age 1
+# Load life tables from subset without 100% children dead below age 1
 load("Measures/lt_less_children_1_100.RData")
-# Load life tables for the mean asmr from subset without 25% children dead below age 5
+# Load life tables from subset without 25% children dead below age 5
 load("Measures/lt_less_children_5_25.RData")
-# Load life tables for the mean asmr from subset without 50% children dead below age 5
+# Load life tables from subset without 50% children dead below age 5
 load("Measures/lt_less_children_5_50.RData")
-# Load life tables for the mean asmr from subset without 75% children dead below age 5
+# Load life tables from subset without 75% children dead below age 5
 load("Measures/lt_less_children_5_75.RData")
-# Load life tables for the mean asmr from subset without 100% children dead below age 5
+# Load life tables from subset without 100% children dead below age 5
 load("Measures/lt_less_children_5_100.RData")
 
+# Load asmr 1x1 for the 10 simulations, calculated on 2_Compare_Input_Output
+load("Measures/asmr_10_1.RData")
 # Year breaks. Extract all the unique numbers from the intervals 
-year_breaks_mort_1 <- unique(as.numeric(str_extract_all(asmr_whole_1$year, "\\d+", simplify = T)))
+year_breaks_mort_1 <- unique(as.numeric(str_extract_all(asmr_10_1$year, "\\d+", simplify = T)))
 
-# Year range to filter data . Check if necessary
+# Year range to filter data
 year_range_mort_1 <- min(year_breaks_mort_1):max(year_breaks_mort_1-1)
 
 # Whole SOCSIM simulation
-lt_whole2 <- lt_whole %>% 
+lt_whole2 <-  lt_10 %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "Whole Simulation", 
-         Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+         Dataset = "Whole Simulation",
+         Rate = "e0")  %>% 
+  select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin 
 lt_anc_col2 <- lt_anc_col %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "Direct Ancestors + Collateral Kin",
          Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin without 25% children dead below age 1
 lt_less_children_1_25b <- lt_less_children_1_25 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "25% Omission",
          Rate = "e0") %>%
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin without 50% children dead below age 1
 lt_less_children_1_50b <- lt_less_children_1_50 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "50% Omission",
          Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin without 75% children dead below age 1
 lt_less_children_1_75b <- lt_less_children_1_75 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "75% Omission",
          Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin without 75% children dead below age 1
 lt_less_children_1_100b <- lt_less_children_1_100 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "100% Omission",
          Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin without 25% children dead below age 5
 lt_less_children_5_25b <- lt_less_children_5_25 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "25% Omission",
          Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin without 50% children dead below age 5
 lt_less_children_5_50b <- lt_less_children_5_50 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "50% Omission",
          Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin without 75% children dead below age 5
 lt_less_children_5_75b <- lt_less_children_5_75 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "75% Omission",
          Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
 # All Direct ancestors and collateral kin without 100% children dead below age 5
 lt_less_children_5_100b <- lt_less_children_5_100 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "100% Omission",
          Rate = "e0") %>%    
-  select(Year, ex, Dataset, Rate, sex, Age)
+ select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
-## Plot
+
+# Plot the estimates of life expectancy at birth
 bind_rows(lt_whole2, lt_anc_col2,
           #lt_less_children_1_25b, lt_less_children_1_50b, lt_less_children_1_75b, lt_less_children_1_100b, 
           lt_less_children_5_25b, lt_less_children_5_50b, lt_less_children_5_75b, lt_less_children_5_100b) %>% 
   filter(Age == 0) %>%
   mutate(Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", 
                                               "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>% 
+  group_by(Year, sex, Dataset) %>% 
+  summarise(ex = mean(ex, na.rm = T)) %>% 
+  ungroup() %>% 
   ggplot(aes(x = Year, y = ex, group = Dataset, colour = Dataset)) +
   facet_grid(. ~ sex) +
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   theme_graphs() 
-# labs(title = "Total Fertility Rate in Sweden (1751-2022), 
+# labs(title = "Life expectancy at birth in Sweden (e0), 1751-2020, 
 #retrieved from a SOCSIM simulation and subsets with different proportions of omitted children") 
-ggsave(file="Graphs/Socsim_Exp3A_e0_5.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3A_e0.jpeg", width=17, height=9, dpi=200)
 
+# Summary measure of error in e0 ----
+
+# Differences of means
+DM_e0 <- bind_rows(lt_whole2, 
+                   #lt_less_children_1_25b, lt_less_children_1_50b, lt_less_children_1_75b, lt_less_children_1_100b, 
+                   lt_less_children_5_25b, lt_less_children_5_50b, lt_less_children_5_75b, lt_less_children_5_100b) %>%
+  filter(Year > 1750 & Age == 0) %>% 
+  group_by(Year, sex, Dataset) %>% 
+  summarise(ex = mean(ex, na.rm = T)) %>% 
+  ungroup() %>% 
+  pivot_wider(id_cols = c(Year:sex), names_from = "Dataset", values_from = "ex") %>% 
+  pivot_longer(cols = 3:6, names_to = "Dataset", values_to = "Genealogy") %>% 
+  mutate(Error = `Whole Simulation` - Genealogy, 
+         Type = "DM") %>% 
+  select(Year, sex, Dataset, Error, Type) 
+
+# Mean of differences
+MD_e0_Exp3A <- bind_rows(lt_whole2, 
+                   #lt_less_children_1_25b, lt_less_children_1_50b, lt_less_children_1_75b, lt_less_children_1_100b, 
+                   lt_less_children_5_25b, lt_less_children_5_50b, lt_less_children_5_75b, lt_less_children_5_100b) %>%
+  filter(Year > 1750 & Age == 0) %>% 
+  pivot_wider(id_cols = c(Year, sex, Sim_id), names_from = "Dataset", values_from = "ex") %>% 
+  pivot_longer(cols = 5:8, names_to = "Dataset", values_to = "Genealogy") %>% 
+  mutate(Error = `Whole Simulation` - Genealogy) %>% 
+  group_by(Year, sex, Dataset) %>% 
+  summarise(Error = mean(Error, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(Type = "MD")
+
+bind_rows(DM_e0, MD_e0_Exp3A) %>%
+  ggplot(aes(x = Year, y = Error, colour = Dataset, group = Dataset)) +
+  facet_wrap(. ~ sex)+
+  geom_line(linewidth = 1.3)+
+  geom_point(aes(shape = Type), size = 3)+
+  theme_graphs()
+ggsave(file="Graphs/Socsim_Exp3A_e0_Error.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
@@ -1276,7 +1298,7 @@ yrs_plot2 <- c(1750, 1800, 1850, 1900, 1950, 2000)
 
 ## TFR and e0 (for females) from whole SOCSIM simulation and subsets of "direct" and all collateral kin
 
-Summary <- 
+Summary_Exp3A <- 
 bind_rows(TFR_whole %>% rename(Estimate = TFR),
           TFR_anc_col %>% rename(Estimate = TFR),
           # TFR_less_children_1_25 %>% rename(Estimate = TFR), 
@@ -1297,6 +1319,9 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
             lt_less_children_5_75b %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_less_children_5_100b %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
   filter(sex == "female") %>%
+  group_by(Year, Dataset, Rate, sex) %>% 
+  summarise(Estimate = mean(Estimate, na.rm = T)) %>% 
+  ungroup() %>% 
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth")),
          Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission",
@@ -1312,7 +1337,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   theme(legend.justification = "left",
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-Summary
+Summary_Exp3A
 # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), 
 # retrieved from a SOCSIM simulation and subsets with different proportions of omitted children")
 # Save the plot
@@ -1329,11 +1354,11 @@ plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expect
                          y = c(5.4, 84),
                          labels = c("c","d"))
 
-By_Age + 
+By_Age_Exp3A + 
   geom_text(data = plot_labs1, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") + 
   theme(plot.margin = margin(0,0,1,0, "cm")) +
-  Summary + 
+  Summary_Exp3A + 
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
