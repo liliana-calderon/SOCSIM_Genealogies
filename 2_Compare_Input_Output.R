@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 01-08-2023
+# Last modified by Liliana Calderon on 02-08-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ bind_rows(HMD, SocsimM) %>%
   labs(title = "Age-Specific Mortality Rates (log-scale) in Sweden (1751-2022), HMD and 10 Socsim simulations (without NaNs and Inf values)")
 ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=200)
 
-#----------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 
 # Change years to plot only to two periods
@@ -352,7 +352,7 @@ age_group_fert_1 <- unique(diff(age_breaks_fert_1))
 
 
 # Calculate TFR from HFC and HFD
-HFCD1 <- bind_rows(HFC, HFD) %>% 
+TFR_HFCD <- bind_rows(HFC, HFD) %>% 
   filter(Year %in% year_range_fert_1) %>% 
   select(-OpenInterval) %>% 
   group_by(Year) %>% 
@@ -362,7 +362,7 @@ HFCD1 <- bind_rows(HFC, HFD) %>%
          Sim_id = "0") # To plot multiple simulations
 
 # Calculate TFR from SOCSIM
-SocsimF1 <-  asfr_10_1 %>% 
+TFR_whole <-  asfr_10_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
@@ -370,7 +370,7 @@ SocsimF1 <-  asfr_10_1 %>%
   mutate(Source = "SOCSIM") 
 
 ## Plot TFR from HFD vs SOCSIM 
-bind_rows(HFCD1, SocsimF1) %>%
+bind_rows(TFR_HFCD, TFR_whole) %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1")) %>% 
   ggplot(aes(x = Year, y = TFR, group = interaction(Source, Sim_id))) +
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.3)+
@@ -384,7 +384,7 @@ ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
 # Summary measure of error of different simulations ----
 
 # Differences of means
-DM_TFR <- bind_rows(HFCD1, SocsimF1) %>%
+DM_TFR <- bind_rows(TFR_HFCD, TFR_whole) %>%
   filter(Year > 1750) %>% 
   group_by(Year, Source) %>% 
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
@@ -395,7 +395,7 @@ DM_TFR <- bind_rows(HFCD1, SocsimF1) %>%
   select(Year, Error, Type) 
 
 # Mean of differences
-MD_TFR <- bind_rows(HFCD1, SocsimF1) %>% 
+MD_TFR <- bind_rows(TFR_HFCD, TFR_whole) %>% 
   filter(Year > 1750) %>% 
   pivot_wider(id_cols = Year, names_from = "Sim_id", values_from = "TFR") %>% 
   rename("HFC/HFD" = '0') %>%
@@ -428,12 +428,13 @@ asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
                      .id = "Sim_id") 
 save(asmr_10_1, file = "Measures/asmr_10_1.RData")
 
-# Compute life table from SOCSIM's asmr 1x1 for each simulation
+# Compute life tables from asmr 1x1 from each whole SOCSIM simulation
 lt_10 <- lt_socsim_sims(asmr_socsim_sims = asmr_10_1)
 save(lt_10, file = "Measures/lt_10.RData")
 
 # Load and wrangle life tables for plotting ----
-load("Measures/asmr_10_1.RData")
+
+# Load life tables from asmr 1x1 from each whole SOCSIM simulation
 load("Measures/lt_10.RData")
 
 ## Compare with ex at age 0 for Sweden in HMD
@@ -450,6 +451,8 @@ ltm <- readHMDweb(CNTRY = "SWE",
                   username = HMD_username,
                   password = HMD_password)
 
+# Load asmr 1x1 for the 10 simulations
+load("Measures/asmr_10_1.RData")
 
 # Year breaks. Extract all the unique numbers from the intervals 
 year_breaks_mort_1 <- unique(as.numeric(str_extract_all(asmr_10_1$year, "\\d+", simplify = T)))
@@ -458,7 +461,7 @@ year_breaks_mort_1 <- unique(as.numeric(str_extract_all(asmr_10_1$year, "\\d+", 
 year_range_mort_1 <- min(year_breaks_mort_1):max(year_breaks_mort_1-1)
 
 # Wrangle HMD life tables 
-HMD_lt <- ltf %>%
+lt_HMD <- ltf %>%
   select(Year, Age, ex) %>% 
   mutate(Sex = "female") %>% 
   bind_rows(ltm %>% 
@@ -469,12 +472,12 @@ HMD_lt <- ltf %>%
          Sim_id = "0")
 
 # Wrangle SOCSIM life tables
-SOCSIM_lt <- lt_10 %>%
+lt_whole2 <- lt_10 %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Source = "SOCSIM") %>% 
   select(Year, Age, ex, Sex = sex, Source, Sim_id)
 
-bind_rows(HMD_lt, SOCSIM_lt) %>% 
+bind_rows(lt_HMD, lt_whole2) %>% 
   filter(Age == 0 & Year %in% year_range_mort_1) %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1"),
          Sex = ifelse(Sex == "female", "Female", "Male")) %>% 
@@ -491,7 +494,7 @@ ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
 # Summary measure of error of different simulations ----
 
 # Differences of means
-DM_e0 <- bind_rows(HMD_lt, SOCSIM_lt) %>%
+DM_e0 <- bind_rows(lt_HMD, lt_whole2) %>%
   filter(Year > 1750 & Age == 0) %>% 
   group_by(Year, Sex, Source) %>% 
   summarise(ex = mean(ex, na.rm = T)) %>% 
@@ -502,7 +505,7 @@ DM_e0 <- bind_rows(HMD_lt, SOCSIM_lt) %>%
   select(Year, Sex, Error, Type) 
 
 # Mean of differences
-MD_e0 <- bind_rows(HMD_lt, SOCSIM_lt) %>% 
+MD_e0 <- bind_rows(lt_HMD, lt_whole2) %>% 
   filter(Year > 1750 & Age == 0) %>% 
   pivot_wider(id_cols = c(Year:Sex), names_from = "Sim_id", values_from = "ex") %>% 
   rename(HMD = '0') %>%
@@ -526,11 +529,11 @@ ggsave(file="Graphs/HFD_SOCSIM_e0_Error.jpeg", width=17, height=9, dpi=200)
 
 ## Plotting TFR and e0 (for females) from HFD/HMD vs SOCSIM 
 Summary <- 
-bind_rows(HFCD1 %>% rename(Estimate = TFR) %>%  mutate(Rate = "TFR"),
-          SocsimF1 %>% rename(Estimate = TFR) %>% mutate(Rate = "TFR")) %>% 
+bind_rows(TFR_HFCD %>% rename(Estimate = TFR) %>%  mutate(Rate = "TFR"),
+          TFR_whole %>% rename(Estimate = TFR) %>% mutate(Rate = "TFR")) %>% 
   mutate(Sex = "female") %>%   
-  bind_rows(HMD_lt %>% filter(Age == 0) %>% rename(Estimate = ex) %>% mutate(Rate = "e0"),
-            SOCSIM_lt %>% filter(Age == 0) %>% rename(Estimate = ex) %>% mutate(Rate = "e0")) %>% 
+  bind_rows(lt_HMD %>% filter(Age == 0) %>% rename(Estimate = ex) %>% mutate(Rate = "e0"),
+            lt_whole2 %>% filter(Age == 0) %>% rename(Estimate = ex) %>% mutate(Rate = "e0")) %>% 
   filter(Sex == "female") %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1"),
          Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
@@ -570,40 +573,9 @@ By_Age +
 
 ggsave(file="Graphs/Final_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=200)
 
-#----------------------------------------------------------------------------------------------------
-## Calculate the mean measures of the different simulations ----
-
-# Age-specific fertility rates 5x5
-load("Measures/asfr_10.RData")
-asfr_whole <- asfr_10 %>%
-  group_by(year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-save(asfr_whole, file = "Measures/asfr_whole.RData")
-
-# Age-specific mortality rates 5x5
-load("Measures/asmr_10.RData")
-asmr_whole <- asmr_10 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-save(asmr_whole, file = "Measures/asmr_whole.RData")
-
-# Age-specific fertility rates 1x1
-load("Measures/asfr_10_1.RData")
-asfr_whole_1 <- asfr_10_1 %>%
-  group_by(year, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
-save(asfr_whole_1, file = "Measures/asfr_whole_1.RData")
-
 # Age-specific mortality rates 1x1
 load("Measures/asmr_10_1.RData")
 asmr_whole_1 <- asmr_10_1 %>%
   group_by(year, sex, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup()
-save(asmr_whole_1, file = "Measures/asmr_whole_1.RData")
-
-#----------------------------------------------------------------------------------------------------
-## Calculate differences of mean measures of the different simulations ----
