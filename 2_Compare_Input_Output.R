@@ -350,7 +350,6 @@ age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", si
 # Retrieve age_group size
 age_group_fert_1 <- unique(diff(age_breaks_fert_1))
 
-
 # Calculate TFR from HFC and HFD
 TFR_HFCD <- bind_rows(HFC, HFD) %>% 
   filter(Year %in% year_range_fert_1) %>% 
@@ -381,7 +380,7 @@ bind_rows(TFR_HFCD, TFR_whole) %>%
   labs(title = "Total Fertility rates in Sweden (1751-2022), retrieved from HFD and 10 Socsim simulation outputs") 
 ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
 
-# Summary measure of error of different simulations ----
+# Summary measure of error in TFR ----
 
 # Differences of means
 DM_TFR <- bind_rows(TFR_HFCD, TFR_whole) %>%
@@ -463,24 +462,25 @@ year_range_mort_1 <- min(year_breaks_mort_1):max(year_breaks_mort_1-1)
 # Wrangle HMD life tables 
 lt_HMD <- ltf %>%
   select(Year, Age, ex) %>% 
-  mutate(Sex = "female") %>% 
+  mutate(sex = "female") %>% 
   bind_rows(ltm %>% 
               select(Year, Age, ex) %>%  
-              mutate(Sex = "male")) %>% 
-  mutate(Sex = factor(Sex, levels = c("male", "female")), 
+              mutate(sex = "male")) %>% 
+  mutate(sex = factor(sex, levels = c("male", "female")), 
          Source = "HMD",
-         Sim_id = "0")
+         Sim_id = "0") %>% 
+  select(Year, Sim_id, ex, Source, sex, Age)
 
 # Wrangle SOCSIM life tables
 lt_whole2 <- lt_10 %>%
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Source = "SOCSIM") %>% 
-  select(Year, Age, ex, Sex = sex, Source, Sim_id)
+  select(Year, Sim_id, ex, Source, sex, Age)
 
 bind_rows(lt_HMD, lt_whole2) %>% 
   filter(Age == 0 & Year %in% year_range_mort_1) %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1"),
-         Sex = ifelse(Sex == "female", "Female", "Male")) %>% 
+         Sex = ifelse(sex == "female", "Female", "Male")) %>% 
   ggplot(aes(x = Year, y = ex, group = interaction(Source, Sim_id)))+
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.3)+
   scale_color_manual(values = c("#0C0B7F", "#007A75"))+
@@ -491,33 +491,34 @@ bind_rows(lt_HMD, lt_whole2) %>%
        y = "e0") 
 ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
 
-# Summary measure of error of different simulations ----
+# Summary measure of error in e0 ----
 
 # Differences of means
 DM_e0 <- bind_rows(lt_HMD, lt_whole2) %>%
   filter(Year > 1750 & Age == 0) %>% 
-  group_by(Year, Sex, Source) %>% 
+  group_by(Year, sex, Source) %>% 
   summarise(ex = mean(ex, na.rm = T)) %>% 
   ungroup() %>% 
-  pivot_wider(id_cols = c(Year:Sex), names_from = "Source", values_from = "ex") %>% 
+  pivot_wider(id_cols = c(Year:sex), names_from = "Source", values_from = "ex") %>% 
   mutate(Error = SOCSIM - HMD, 
          Type = "DM") %>% 
-  select(Year, Sex, Error, Type) 
+  select(Year, sex, Error, Type) 
 
 # Mean of differences
 MD_e0 <- bind_rows(lt_HMD, lt_whole2) %>% 
   filter(Year > 1750 & Age == 0) %>% 
-  pivot_wider(id_cols = c(Year:Sex), names_from = "Sim_id", values_from = "ex") %>% 
+  pivot_wider(id_cols = c(Year, sex), names_from = "Sim_id", values_from = "ex") %>% 
   rename(HMD = '0') %>%
-  pivot_longer(cols = 5:14, names_to = "Sim_id", values_to = "SOCSIM") %>% 
+  pivot_longer(cols = 4:13, names_to = "Sim_id", values_to = "SOCSIM") %>% 
   mutate(Error = SOCSIM - HMD) %>% 
-  group_by(Year, Sex) %>% 
+  group_by(Year, sex) %>% 
   summarise(Error = mean(Error, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Type = "MD")
 
 bind_rows(DM_e0, MD_e0) %>%
   ggplot(aes(x = Year, y = Error, colour = Type)) +
+  facet_wrap(. ~ sex)+
   geom_line(linewidth = 1.3)+
   geom_point(aes(shape = Type), size = 3)+
   theme_graphs()
@@ -531,10 +532,10 @@ ggsave(file="Graphs/HFD_SOCSIM_e0_Error.jpeg", width=17, height=9, dpi=200)
 Summary <- 
 bind_rows(TFR_HFCD %>% rename(Estimate = TFR) %>%  mutate(Rate = "TFR"),
           TFR_whole %>% rename(Estimate = TFR) %>% mutate(Rate = "TFR")) %>% 
-  mutate(Sex = "female") %>%   
+  mutate(sex = "female") %>%   
   bind_rows(lt_HMD %>% filter(Age == 0) %>% rename(Estimate = ex) %>% mutate(Rate = "e0"),
             lt_whole2 %>% filter(Age == 0) %>% rename(Estimate = ex) %>% mutate(Rate = "e0")) %>% 
-  filter(Sex == "female") %>%
+  filter(sex == "female") %>%
   mutate(transp = ifelse(Source == "SOCSIM", "0", "1"),
          Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth"))) %>% 
@@ -572,10 +573,3 @@ By_Age +
   plot_layout(ncol = 1)
 
 ggsave(file="Graphs/Final_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=200)
-
-# Age-specific mortality rates 1x1
-load("Measures/asmr_10_1.RData")
-asmr_whole_1 <- asmr_10_1 %>%
-  group_by(year, sex, age) %>% 
-  summarise(socsim = mean(socsim, na.rm = T)) %>% 
-  ungroup()
