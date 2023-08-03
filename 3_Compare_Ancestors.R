@@ -540,8 +540,8 @@ bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>%
   scale_linetype_manual(values = c("11", "22", "solid")) +
   facet_wrap(~Sex) +
   theme_graphs()+
-  labs(title = "Life expectancy at birth in Sweden (e0), 1751-2022, a SOCSIM simulation and genealogical subset of direct ancestors",
-       y = "e0") 
+  # labs(title = "Life expectancy at birth in Sweden (e0), 1751-2022, a SOCSIM simulation and genealogical subset of direct ancestors",
+   #    y = "e0") 
 ggsave(file="Graphs/Socsim_Exp1_e0.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in e0 ----
@@ -623,7 +623,8 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 17))
-# labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022))
+# labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022),
+# retrieved from a SOCSIM simulation and subsets of direct ancestors")
 
 # Save the plot
 Summary_Exp1
