@@ -6,7 +6,7 @@
 ## and read the output into R. 
 
 # Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 14-06-2023
+# Last modified by Liliana Calderon on 03-08-2023
 
 # NB: Some functions are based on external code and repositories specified under each section.
 #------------------------------------------------------------------------------------------------------
@@ -60,13 +60,15 @@ folder <- getwd()
 # Name of the supervisory file stored in the above folder:
 supfile <- "Sweden_0.sup"
 # Sup file for rates retrieved from HFC/HFD and HMD (1751-2022), created with the 0_Write_Input_Rates.R,  
-# using marry after childbirth and heterogeneous fertility directives
+# using marry after childbirth directive (heterogeneous fertility disabled)
 
 # Random number generator seed:
 sims_seeds <- as.character(sample(1:99999, 10, replace = F))
 
 # Save the seeds numbers to use them later to read the data
 save(sims_seeds, file = "sims_seeds.Rda")
+
+# NB: To get exactly the same simulation results, we must use the same seeds
 
 ## Run the simulations for the random seeds. 
 start <- Sys.time()
@@ -79,8 +81,6 @@ for(seed in sims_seeds) {
 }
 end <- Sys.time()
 print(end-start)
-# Time difference of 18 hours for 10 simulations, with initial population of 50000
-# Time difference of 1.663983 hours for  10 simulations, with initial population of 5000
 # Time difference of 3.616023 hours for  10 simulations, with initial population of 5000 and hetfert 0
 #----------------------------------------------------------------------------------------------------
 ## Read the output .opop and .omar files ----
