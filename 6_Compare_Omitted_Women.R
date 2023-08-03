@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created by Liliana Calderon on 11-07-2023
-# Last modified by Liliana Calderon on 02-08-2023
+# Last modified by Liliana Calderon on 03-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -601,8 +601,8 @@ ggsave(file="Graphs/Socsim_Exp3B_TFR.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in TFR ----
 
-# Differences of means
-DM_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
+# Difference in means
+DiM_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
            TFR_less_women_25, TFR_less_women_50, TFR_less_women_75, TFR_less_women_100) %>%
   filter(Year > 1750) %>% 
   group_by(Year, Dataset) %>% 
@@ -610,27 +610,44 @@ DM_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
   ungroup() %>% 
   pivot_wider(id_cols = Year, names_from = "Dataset", values_from = "TFR") %>% 
   pivot_longer(cols = 2:6, names_to = "Dataset", values_to = "Genealogy") %>% 
-  mutate(Error = `Whole Simulation` - Genealogy, 
-         Type = "DM")
+  mutate(Error = Genealogy - `Whole Simulation` , 
+         Relative_Error = (Error/`Whole Simulation`)*100,
+         Type = "DiM") %>% 
+  select(-c(Genealogy,`Whole Simulation`)) 
 
 # Mean of differences
-MD_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
+MoD_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
                     TFR_less_women_25, TFR_less_women_50, TFR_less_women_75, TFR_less_women_100) %>%
   filter(Year > 1750) %>% 
   pivot_wider(id_cols = c(Year, Sim_id), names_from = "Dataset", values_from = "TFR") %>% 
   pivot_longer(cols = 4:8, names_to = "Dataset", values_to = "Genealogy") %>% 
-  mutate(Error = `Whole Simulation` - Genealogy) %>% 
+  mutate(Error = Genealogy - `Whole Simulation`, 
+         Relative_Error = (Error/`Whole Simulation`)*100) %>% 
   group_by(Year, Dataset) %>% 
-  summarise(Error = mean(Error, na.rm = T)) %>% 
+  reframe(Error = mean(Error, na.rm = T), 
+          Relative_Error = mean(Relative_Error, na.rm = T)) %>% 
   ungroup() %>% 
-  mutate(Type = "MD")
+  mutate(Type = "MoD")
 
-bind_rows(DM_TFR_Exp3B, MD_TFR_Exp3B) %>%
-  ggplot(aes(x = Year, y = Error, colour = Dataset, group = Dataset)) +
+# Bind both error measures and save the data frame
+error_TFR_exp3B <- bind_rows(DiM_TFR_Exp3B, MoD_TFR_Exp3B)
+save(error_TFR_exp3B, file = "Measures/error_TFR_exp3B.RData")
+
+# Absolute Error  
+error_TFR_exp3B %>% 
+  ggplot(aes(x = Year, y = Error, group = Dataset, colour = Type)) +
+  facet_wrap(. ~ Dataset)+
   geom_line(linewidth = 1.3)+
-  geom_point(aes(shape = Type), size = 3)+
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp3B_TFR_Error.jpeg", width=17, height=9, dpi=200)
+
+# Relative Error
+error_TFR_exp3B %>% 
+  ggplot(aes(x = Year, y = Relative_Error, group = Dataset, colour = Type)) +
+  facet_wrap(. ~ Dataset)+
+  geom_line(linewidth = 1.3)+
+  theme_graphs()
+ggsave(file="Graphs/Socsim_Exp3B_TFR_Rel_Error.jpeg", width=17, height=9, dpi=200)
 
 # Life Expectancy at birth ----
 # Estimate life expectancy at birth from asmr 1x1 for the genealogical subsets ----
@@ -786,8 +803,8 @@ ggsave(file="Graphs/Socsim_Exp3B_e0.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in e0 ----
 
-# Differences of means
-DM_e0_Exp3B <- bind_rows(lt_whole2, 
+# Difference in means
+DiM_e0_Exp3B <- bind_rows(lt_whole2, 
                    lt_less_women_25b, lt_less_women_50b, lt_less_women_75b, lt_less_women_100b) %>%
   filter(Year > 1750 & Age == 0) %>% 
   group_by(Year, sex, Dataset) %>% 
@@ -795,29 +812,45 @@ DM_e0_Exp3B <- bind_rows(lt_whole2,
   ungroup() %>% 
   pivot_wider(id_cols = c(Year:sex), names_from = "Dataset", values_from = "ex") %>% 
   pivot_longer(cols = 3:6, names_to = "Dataset", values_to = "Genealogy") %>% 
-  mutate(Error = `Whole Simulation` - Genealogy, 
-         Type = "DM") %>% 
-  select(Year, sex, Dataset, Error, Type) 
+  mutate(Error = Genealogy - `Whole Simulation` , 
+         Relative_Error = (Error/`Whole Simulation`)*100,
+         Type = "DiM") %>% 
+  select(-c(Genealogy,`Whole Simulation`)) 
 
 # Mean of differences
-MD_e0_Exp3B <- bind_rows(lt_whole2, 
+MoD_e0_Exp3B <- bind_rows(lt_whole2, 
                    lt_less_women_25b, lt_less_women_50b, lt_less_women_75b, lt_less_women_100b) %>%
   filter(Year > 1750 & Age == 0) %>% 
   pivot_wider(id_cols = c(Year, sex, Sim_id), names_from = "Dataset", values_from = "ex") %>% 
   pivot_longer(cols = 5:8, names_to = "Dataset", values_to = "Genealogy") %>% 
-  mutate(Error = `Whole Simulation` - Genealogy) %>% 
+  mutate(Error = Genealogy - `Whole Simulation`, 
+         Relative_Error = (Error/`Whole Simulation`)*100) %>% 
   group_by(Year, sex, Dataset) %>% 
-  summarise(Error = mean(Error, na.rm = T)) %>% 
+  reframe(Error = mean(Error, na.rm = T), 
+          Relative_Error = mean(Relative_Error, na.rm = T)) %>% 
   ungroup() %>% 
-  mutate(Type = "MD")
+  mutate(Type = "MoD")
 
-bind_rows(DM_e0_Exp3B, MD_e0_Exp3B) %>%
-  ggplot(aes(x = Year, y = Error, colour = Dataset, group = Dataset)) +
-  facet_wrap(. ~ sex)+
+# Bind both error measures and save the data frame
+error_e0_exp3B <- bind_rows(DiM_e0_Exp3B, MoD_e0_Exp3B) 
+save(error_e0_exp3B, file = "Measures/error_e0_exp3B.RData")
+
+# Absolute error
+error_e0_exp3B %>% 
+  ggplot(aes(x = Year, y = Error, group = Dataset, colour = Type)) +
+  facet_grid(Dataset ~ sex)+
   geom_line(linewidth = 1.3)+
-  geom_point(aes(shape = Type), size = 3)+
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp3B_e0_Error.jpeg", width=17, height=9, dpi=200)
+
+# Relative error
+error_e0_exp3B %>% 
+  ggplot(aes(x = Year, y = Relative_Error, group = Dataset, colour = Type)) +
+  facet_grid(Dataset ~ sex)+
+  geom_line(linewidth = 1.3)+
+  theme_graphs()
+ggsave(file="Graphs/Socsim_Exp3B_e0_Rel_Error.jpeg", width=17, height=9, dpi=200)
+
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
