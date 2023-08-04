@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 03-08-2023
+# Last modified by Liliana Calderon on 04-08-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -455,6 +455,23 @@ ggplot(aes(x = Year, y = Relative_Error, group = Dataset, colour = Type)) +
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp1_TFR_Rel_Error.jpeg", width=17, height=9, dpi=200)
 
+# Check minimum and maximum values of bias in TFR before 1900
+error_TFR_exp1 %>% 
+  filter(Year < 1900) %>% 
+  filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
+  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
+  pull(Error) %>% 
+  range()
+
+# Check minimum and maximum values of relative bias in TFR before 1900
+error_TFR_exp1 %>% 
+  filter(Year < 1900) %>% 
+  # filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
+  filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
+  pull(Relative_Error) %>% 
+  mean()
+
+
 # Life Expectancy at birth ----
 # Estimate life expectancy at birth from asmr 1x1 for the different genealogical subsets ----
 
@@ -591,6 +608,31 @@ error_e0_exp1 %>%
   geom_line(linewidth = 1.3)+
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp1_e0_Rel_Error.jpeg", width=17, height=9, dpi=200)
+
+
+# Check minimum and maximum values of bias in e0 before 1948
+error_e0_exp1 %>% 
+  filter(Year < 1948 & sex == "female") %>% 
+  filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
+  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
+  pull(Error) %>%
+  range()
+
+# Check minimum and maximum values of bias in e0 after 1948
+error_e0_exp1 %>% 
+  filter(Year > 1948 & sex == "female" & Year != 2022) %>% 
+  #filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
+  filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
+  pull(Error) %>%
+  range()
+
+# Check minimum and maximum values of relative bias in e0 before 1948
+error_e0_exp1 %>% 
+  filter(Year < 1948 & sex == "female") %>% 
+  # filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
+  filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
+  pull(Relative_Error) %>% 
+  mean()
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
