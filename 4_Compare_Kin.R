@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created by Liliana Calderon on 13-04-2022
-# Last modified by Liliana Calderon on 03-08-2023
+# Last modified by Liliana Calderon on 04-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -1285,6 +1285,39 @@ error_TFR_exp2 %>%
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp2_TFR_Rel_Error.jpeg", width=17, height=9, dpi=200)
 
+# Retrieve the year with the smallest error (close to 0)
+error_TFR_exp2 %>%
+  filter(Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  filter(Error == max(Error))
+
+# Check minimum and maximum values of bias in TFR before 1851
+error_TFR_exp2 %>%
+  filter(Year < 1851) %>% 
+  filter(Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  pull(Error) %>% 
+  range()
+
+# Check mean value of relative bias in TFR before 1851
+error_TFR_exp2 %>% 
+  filter(Year < 1851) %>% 
+  filter(Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  pull(Relative_Error) %>% 
+  mean()
+
+# Check minimum and maximum values of bias in TFR after 1851
+error_TFR_exp2 %>%
+  filter(Year > 1850) %>% 
+  filter(Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  pull(Error) %>% 
+  range()
+
+# Check maximum values of relative bias in TFR
+error_TFR_exp2 %>%
+  #filter(Year > 1850) %>% 
+  filter(Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  filter(Relative_Error == min(Relative_Error))
+
+
 # Life Expectancy at birth ----
 # Estimate life expectancy at birth from asmr 1x1 for the different genealogical subsets ----
 
@@ -1635,6 +1668,30 @@ error_e0_exp2 %>%
   geom_line(linewidth = 1.3)+
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp2_e0_Rel_Error.jpeg", width=17, height=9, dpi=200)
+
+# Check minimum and maximum values of bias in e0 
+error_e0_exp2 %>% 
+  filter(sex == "female" & Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  pull(Error) %>%
+  range()
+
+## Check years when error is negative (so, underestimation) 
+error_e0_exp2 %>% 
+  filter(sex == "female" & Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  filter(Error < 0) %>% 
+  pull(Year)
+
+# Check mean values of bias in e0 
+error_e0_exp2 %>% 
+  filter(sex == "female" & Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  pull(Error) %>%
+  mean()
+
+# Check mean values of relative bias in e0 
+error_e0_exp2 %>% 
+  filter(sex == "female" & Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  pull(Relative_Error) %>%
+  mean()
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
