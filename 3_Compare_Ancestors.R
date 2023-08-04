@@ -455,6 +455,8 @@ ggplot(aes(x = Year, y = Relative_Error, group = Dataset, colour = Type)) +
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp1_TFR_Rel_Error.jpeg", width=17, height=9, dpi=200)
 
+# Change in the magnitude of the bias around 1900
+
 # Check minimum and maximum values of bias in TFR before 1900
 error_TFR_exp1 %>% 
   filter(Year < 1900) %>% 
@@ -609,6 +611,7 @@ error_e0_exp1 %>%
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp1_e0_Rel_Error.jpeg", width=17, height=9, dpi=200)
 
+# Change in the direction of the bias around 1948
 
 # Check minimum and maximum values of bias in e0 before 1948
 error_e0_exp1 %>% 
@@ -693,3 +696,5 @@ By_Age_Exp1 +
             size = 15, family="serif") +
   plot_layout(ncol = 1)
 ggsave(file="Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=21, dpi=200)
+
+# Retrieve minimum and maximum values of absolute and relative bias in TFR and e0
