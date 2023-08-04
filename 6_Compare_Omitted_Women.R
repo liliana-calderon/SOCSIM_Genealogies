@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created by Liliana Calderon on 11-07-2023
-# Last modified by Liliana Calderon on 03-08-2023
+# Last modified by Liliana Calderon on 04-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -649,6 +649,35 @@ error_TFR_exp3B %>%
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp3B_TFR_Rel_Error.jpeg", width=17, height=9, dpi=200)
 
+# Check minimum and maximum values of bias in TFR 
+error_TFR_exp3B %>% 
+  filter(Dataset == "25% Omission") %>% 
+  # filter(Dataset == "100% Omission") %>% 
+  pull(Error) %>% 
+  range()
+
+# Check minimum and maximum values of relative bias in TFR 
+error_TFR_exp3B %>% 
+  filter(Year < 1900) %>% 
+  filter(Dataset == "25% Omission") %>% 
+  #filter(Dataset == "100% Omission") %>% 
+  pull(Relative_Error) %>% 
+  range()
+
+# Check mean values of bias in TF
+error_TFR_exp3B %>% 
+  # filter(Dataset == "25% Omission") %>% 
+  filter(Dataset == "100% Omission") %>% 
+  pull(Error) %>% 
+  mean()
+
+# Check mean values of relative bias in TFR
+error_TFR_exp3B %>% 
+  # filter(Dataset == "25% Omission") %>% 
+ filter(Dataset == "100% Omission") %>% 
+  pull(Relative_Error) %>% 
+  mean()
+
 # Life Expectancy at birth ----
 # Estimate life expectancy at birth from asmr 1x1 for the genealogical subsets ----
 # with different proportions of omitted childless women
@@ -851,6 +880,34 @@ error_e0_exp3B %>%
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp3B_e0_Rel_Error.jpeg", width=17, height=9, dpi=200)
 
+
+# Check minimum and maximum values of bias in e0 over the whole period for 25% omission
+error_e0_exp3B %>% 
+  filter(sex == "female") %>%
+  filter(Dataset == "25% Omission") %>% 
+  pull(Error) %>%
+  range()
+
+# Check minimum and maximum values of bias in e0 over the whole period for 100% omission
+error_e0_exp3B %>% 
+  filter(sex == "female") %>%
+  filter(Dataset == "100% Omission") %>% 
+  pull(Error) %>%
+  range()
+
+# Check minimum and maximum values of relative bias in e0 over the whole period for 25% omission
+error_e0_exp3B %>% 
+  filter(sex == "female") %>%
+  filter(Dataset == "25% Omission") %>% 
+  pull(Relative_Error) %>%
+  range()
+
+# Check minimum and maximum values of relative bias in e0 over the whole period for 100% omission
+error_e0_exp3B %>% 
+  filter(sex == "female") %>%
+  filter(Dataset == "100% Omission") %>% 
+  pull(Relative_Error) %>%
+  range()
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
