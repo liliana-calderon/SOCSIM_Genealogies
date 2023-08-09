@@ -185,7 +185,7 @@ SocsimF0 <- asfr_10 %>%
 
 ## Plot ASFR from HFD vs SOCSIM   
 
-# Same years to plot than above (in intervals). Change if necessary
+# Same years to plot than above (in intervals). 
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(HFCD0, SocsimF0) %>%
@@ -259,7 +259,7 @@ SocsimM <- asmr_10 %>%
 
 ## Plot ASMR from HMD vs SOCSIM   
 
-# Same years to plot than above (in intervals). Change if necessary
+# Same years to plot than above (in intervals). 
 # yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(HMD, SocsimM) %>% 
