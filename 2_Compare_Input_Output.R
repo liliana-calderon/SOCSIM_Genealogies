@@ -115,7 +115,6 @@ bind_rows(asfr_10 %>%
   scale_color_viridis(option = "D", discrete = T, direction = -1) +
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   labs(x = "Age", y = "Estimate")
-  # labs(title = "Age-Specific Fertility and Mortality Rates for Women retrieved from 10 SOCSIM outputs")
 ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
 
 
@@ -310,8 +309,7 @@ bind_rows(HFCD0 %>% rename(Estimate = ASFR),
     facetted_pos_scales(y = list("Age-Specific Fertility Rates" = scale_y_continuous(),
                                  "Age-Specific Mortality Rates" =  scale_y_continuous(trans = "log10")))+
     scale_x_discrete(guide = guide_axis(angle = 90)) +
-    labs(x = "Age") +
-    # labs(title = "Age-Specific Fertility and Mortality rates in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
+    labs(x = "Age")+
     theme_graphs()
 
 # Save the plot
@@ -546,8 +544,6 @@ bind_rows(TFR_HFCD %>% rename(Estimate = TFR) %>%  mutate(Rate = "TFR"),
   scale_alpha_discrete(guide="none", range = c(0.1, 1)) +
   scale_x_continuous(breaks = c(1750, 1800, 1850, 1900, 1950, 2000))+
   theme_graphs()
-  # labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), retrieved from HFD, HMD and 10 SOCSIM simulation outputs") + 
-# Save the plot
 Summary
 ggsave(file="Graphs/Final_Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
 
