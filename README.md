@@ -1,5 +1,5 @@
 Analyzing biases in genealogies using demographic microsimulation.
-We conduct some experiments on synthetic populations, simulated using the 'rsocsim' package and data for Sweden retrieved from the Human Fertility Collection (1751-1890), the Human Fertility Database (1891-2021) and the Human Mortality Database (1751-2021), to assess the effect on demographic estimates of three sources of biases in ascendant genealogies.
+We conduct some experiments on synthetic populations, simulated using the 'rsocsim' package and data for Sweden retrieved from the Human Fertility Collection (1751-1890), the Human Fertility Database (1891-2022) and the Human Mortality Database (1751-2022), to assess the effect on demographic estimates of three sources of biases in ascendant genealogies.
 
 NB:
 To reproduce the analysis, please run the scripts numbered 0 to 6. 
