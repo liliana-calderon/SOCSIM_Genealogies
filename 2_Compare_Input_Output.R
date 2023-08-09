@@ -112,11 +112,10 @@ bind_rows(asfr_10 %>%
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10"))) +
   theme_graphs() +
-  scale_color_viridis(option = "D", discrete = T, direction = -1) +
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   labs(x = "Age", y = "Estimate")
 ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
-
 
 #----------------------------------------------------------------------------------------------------
 ## Comparison with HFC/HFD and HMD data (used as input) ----
@@ -191,7 +190,7 @@ bind_rows(HFCD0, SocsimF0) %>%
   filter(year %in% yrs_plot) %>% 
   ggplot(aes(x = age, y = ASFR, group = interaction(year, Sim_id)))+
   geom_line(aes(colour = year, linetype = Source, alpha = Source), linewidth = 1.2)+
-  scale_color_viridis(option = "D", discrete = T, direction = 1) +
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_linetype_manual(values = c("HFC/HFD" = "solid", "SOCSIM" = "dotted")) +
   scale_alpha_discrete(guide="none", range = c(1, 0.4))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
@@ -257,8 +256,7 @@ SocsimM <- asmr_10 %>%
 
 ## Plot ASMR from HMD vs SOCSIM   
 
-# Same years to plot than above (in intervals). 
-# yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(HMD, SocsimM) %>% 
   filter(year %in% yrs_plot) %>% 
@@ -268,7 +266,7 @@ bind_rows(HMD, SocsimM) %>%
   facet_wrap(~Sex) +
   geom_line(aes(colour = year, linetype = Source, alpha = Source), linewidth = 1.3)+
   scale_y_log10() +
-  scale_color_viridis(option = "D", discrete = T, direction = -1) +
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_linetype_manual(values = c("HMD" = "solid", "SOCSIM" = "dotted")) +
   scale_alpha_discrete(guide="none", range = c(1, 0.4))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
@@ -278,42 +276,38 @@ ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=200)
 #---------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 
-# Change years to plot only to two periods
+# Years to plot
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(SocsimM$age)
 
-## Plotting ASFR and ASMR (for females) from HFD/HMD vs SOCSIM 
 By_Age <- 
-bind_rows(HFCD0 %>% rename(Estimate = ASFR), 
+  bind_rows(HFCD0 %>% rename(Estimate = ASFR), 
             SocsimF0 %>% rename(Estimate = ASFR)) %>% 
-    mutate(Sex = "Female") %>%   
-    bind_rows(HMD %>% rename(Estimate = mx),
-              SocsimM %>% rename(Estimate = mx)) %>% 
-    # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
-    filter(Estimate != 0 & !is.infinite(Estimate) & !is.nan(Estimate)) %>% 
-    filter(Sex == "Female") %>% 
-    mutate(Year = year,
-           age = factor(as.character(age), levels = age_levels), 
-           transp = ifelse(Source == "SOCSIM", "0", "1"), 
-           Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", "Age-Specific Mortality Rates")) %>%
-    filter(Year %in% yrs_plot) %>% 
-    ggplot(aes(x = age, y = Estimate, group = interaction(Year, Sim_id)))+
-    facet_wrap(. ~ Rate, scales = "free") + 
-    geom_line(aes(colour = Year, alpha = transp), linewidth = 1.5)+
-    scale_color_manual(values = c("#79B727", "#B72779", "#2779B7"))+
-    scale_alpha_discrete(guide="none", range = c(0.2, 1))+
-    facetted_pos_scales(y = list("Age-Specific Fertility Rates" = scale_y_continuous(),
-                                 "Age-Specific Mortality Rates" =  scale_y_continuous(trans = "log10")))+
-    scale_x_discrete(guide = guide_axis(angle = 90)) +
-    labs(x = "Age")+
-    theme_graphs()
-
-# Save the plot
+  mutate(Sex = "Female") %>%   
+  bind_rows(HMD %>% rename(Estimate = mx),
+            SocsimM %>% rename(Estimate = mx)) %>% 
+  # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
+  filter(Estimate != 0 & !is.infinite(Estimate) & !is.nan(Estimate)) %>% 
+  filter(Sex == "Female") %>% 
+  mutate(Year = year,
+         age = factor(as.character(age), levels = age_levels), 
+         transp = ifelse(Source == "SOCSIM", "0", "1"), 
+         Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", "Age-Specific Mortality Rates")) %>%
+  filter(Year %in% yrs_plot) %>% 
+  ggplot(aes(x = age, y = Estimate, group = interaction(Year, Sim_id)))+
+  facet_wrap(. ~ Rate, scales = "free") + 
+  geom_line(aes(colour = Year, alpha = transp), linewidth = 1.5)+
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
+  scale_alpha_discrete(guide="none", range = c(0.2, 1))+
+  facetted_pos_scales(y = list("Age-Specific Fertility Rates" = scale_y_continuous(),
+                               "Age-Specific Mortality Rates" =  scale_y_continuous(trans = "log10")))+
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(x = "Age")+
+  theme_graphs()
 By_Age
-ggsave(file="Graphs/Final_Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
-
+ggsave(file="Graphs/Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the socsim rates by 1 year age group and 1 calendar year
@@ -541,7 +535,7 @@ bind_rows(TFR_HFCD %>% rename(Estimate = TFR) %>%  mutate(Rate = "TFR"),
   scale_x_continuous(breaks = c(1750, 1800, 1850, 1900, 1950, 2000))+
   theme_graphs()
 Summary
-ggsave(file="Graphs/Final_Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and summary measures -----
@@ -564,4 +558,4 @@ By_Age +
             size = 15, family="serif") +
   plot_layout(ncol = 1)
 
-ggsave(file="Graphs/Final_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=200)
+ggsave(file="Graphs/App_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=200)
