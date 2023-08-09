@@ -328,14 +328,18 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
          Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
                        "Age-Specific Mortality Rates")) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
-  facet_wrap(. ~ Rate, scales = "free") + 
+  facet_wrap(Year ~ Rate, nrow = 3, ncol = 2, scales = "free") + 
   geom_line(linewidth = 1.3, show.legend = TRUE)+
   geom_point(data = . %>% filter(age %in% age_plot), 
            aes(shape = Dataset), size = 11) +
   scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_shape_manual(values = c(15, 19 ,46)) + 
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                               ASMR =  scale_y_continuous(trans = "log10")))+
+                               ASMR = scale_y_continuous(trans = "log10"),
+                               ASFR = scale_y_continuous(),
+                               ASMR = scale_y_continuous(trans = "log10"), 
+                               ASFR = scale_y_continuous(),
+                               ASMR = scale_y_continuous(trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(x = "Age") +
@@ -344,7 +348,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 17))
-ggsave(file="Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=9, dpi=200)
+ggsave(file="Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=25, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
