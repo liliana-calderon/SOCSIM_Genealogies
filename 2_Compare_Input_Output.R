@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created on 18-01-2022
-# Last modified on 02-08-2023
+# Last modified on 09-08-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -195,8 +195,7 @@ bind_rows(HFCD0, SocsimF0) %>%
   scale_linetype_manual(values = c("HFC/HFD" = "solid", "SOCSIM" = "dotted")) +
   scale_alpha_discrete(guide="none", range = c(1, 0.4))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
-  theme_graphs() +
-  labs(title = "Age-Specific Fertility rates in Sweden (1751-2022), retrieved from HFD and 10 SOCSIM simulation outputs") 
+  theme_graphs()
 ggsave(file="Graphs/HFD_SOCSIM_10_ASFR.jpeg", width=17, height=9, dpi=200)
 
 
@@ -273,8 +272,7 @@ bind_rows(HMD, SocsimM) %>%
   scale_linetype_manual(values = c("HMD" = "solid", "SOCSIM" = "dotted")) +
   scale_alpha_discrete(guide="none", range = c(1, 0.4))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
-  theme_graphs()+
-  labs(title = "Age-Specific Mortality Rates (log-scale) in Sweden (1751-2022), HMD and 10 Socsim simulations (without NaNs and Inf values)")
+  theme_graphs()
 ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=200)
 
 #---------------------------------------------------------------------------------------------------
@@ -374,8 +372,7 @@ bind_rows(TFR_HFCD, TFR_whole) %>%
   scale_color_manual(values = c("#007A75", "#CA650D"))+
   scale_alpha_discrete(guide = "none", range = c(0.2, 1))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
-  theme_graphs() +
-  labs(title = "Total Fertility rates in Sweden (1751-2022), retrieved from HFD and 10 Socsim simulation outputs") 
+  theme_graphs()
 ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in TFR ----
@@ -485,8 +482,7 @@ bind_rows(lt_HMD, lt_whole2) %>%
   scale_alpha_discrete(guide = "none", range = c(0.2, 1))+
   facet_wrap(~Sex) +
   theme_graphs()+
-  labs(title = "Life Expectancy at Birth in Sweden (e0), 1751-2022, retrieved from HMD and 10 SOCSIM simulation outputs",
-       y = "e0") 
+  labs(y = "e0") 
 ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in e0 ----
