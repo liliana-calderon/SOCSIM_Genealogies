@@ -2,13 +2,11 @@
 # SOCSIM - SOCSIM Genealogies - Run simulations 
 # U:/SOCSIM/SOCSIM_Genealogies/1_Run_Simulations.R
 
-## Run 10 SOCSIM demographic microsimulation using the 'rsocsim' package' and data for Sweden (1751-2021)
+## Run 10 SOCSIM demographic microsimulation using the 'rsocsim' package and data for Sweden (1751-2022)
 ## and read the output into R. 
 
 # Created on 18-01-2022
 # Last modified on 03-08-2023
-
-# NB: Some functions are based on external code and repositories specified under each section.
 #------------------------------------------------------------------------------------------------------
 # SOCSIM simulation: rate files and assumptions ----
 
@@ -18,7 +16,7 @@
 # It uses as input historical data for Sweden (1751-2022). 
 # Input age-specific fertility rates come from the Human Fertility Collection (HFC) for 1751-1890,
 # the Human Fertility Database (HFD) for 1891-2022
-# and age-specific mortality rates come from the Human Mortality Database for the whole period (1751-2021).
+# and age-specific mortality rates come from the Human Mortality Database for the whole period (1751-2022).
 # To run the simulation, original HFC, HFD and HMD rates are converted to monthly rates/probabilities
 # and SOCSIM format using the 0_Write_Input_Rates.R script.
 # HFC fertility rates are provided by 5 calendar years and hence considered to be constant over each sub-period
@@ -39,15 +37,12 @@
 # can be found on https://github.com/MPIDR/rsocsim/blob/main/readme.md
 # To get the latest version from source, RTools and devtools must be installed.
 
-# Clear work space
-rm(list=ls(all=TRUE))
-
 # library(devtools)
 # Install rsocsim from Github with devtools:
 # devtools::install_github("MPIDR/rsocsim")
 
 # To get the updates, uninstall and install again the package
-# remove.packages("rsocsim", lib="C:/Users/calderonbernal/AppData/Local/R/win-library/4.2")
+# remove.packages("rsocsim")
 
 # Load rsocsim package
 library("rsocsim")
@@ -67,7 +62,6 @@ sims_seeds <- as.character(sample(1:99999, 10, replace = F))
 
 # Save the seeds numbers to use them later to read the data
 save(sims_seeds, file = "sims_seeds.Rda")
-
 # NB: To get exactly the same simulation results, we must use the same seeds
 
 ## Run the simulations for the random seeds. 
