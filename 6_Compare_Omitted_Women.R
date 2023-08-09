@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 11-07-2023
-# Last modified on 04-08-2023
+# Last modified on 09-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -22,7 +22,6 @@ library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(patchwork) # To combine ggplots
 library(rsocsim) # Functions to estimate rates
-library(svglite) # To save svg files
 library(viridis)
 
 ## Load theme for the graphs and to convert SOCSIM time
@@ -285,7 +284,7 @@ bind_rows(asfr_whole2, asfr_less_women_25b, asfr_less_women_50b, asfr_less_women
   ggplot(aes(x = age, y = ASFR, group = interaction(year, Dataset), colour = year))+
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 6)+ 
-  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_shape_manual(values = c(8, 21, 22, 23, 46)) +
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp3B_ASFR.jpeg", width=17, height=9, dpi=200)
@@ -384,7 +383,7 @@ bind_rows(asmr_whole2, asmr_less_women_25b, asmr_less_women_50b, asmr_less_women
   facet_grid(. ~ Sex) +
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(aes(shape = Dataset), size = 11)+ 
-  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_shape_manual(values = c(8, 21, 22, 23, 46)) +
   theme_graphs()+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
@@ -395,8 +394,11 @@ ggsave(file="Graphs/Socsim_Exp3B_ASMR.jpeg", width=17, height=9, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 
-# Years to plot
-yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+# Choose one year and age groups to plot
+yrs_plot1 <- c("[1900,1905)") 
+age_plot <- c("[0,1)", "[1,5)", "[10,15)", "[20,25)", "[30,35)", "[40,45)", "[50,55)",  "[60,65)", 
+              "[70,75)", "[80,85)", "[90,95)", "[100,105)") 
+
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_whole2$age)
@@ -406,31 +408,32 @@ By_Age_Exp3B <-
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
           asfr_anc_col2 %>% rename(Estimate = ASFR), 
           asfr_less_women_25b %>% rename(Estimate = ASFR),
-          asfr_less_women_50b %>% rename(Estimate = ASFR),
-          asfr_less_women_75b %>% rename(Estimate = ASFR), 
+          # asfr_less_women_50b %>% rename(Estimate = ASFR),
+          # asfr_less_women_75b %>% rename(Estimate = ASFR), 
           asfr_less_women_100b %>% rename(Estimate = ASFR)) %>%
   mutate(Sex = "Female") %>%  
   bind_rows(asmr_whole2 %>% rename(Estimate = mx), 
             asmr_anc_col2 %>% rename(Estimate = mx), 
             asmr_less_women_25b %>% rename(Estimate = mx),
-            asmr_less_women_50b %>% rename(Estimate = mx),
-            asmr_less_women_75b %>% rename(Estimate = mx),
+            # asmr_less_women_50b %>% rename(Estimate = mx),
+            # asmr_less_women_75b %>% rename(Estimate = mx),
             asmr_less_women_100b %>% rename(Estimate = mx)) %>%
   rename(Year = year) %>% 
-  filter(Sex == "Female" & Year %in% yrs_plot) %>%
+  filter(Sex == "Female" & Year %in% yrs_plot1) %>%
   # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
   filter(Estimate != 0 & !is.infinite(Estimate) & !is.nan(Estimate)) %>% 
   mutate(age = factor(as.character(age), levels = age_levels),
          Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
                        "Age-Specific Mortality Rates"),
-         Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", 
+         Dataset = factor(Dataset, levels = c("100% Omission", "25% Omission", 
                                               "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(. ~ Rate, scales = "free") + 
-  geom_line(linewidth = 1.2, show.legend = T)+ 
-  geom_point(aes(shape = Dataset), size = 11)+ 
-  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
-  scale_shape_manual(values = c(8, 23,  22, 21, 18, 46)) + 
+  geom_line(linewidth = 1.3, show.legend = T)+
+  geom_point(data = . %>% filter(age %in% age_plot), 
+             aes(shape = Dataset), size = 11) +
+  scale_color_manual(values = c("#2779B7"))+ 
+  scale_shape_manual(values = c(8, 22, 18, 46)) + 
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR =  scale_y_continuous(trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
@@ -441,7 +444,55 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 By_Age_Exp3B
-ggsave(file="Graphs/Final_Socsim_Exp3B_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
+
+## Plot ASFR and ASMR (for females), with three years for appendix
+
+# Choose three years to plot
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+
+bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
+          asfr_anc_col2 %>% rename(Estimate = ASFR), 
+          asfr_less_women_25b %>% rename(Estimate = ASFR),
+          # asfr_less_women_50b %>% rename(Estimate = ASFR),
+          # asfr_less_women_75b %>% rename(Estimate = ASFR), 
+          asfr_less_women_100b %>% rename(Estimate = ASFR)) %>%
+  mutate(Sex = "Female") %>%  
+  bind_rows(asmr_whole2 %>% rename(Estimate = mx), 
+            asmr_anc_col2 %>% rename(Estimate = mx), 
+            asmr_less_women_25b %>% rename(Estimate = mx),
+            # asmr_less_women_50b %>% rename(Estimate = mx),
+            # asmr_less_women_75b %>% rename(Estimate = mx),
+            asmr_less_women_100b %>% rename(Estimate = mx)) %>%
+  rename(Year = year) %>% 
+  filter(Sex == "Female" & Year %in% yrs_plot) %>%
+  # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
+  filter(Estimate != 0 & !is.infinite(Estimate) & !is.nan(Estimate)) %>% 
+  mutate(age = factor(as.character(age), levels = age_levels),
+         Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
+                       "Age-Specific Mortality Rates"),
+         Dataset = factor(Dataset, levels = c("100% Omission", "25% Omission", 
+                                              "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
+  ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
+  facet_wrap(Year ~ Rate, nrow = 3, ncol = 2, scales = "free") + 
+  geom_line(linewidth = 1.2, show.legend = T)+ 
+  geom_point(data = . %>% filter(age %in% age_plot), 
+             aes(shape = Dataset), size = 11) +
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
+  scale_shape_manual(values = c(8, 22, 18, 46)) + 
+  facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
+                               ASMR = scale_y_continuous(trans = "log10"),
+                               ASFR = scale_y_continuous(),
+                               ASMR = scale_y_continuous(trans = "log10"), 
+                               ASFR = scale_y_continuous(),
+                               ASMR = scale_y_continuous(trans = "log10")))+
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  theme_graphs() + 
+  labs(x = "Age") +
+  guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
+  theme(legend.justification = "left", 
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18))
+ggsave(file="Graphs/App_Socsim_Exp3B_ASFR_ASMR.jpeg", width=20, height=25, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
@@ -912,15 +963,15 @@ Summary_Exp3B <-
 bind_rows(TFR_whole %>% rename(Estimate = TFR),
           TFR_anc_col %>% rename(Estimate = TFR),
           TFR_less_women_25 %>% rename(Estimate = TFR),
-          TFR_less_women_50 %>% rename(Estimate = TFR),
-          TFR_less_women_75 %>% rename(Estimate = TFR),
+          # TFR_less_women_50 %>% rename(Estimate = TFR),
+          # TFR_less_women_75 %>% rename(Estimate = TFR),
           TFR_less_women_100 %>% rename(Estimate = TFR)) %>%
   mutate(sex = "female") %>%  
   bind_rows(lt_whole2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_anc_col2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_less_women_25b %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_less_women_50b %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_less_women_75b %>% rename(Estimate = ex) %>% filter(Age == 0), 
+            # lt_less_women_50b %>% rename(Estimate = ex) %>% filter(Age == 0),
+            # lt_less_women_75b %>% rename(Estimate = ex) %>% filter(Age == 0), 
             lt_less_women_100b %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
   filter(sex == "female") %>%
   group_by(Year, Dataset, Rate, sex) %>% 
@@ -928,17 +979,17 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   ungroup() %>% 
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth")),
-         Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", 
+         Dataset = factor(Dataset, levels = c("100% Omission", "25% Omission", 
                                               "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
   ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_point(data = . %>% filter(Year %in% yrs_plot2),
              aes(shape = Dataset), size = 11) +
   geom_line(linewidth = 1.2) +
-  scale_color_manual(values = c("#FEBD2A", "#F48849", "#DB5C68", "#B83289",  "#75007A", "#007A75"))+
-  scale_shape_manual(values = c(8, 23,  22, 21, 18, 46)) +
+  scale_color_manual(values = c( "#FF834C","#E7495B","#75007A", "#007A75"))+
+  scale_shape_manual(values = c(8, 22, 18, 46)) + 
   theme_graphs() +
-  theme(legend.justification = "left",
+  theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 Summary_Exp3B
