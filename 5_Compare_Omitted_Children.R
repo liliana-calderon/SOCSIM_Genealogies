@@ -766,7 +766,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-ggsave(file="Graphs/App_Socsim_Exp3A_ASFR_ASMR.jpeg", width=19, height=25, dpi=200)
+ggsave(file="Graphs/App_Socsim_Exp3A_ASFR_ASMR.jpeg", width=20, height=25, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
