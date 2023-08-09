@@ -686,7 +686,7 @@ asfr_anc_ggggggau2 <- asfr_anc_ggggggau %>%
 
 ## Plot ASFR from whole SOCSIM simulation and subsets of direct and extended family trees without duplicates
 
-# Same years to plot than above (in intervals). Change if necessary
+# Same years to plot than above (in intervals). 
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 
 bind_rows(asfr_whole2, asfr_dir_wod2, asfr_anc_z2, asfr_anc_z2, asfr_anc_au2,
@@ -703,9 +703,6 @@ bind_rows(asfr_whole2, asfr_dir_wod2, asfr_anc_z2, asfr_anc_z2, asfr_anc_au2,
   geom_point(size = 9)+
   scale_color_viridis(option = "H", discrete = T, direction = -1)+
   theme_graphs()
-
-# labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
-# retrieved from a SOCSIM simulation and subsets of "direct" and "extended" family trees") 
 ggsave(file="Graphs/Socsim_Exp2_ASFR.jpeg", width=17, height=14, dpi=200)
 
 # ASMR ----
@@ -860,7 +857,7 @@ asmr_anc_ggggggau2 <- asmr_anc_ggggggau %>%
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_dir_wod$age)
 
-# Same years to plot than above (in intervals). Change if necessary
+# Same years to plot than above (in intervals). 
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asmr_whole2, asmr_dir_wod2, asmr_anc_z2, asmr_anc_z2, asmr_anc_au2,
@@ -883,9 +880,6 @@ bind_rows(asmr_whole2, asmr_dir_wod2, asmr_anc_z2, asmr_anc_z2, asmr_anc_au2,
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
   theme_graphs()
-
-#labs(title = "Age-Specific Mortality Rates in Sweden (1751-2022), 
-# retrieved from a SOCSIM simulation and subsets of "extended" and direct" family trees without duplicates") 
 ggsave(file="Graphs/Socsim_Exp2_ASMR.jpeg", width=17, height=15, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
@@ -1229,8 +1223,6 @@ bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_au,
   geom_line(aes(colour = Dataset), linewidth = 1.3)+
   scale_color_viridis(option = "H", discrete = T, direction = -1)+
   theme_graphs()
-# labs(title = "Total Fertility Rate in Sweden (1751-2022), 
-#retrieved from a SOCSIM simulation and subsets of "direct" and "extended"  family trees without duplicates") 
 ggsave(file="Graphs/Socsim_Exp2_TFR.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in TFR ----
@@ -1613,8 +1605,6 @@ bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2,
   facet_wrap(~Sex) +
   theme_graphs() +
   labs(y = "e0")
-#  labs(title = "Life expectancy at birth in Sweden (e0), 1751-2020, retrieved from a SOCSIM simulation 
-# subsets of "extended" and direct" family trees without duplicates")
 ggsave(file="Graphs/Socsim_Exp2_e0.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in e0 ----
@@ -1725,8 +1715,6 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   theme(legend.justification = "left",
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-# labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved 
-# from SOCSIM microsimulation and subsets of "direct" and extended" family trees") + 
 # Save the plot
 Summary_Exp2
 ggsave(file="Graphs/Final_Socsim_Exp2_TFR_e0.jpeg", width=17, height=9, dpi=200)
@@ -1856,7 +1844,5 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_color_manual(values = c("#7A7500", "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF", 
                                 "#E4695EFF", "#D45270FF", "#C23C81FF", "#AC2694FF", "#75007A", "#007A75"))+
   theme_graphs()
-# labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2020), retrieved 
-# from SOCSIM microsimulation and subsets of "direct" and extended" family trees") + 
 # Save the plot
 ggsave(file="Graphs/App_Socsim_Exp2_TFR_e0.jpeg", width=17, height=11, dpi=200)

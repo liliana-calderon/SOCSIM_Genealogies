@@ -188,7 +188,7 @@ asfr_dir_wod2 <- asfr_dir_wod %>%
 
 ## Plot ASFR from whole SOCSIM simulation and the genealogical subset of direct ancestors
 
-# Same years to plot than above (in intervals). Change if necessary
+# Same years to plot than above (in intervals). 
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asfr_whole2, asfr_dir_wd2, asfr_dir_wod2) %>% 
@@ -198,8 +198,6 @@ bind_rows(asfr_whole2, asfr_dir_wd2, asfr_dir_wod2) %>%
   scale_color_manual(values = c("#79B727", "#B72779", "#2779B7")) +
   scale_linetype_manual(values = c("11", "22", "solid")) +
   theme_graphs()
-# labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
-# retrieved from a SOCSIM simulation and subsets of direct ancestors") 
 ggsave(file="Graphs/Socsim_Exp1_ASFR.jpeg", width=17, height=9, dpi=200)
 
 
@@ -245,7 +243,7 @@ asmr_dir_wod2 <- asmr_dir_wod %>%
 
 ## Plotting ASMR from whole SOCSIM simulation and some genealogical subsets
 
-# Same years to plot than above (in intervals). Change if necessary
+# Same years to plot than above (in intervals). 
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 # Get the age levels to define them before plotting and avoid wrong order
@@ -264,8 +262,6 @@ bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>%
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
   theme_graphs()
-  #labs(title = "Age-Specific Mortality Rates in Sweden (1751-2022), 
- # retrieved from a SOCSIM simulation and subset of direct ancestors") 
 ggsave(file="Graphs/Socsim_Exp1_ASMR.jpeg", width=17, height=9, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
@@ -403,8 +399,7 @@ bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>%
   geom_line(aes(colour = Dataset, linetype = Dataset), linewidth = 1.3)+ 
   scale_color_manual(values = c("#00057A", "#7A7500" , "#007A75"))+
   scale_linetype_manual(values = c("11", "22", "solid")) +
-  theme_graphs() 
-# labs(title = "Total Fertility Rate in Sweden (1751-2022), retrieved from a SOCSIM simulation and genealogical subset of direct ancestors") 
+  theme_graphs()
 ggsave(file="Graphs/Socsim_Exp1_TFR.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in TFR ----
@@ -558,9 +553,7 @@ bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>%
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   scale_linetype_manual(values = c("11", "22", "solid")) +
   facet_wrap(~Sex) +
-  theme_graphs()+
-  # labs(title = "Life expectancy at birth in Sweden (e0), 1751-2022, a SOCSIM simulation and genealogical subset of direct ancestors",
-   #    y = "e0") 
+  theme_graphs()
 ggsave(file="Graphs/Socsim_Exp1_e0.jpeg", width=17, height=9, dpi=200)
 
 # Summary measure of error in e0 ----
@@ -668,8 +661,6 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 17))
-# labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022),
-# retrieved from a SOCSIM simulation and subsets of direct ancestors")
 
 # Save the plot
 Summary_Exp1

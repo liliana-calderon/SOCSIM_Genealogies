@@ -277,7 +277,7 @@ asfr_less_women_100b <- asfr_less_women_100 %>%
 
 ## Plot ASFR from whole simulation with genealogical subsets with different proportions of missing childless women
 
-# Same years to plot than above (in intervals). Change if necessary
+# Same years to plot than above (in intervals). 
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asfr_whole2, asfr_less_women_25b, asfr_less_women_50b, asfr_less_women_75b, asfr_less_women_100b) %>% 
@@ -288,8 +288,6 @@ bind_rows(asfr_whole2, asfr_less_women_25b, asfr_less_women_50b, asfr_less_women
   scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
   scale_shape_manual(values = c(8, 21, 22, 23, 46)) +
   theme_graphs()
-# labs(title = "Age-Specific Fertility Rates in Sweden (1751-2022), 
-# retrieved from a SOCSIM simulation and genealogical subsets with missing women) 
 ggsave(file="Graphs/Socsim_Exp3B_ASFR.jpeg", width=17, height=9, dpi=200)
 
 
@@ -374,7 +372,7 @@ asmr_less_women_100b <- asmr_less_women_100 %>%
 
 ## Plotting ASMR from whole simulation with genealogical subsets with different proportions of missing childless women
 
-# Same years to plot than above (in intervals). Change if necessary
+# Same years to plot than above (in intervals). 
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asmr_whole2, asmr_less_women_25b, asmr_less_women_50b, asmr_less_women_75b, asmr_less_women_100b) %>% 
@@ -392,8 +390,6 @@ bind_rows(asmr_whole2, asmr_less_women_25b, asmr_less_women_50b, asmr_less_women
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
   theme_graphs()
-#labs(title = "Age-Specific Mortality Rates in Sweden (1751-2022), 
-# retrieved from a SOCSIM simulation and genealogical subsets with omitted women") 
 ggsave(file="Graphs/Socsim_Exp3B_ASMR.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
@@ -594,8 +590,6 @@ bind_rows(TFR_whole, TFR_anc_col,
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   theme_graphs() 
-# labs(title = "Total Fertility Rate in Sweden (1751-2022), 
-#retrieved from a SOCSIM simulation and subsets with different proportions of omitted women") 
 ggsave(file="Graphs/Socsim_Exp3B_TFR.jpeg", width=17, height=9, dpi=200)
 
 
@@ -825,8 +819,6 @@ bind_rows(lt_whole2, lt_anc_col2,
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   theme_graphs() 
-# labs(title = ""Life expectancy at birth in Sweden (e0), 1751-2020,
-#retrieved from a SOCSIM simulation and subsets with different proportions of omitted women") 
 ggsave(file="Graphs/Socsim_Exp3B_e0.jpeg", width=17, height=9, dpi=200)
 
 
@@ -950,8 +942,6 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 Summary_Exp3B
-# labs(title = "Total Fertility Rate and Life Expectancy at Birth in Sweden (1751-2022), 
-# retrieved from a SOCSIM simulation and subsets with different proportions of omitted children")
 # Save the plot
 ggsave(file="Graphs/Final_Socsim_Exp3B_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
