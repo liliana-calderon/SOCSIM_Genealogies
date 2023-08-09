@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 13-04-2022
-# Last modified on 04-08-2023
+# Last modified on 09-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -22,7 +22,6 @@ library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(patchwork) # To combine ggplots
 library(rsocsim) # Functions to estimate rates
-library(svglite) # To save svg files
 library(viridis)
 
 ## Load theme for the graphs and to convert SOCSIM time
@@ -571,9 +570,6 @@ load("Measures/asfr_anc_gggggau.RData")
 # Load asfr from the subset of direct ancestors, collateral kin and 6x-great-aunts/uncles
 load("Measures/asfr_anc_ggggggau.RData")
 
-# Choose years to plot (in intervals).
-yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
-
 ## Calculate the mean of the different simulations and add relevant columns
 
 # Whole SOCSIM simulations
@@ -885,14 +881,54 @@ ggsave(file="Graphs/Socsim_Exp2_ASMR.jpeg", width=17, height=15, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 
-# Years to plot
-yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
+# Choose one year and age groups to plot
+yrs_plot1 <- c("[1900,1905)") 
+age_plot <- c("[0,1)", "[1,5)", "[10,15)", "[20,25)", "[30,35)", "[40,45)", "[50,55)",  "[60,65)", 
+              "[70,75)", "[80,85)", "[90,95)", "[100,105)") 
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_whole2$age)
 
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and subsets of direct ancestors and collateral kin
 By_Age_Exp2 <- 
+bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
+          asfr_dir_wod2 %>% rename(Estimate = ASFR),
+          asfr_anc_col2 %>% rename(Estimate = ASFR)) %>%  
+  mutate(Sex = "Female") %>%  
+  bind_rows(asmr_whole2 %>% rename(Estimate = mx),
+            asmr_dir_wod2 %>% rename(Estimate = mx),
+            asmr_anc_col2 %>% rename(Estimate = mx)) %>% 
+  rename(Year = year) %>% 
+  filter(Sex == "Female" & Year %in% yrs_plot1) %>%
+  # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
+  filter(Estimate != 0 & !is.infinite(Estimate) & !is.nan(Estimate)) %>% 
+  mutate(age = factor(as.character(age), levels = age_levels),
+         Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
+                       "Age-Specific Mortality Rates"), 
+         Dataset = factor(Dataset, levels =  c("Direct Ancestors", "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
+  ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
+  facet_wrap(. ~ Rate, scales = "free") + 
+  geom_line(linewidth = 1.3, show.legend = T)+
+  geom_point(data = . %>% filter(age %in% age_plot), 
+             aes(shape = Dataset), size = 11) +
+  scale_color_manual(values = c("#2779B7"))+ 
+  scale_shape_manual(values = c(19, 18, 46)) +
+  facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
+                               ASMR =  scale_y_continuous(trans = "log10")))+
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  theme_graphs() + theme(legend.title = element_text(size = 18)) +
+  labs(x = "Age") +
+  guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
+  theme(legend.justification = "left", 
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18))
+By_Age_Exp2
+
+## Plot ASFR and ASMR (for females), with three years for appendix
+
+# Choose three years to plot
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
           asfr_dir_wod2 %>% rename(Estimate = ASFR),
           asfr_anc_col2 %>% rename(Estimate = ASFR)) %>%  
@@ -909,13 +945,18 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                        "Age-Specific Mortality Rates"), 
          Dataset = factor(Dataset, levels =  c("Direct Ancestors", "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
-  facet_wrap(. ~ Rate, scales = "free") + 
-  geom_line(aes(colour = Year), linewidth = 1.2, show.legend = T)+ 
-  geom_point(aes(colour = Year, shape = Dataset), size = 11)+ 
-  scale_color_manual(values = c("#79B727","#B72779", "#2779B7"))+ 
+  facet_wrap(Year ~ Rate, nrow = 3, ncol = 2, scales = "free") + 
+  geom_line(linewidth = 1.2, show.legend = T)+ 
+  geom_point(data = . %>% filter(age %in% age_plot), 
+             aes(shape = Dataset), size = 11) +
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_shape_manual(values = c(19, 18, 46)) +
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                               ASMR =  scale_y_continuous(trans = "log10")))+
+                               ASMR = scale_y_continuous(trans = "log10"),
+                               ASFR = scale_y_continuous(),
+                               ASMR = scale_y_continuous(trans = "log10"), 
+                               ASFR = scale_y_continuous(),
+                               ASMR = scale_y_continuous(trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() + theme(legend.title = element_text(size = 18)) +
   labs(x = "Age") +
@@ -923,8 +964,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-By_Age_Exp2
-ggsave(file="Graphs/Final_Socsim_Exp2_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/App_Socsim_Exp2_ASFR_ASMR_grouped.jpeg", width=18, height=25, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
@@ -1712,7 +1752,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_color_manual(values = c("#7A7500", "#75007A", "#007A75"))+
   scale_shape_manual(values = c(19, 18, 46)) +
   theme_graphs() +
-  theme(legend.justification = "left",
+  theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 # Save the plot
@@ -1786,7 +1826,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   facet_wrap(Year ~ Rate, nrow = 3, ncol = 2, scales = "free") + 
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(size = 9)+ 
-  scale_color_manual(values = c("#7A7500",  "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF", #"#F0F921FF",
+  scale_color_manual(values = c("#7A7500",  "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF",
                                 "#E4695EFF", "#D45270FF", "#C23C81FF", "#AC2694FF", "#75007A", "#007A75"))+
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
                                ASMR = scale_y_continuous(trans = "log10"),
@@ -1798,10 +1838,6 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme_graphs() +
   labs(x = "Age")
 ggsave(file="Graphs/App_Socsim_Exp2_ASFR_ASMR.jpeg", width=18, height=25, dpi=200)
-
-## Save as .svg file for poster
-# ggsave(file="Graphs/Socsim_Exp2_ASFR_ASMR.svg", device = "svg", units = "in", width=15, height=8, dpi=200) 
-
 
 ## TFR and e0 (for females) from whole SOCSIM simulation and subsets of "direct" and different collateral kin
 bind_rows(TFR_whole %>% rename(Estimate = TFR),
