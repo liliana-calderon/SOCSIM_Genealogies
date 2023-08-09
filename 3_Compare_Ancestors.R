@@ -5,8 +5,8 @@
 ## Trace direct ancestors of a given ego(s) from a SOCSIM microsimulation for Sweden (1751-2022)
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
-# Created by Liliana Calderon on 23-09-2022
-# Last modified by Liliana Calderon on 04-08-2023
+# Created on 23-09-2022
+# Last modified on 04-08-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -24,19 +24,19 @@ library(svglite) # To save svg files
 library(viridis)
 
 ## Load function to get direct ancestors
-source("Functions_Ancestors.R")
+source("Functions/Functions_Ancestors.R")
 
 ## Load function to estimate age-specific fertility rates 
 # This is a slightly modified version of the function in the package 
 # that allows to handle the intentional duplicates in the data
-source("Functions_Fertility_Rates_Mod.R")
+source("Functions/Functions_Fertility_Rates_Mod.R")
 
 ## Load theme for the graphs and to convert SOCSIM time
-source("Functions_Graphs.R")
+source("Functions/Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
 # Currently, it only works with asmr calculated with rsocsim::estimate_mortality_rates()
-source("Functions_Life_Table.R")
+source("Functions/Functions_Life_Table.R")
 
 #------------------------------------------------------------------------------------------------------
 ## Trace direct ancestors of people alive in 2023 ----

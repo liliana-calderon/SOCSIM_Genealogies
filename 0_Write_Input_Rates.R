@@ -7,8 +7,8 @@
 # and the Human Fertility Collection (HFC) for the period not covered in HFD
 # Create a initial population file and empty marriage file for the simulations
 
-# Created by Liliana Calderon on 08-06-2022
-# Last modified by Liliana Calderon on 12-06-2023
+# Created on 08-06-2022
+# Last modified on 12-06-2023
 
 #----------------------------------------------------------------------------------------------------
 # Rate files format (Cf. Socsim oversimplified, p. 26):
@@ -41,7 +41,7 @@ library(readr)
 library(HMDHFDplus)
 
 # Load functions to write SOCSIM rate files from HFD/HMD and HFC
-source("Functions_Input_Rates.R")
+source("Functions/Functions_Input_Rates.R")
 
 #----------------------------------------------------------------------------------------------------
 ## Write fertility rate files for SOCSIM using data from HFD ----

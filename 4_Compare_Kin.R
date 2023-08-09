@@ -6,8 +6,8 @@
 # of a given ego(s) from a SOCSIM microsimulation for Sweden (1751-2022)
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
-# Created by Liliana Calderon on 13-04-2022
-# Last modified by Liliana Calderon on 04-08-2023
+# Created on 13-04-2022
+# Last modified on 04-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -26,17 +26,17 @@ library(svglite) # To save svg files
 library(viridis)
 
 ## Load theme for the graphs and to convert SOCSIM time
-source("Functions_Graphs.R")
+source("Functions/Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
 # Currently, it only works with asmr calculated with rsocsim::estimate_mortality_rates()
-source("Functions_Life_Table.R")
+source("Functions/Functions_Life_Table.R")
 
 ## Load function to re-code the kin_type for the ancestors
-source("Functions_Ancestors.R")
+source("Functions/Functions_Ancestors.R")
 
 # Load modified function to retrieve kin
-source("Functions_Kin_Mod.R")
+source("Functions/Functions_Kin_Mod.R")
 
 #------------------------------------------------------------------------------------------------------
 ## Trace kin of people alive in 2023 ----

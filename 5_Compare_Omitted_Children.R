@@ -6,8 +6,8 @@
 # from SOCSIM microsimulations for Sweden (1751-2022) 
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
-# Created by Liliana Calderon on 27-06-2023
-# Last modified by Liliana Calderon on 04-08-2023
+# Created on 27-06-2023
+# Last modified on 04-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -26,11 +26,11 @@ library(svglite) # To save svg files
 library(viridis)
 
 ## Load theme for the graphs and to convert SOCSIM time
-source("Functions_Graphs.R")
+source("Functions/Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
 # Currently, it only works with asmr calculated with rsocsim::estimate_mortality_rates()
-source("Functions_Life_Table.R")
+source("Functions/Functions_Life_Table.R")
 
 #------------------------------------------------------------------------------------------------------
 ## Load necessary data and randomly removed proportions of early deceased children  ----

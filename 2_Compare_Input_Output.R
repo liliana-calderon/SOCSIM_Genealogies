@@ -8,8 +8,8 @@
 ## To run the following code, it is necessary to have already run the simulations and read the .opop file
 # c.f. script 1_Run_Simulations.R
 
-# Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 02-08-2023
+# Created on 18-01-2022
+# Last modified on 02-08-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -27,11 +27,11 @@ library(svglite) # To save svg files
 library(viridis)
 
 ## Load theme for the graphs and to convert SOCSIM time
-source("Functions_Graphs.R")
+source("Functions/Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
 # Currently, it only works with asmr calculated with rsocsim::estimate_mortality_rates()
-source("Functions_Life_Table.R")
+source("Functions/Functions_Life_Table.R")
 
 # Load saved list with opop from simulations, generated in 1_Run_Simulations.R
 load("sims_opop.RData")

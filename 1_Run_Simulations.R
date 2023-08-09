@@ -5,8 +5,8 @@
 ## Run 10 SOCSIM demographic microsimulation using the 'rsocsim' package' and data for Sweden (1751-2021)
 ## and read the output into R. 
 
-# Created by Liliana Calderon on 18-01-2022
-# Last modified by Liliana Calderon on 03-08-2023
+# Created on 18-01-2022
+# Last modified on 03-08-2023
 
 # NB: Some functions are based on external code and repositories specified under each section.
 #------------------------------------------------------------------------------------------------------
