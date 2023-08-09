@@ -20,8 +20,6 @@ library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(patchwork) # To combine ggplots
 library(rsocsim) # Functions to estimate rates
-library(svglite) # To save svg files
-library(viridis)
 
 ## Load function to get direct ancestors
 source("Functions/Functions_Ancestors.R")
