@@ -6,17 +6,14 @@ We conduct a series of experiments on synthetic populations aimed at understandi
 
 # How to install and run
 
-You need R, some standard packages, HMDHFDplus and rsocsim. Please go to https://github.com/MPIDR/rsocsim  to find information on how to install rsocsim.
+You need R, some standard packages, HMDHFDplus and rsocsim. Please go to <https://github.com/MPIDR/rsocsim>  to find information on how to install rsocsim.
 
 To write the input rate files from HFD and HMD and to compare the simulation results with the original input data, 
 we use the HMDHFDplus package. Please type your username and password for HMD and HFD in the corresponding space in scripts 0 and 1.
 
-
 To reproduce the analysis, please run the scripts numbered 0 to 6. 
-
-
 
 # References
 
-**link to your paper**
-
+Calderón-Bernal, Liliana P, Diego Alburez-Gutierrez, and Emilio Zagheni. ‘Analyzing Biases in Genealogies Using Demographic Microsimulation’. Rostock, Max Planck Institute for Demographic Research: MPIDR Working Paper, 15 August 2023. https://doi.org/10.4054/MPIDR-WP-2023-034.
+ 
