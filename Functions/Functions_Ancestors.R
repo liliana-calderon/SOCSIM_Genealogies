@@ -2,8 +2,6 @@
 # Function to retrieve pids of direct ancestors up to the 9th generation of a given ego(s)
 # from SOCSIM microsimulation outputs
 
-# To run the functions, .opop file must be set in the GlobalEnv
-
 # Created on 23-09-2022
 # Last modified on 14-06-2023
 
