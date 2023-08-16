@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 09-08-2023
+# Last modified on 16-08-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -346,7 +346,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 17))
-ggsave(file="Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=25, dpi=200)
+ggsave(file="Final_Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=25, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
@@ -703,7 +703,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
 
 # Save the plot
 Summary_Exp1
-ggsave(file="Graphs/Final_Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and Summary measures -----
@@ -725,4 +725,4 @@ By_Age_Exp1 +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=21, dpi=200)
+ggsave(file="Final_Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=21, dpi=200)

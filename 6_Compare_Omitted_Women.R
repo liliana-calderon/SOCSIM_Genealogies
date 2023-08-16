@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 11-07-2023
-# Last modified on 09-08-2023
+# Last modified on 16-08-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -492,7 +492,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-ggsave(file="Graphs/App_Socsim_Exp3B_ASFR_ASMR.jpeg", width=20, height=25, dpi=200)
+ggsave(file="Final_Graphs/App_Socsim_Exp3B_ASFR_ASMR.jpeg", width=20, height=25, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
@@ -994,7 +994,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
         legend.text = element_text(size = 18))
 Summary_Exp3B
 # Save the plot
-ggsave(file="Graphs/Final_Socsim_Exp3B_TFR_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_TFR_e0.jpeg", width=17, height=9, dpi=200)
 
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and summary measures -----
@@ -1016,4 +1016,4 @@ By_Age_Exp3B +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Graphs/Final_Socsim_Exp3B_Combined.jpeg", width=18, height=21, dpi=200)
+ggsave(file="Final_Graphs/Final_Socsim_Exp3B_Combined.jpeg", width=18, height=21, dpi=200)

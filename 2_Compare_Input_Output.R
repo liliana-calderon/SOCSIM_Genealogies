@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created on 18-01-2022
-# Last modified on 09-08-2023
+# Last modified on 16-08-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -540,6 +540,9 @@ ggsave(file="Graphs/Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and summary measures -----
 
+# Create a sub-folder called "Final_Graphs" to save the final plots included in the paper
+ifelse(!dir.exists("Final_Graphs"), dir.create("Final_Graphs"), FALSE)
+
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                         x = c(1,2),
                         y = c(0.22, 0.5),
@@ -558,4 +561,4 @@ By_Age +
             size = 15, family="serif") +
   plot_layout(ncol = 1)
 
-ggsave(file="Graphs/App_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=200)
+ggsave(file="Final_Graphs/App_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=200)
