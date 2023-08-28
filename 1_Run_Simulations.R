@@ -6,7 +6,7 @@
 ## and read the output into R. 
 
 # Created on 18-01-2022
-# Last modified on 03-08-2023
+# Last modified on 28-08-2023
 #------------------------------------------------------------------------------------------------------
 # SOCSIM simulation: rate files and assumptions ----
 
@@ -60,9 +60,11 @@ supfile <- "Sweden_0.sup"
 # Random number generator seed:
 sims_seeds <- as.character(sample(1:99999, 10, replace = F))
 
+# NB: To get exactly the same simulation results, you should use the same randomly generated seeds
+# sims_seeds <- c("67926", "22403", "36602", "24856", "74711", "38132", "21702", "93981", "23429", "82601")
+
 # Save the seeds numbers to use them later to read the data
 save(sims_seeds, file = "sims_seeds.Rda")
-# NB: To get exactly the same simulation results, we must use the same seeds
 
 ## Run the simulations for the random seeds. 
 start <- Sys.time()
