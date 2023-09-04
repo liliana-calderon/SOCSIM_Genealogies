@@ -1,5 +1,5 @@
 ---
-title: "Analyzing biases in genealogies using demographic microsimulation"
+title: "Code for reproducible results for the paper “Analyzing biases in genealogies using demographic microsimulation”"
 output:
   github_document:
     pandoc_args: --webtex
@@ -20,8 +20,6 @@ knitr::opts_chunk$set(echo = FALSE,
 Genealogies are promising sources for addressing many questions in historical and kinship demography. So far, an incomplete understanding of the biases that affect their representativeness has hindered their full exploitation. Here, we conduct a series of experiments on synthetic populations aimed at understanding how different sources of bias in ascendant genealogies can affect the accuracy of demographic estimates. We use the SOCSIM demographic microsimulation program and data for Sweden from the [Human Fertility Collection (HFC)](https://www.fertilitydata.org/) (1751-1890), the [Human Fertility Database (HFD)](https://www.humanfertility.org/) (1891-2022), and the [Human Mortality Database (HMD)](https://www.mortality.org/) (1751-2022). We analyze three sources of bias: selection in direct lineages, incomplete reconstruction of family trees, and missing information on some subpopulations. We evaluate their effect by comparing common demographic measures estimated from ‘perfectly-recorded’ and ‘bias-infused’ synthetic populations.
 
 # Scripts for reproducible results
-
-Code for reproducible results for the paper "Analyzing biases in genealogies using demographic microsimulation". 
 
 **NB**: If you want to re-run the analysis from scratch (i.e., retrieve the data from [HFC](https://www.fertilitydata.org/), [HFD](https://www.humanfertility.org/), and [HMD](https://www.mortality.org/)), run the microsimulations and reproduce the results), you need R, some standard packages, `HMDHFDplus` and `rsocsim`. 
 Please, follow these steps:

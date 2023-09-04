@@ -1,4 +1,5 @@
-Analyzing biases in genealogies using demographic microsimulation
+Code for reproducible results for the paper “Analyzing biases in
+genealogies using demographic microsimulation”
 ================
 
 - <a href="#introduction" id="toc-introduction">Introduction</a>
@@ -27,9 +28,6 @@ comparing common demographic measures estimated from
 
 # Scripts for reproducible results
 
-Code for reproducible results for the paper “Analyzing biases in
-genealogies using demographic microsimulation”.
-
 **NB**: If you want to re-run the analysis from scratch (i.e., retrieve
 the data from [HFC](https://www.fertilitydata.org/),
 [HFD](https://www.humanfertility.org/), and
@@ -48,14 +46,17 @@ and `rsocsim`. Please, follow these steps:
     through the `HMDHFDplus` package. To gain full access to the
     databases, you need to become a registered user at both databases,
     after accepting the user agreement on their websites:
-    [HFD](https://www.humanfertility.org/Account/Auth) and
-    [HMD](https://mortality.org/Account/Auth).
+    <https://www.humanfertility.org/Account/Auth> and
+    <https://mortality.org/Account/Auth>.
 3.  Install `rsocsim`.  
     Please go to <https://github.com/MPIDR/rsocsim> to find the
     instructions on how to install `rsocsim`.  
 4.  Open the provided RStudio project.
 5.  Run the scripts sequentially in the order suggested by the numbers
-    of the files (0-6). When running the scripts 0 and 2, please type
-    your username and password for
+    of the files (0-6).
+6.  In scripts 0 and 2, please type your username and password for
     [HFD](https://www.humanfertility.org/) and
-    [HMD](https://www.mortality.org/) in the corresponding space.
+    [HMD](https://www.mortality.org/) in the corresponding space before
+    running the code.  
+7.  To get exactly the same simulation results, you should use the same
+    randomly generated seeds mentioned in script 1.
