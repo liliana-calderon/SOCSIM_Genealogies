@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 13-04-2022
-# Last modified on 16-08-2023
+# Last modified on 13-11-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -1329,10 +1329,11 @@ error_TFR_exp2 %>%
   pull(Error) %>% 
   range()
 
-# Check mean value of relative bias in TFR before 1851
+# Check mean value of bias and relative bias in TFR before 1851
 error_TFR_exp2 %>% 
   filter(Year < 1851) %>% 
   filter(Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
+  #pull(Error) %>% 
   pull(Relative_Error) %>% 
   mean()
 
@@ -1348,6 +1349,11 @@ error_TFR_exp2 %>%
   #filter(Year > 1850) %>% 
   filter(Dataset == "9. + 6x-Great-Aunts/Uncles") %>% 
   filter(Relative_Error == min(Relative_Error))
+
+# Check bias and relative bias in TFR in 2022 (year with the greatest error)
+error_TFR_exp2 %>%
+  filter(Year == 2022) %>% 
+  filter(Dataset == "9. + 6x-Great-Aunts/Uncles")
 
 
 # Life Expectancy at birth ----
@@ -1752,9 +1758,17 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_color_manual(values = c("#7A7500", "#75007A", "#007A75"))+
   scale_shape_manual(values = c(19, 18, 46)) +
   theme_graphs() +
-  theme(legend.justification = "left", 
+  theme(legend.justification = "left",
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
+#   theme(legend.justification = "left",
+#         strip.text = element_text(size=32),
+#         legend.title = element_text(size = 28),
+#         legend.text = element_text(size = 25),
+#         axis.title.x = element_text( size = 30),
+#         axis.title.y = element_text(size = 30))
+# ggsave(file="Graphs/Socsim_Exp2_TFR_e0.wmf", width=17, height=9, dpi=400)
+
 # Save the plot
 Summary_Exp2
 ggsave(file="Graphs/Socsim_Exp2_TFR_e0.jpeg", width=17, height=9, dpi=200)
