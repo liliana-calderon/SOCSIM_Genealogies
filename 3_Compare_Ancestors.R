@@ -697,9 +697,16 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_shape_manual(values = c(15,19,46)) + 
   scale_x_continuous(breaks = yrs_plot2)+
   theme_graphs() + 
-  theme(legend.justification = "left", 
+  theme(legend.justification = "left",
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
+#   theme(legend.justification = "left",
+#         strip.text = element_text(size=32),
+#         legend.title = element_text(size = 28),
+#         legend.text = element_text(size = 25),
+#         axis.title.x = element_text( size = 30),
+#         axis.title.y = element_text(size = 30))
+# ggsave(file="Graphs/Socsim_Exp1_TFR_e0.wmf", width=17, height=9, dpi=400)
 
 # Save the plot
 Summary_Exp1

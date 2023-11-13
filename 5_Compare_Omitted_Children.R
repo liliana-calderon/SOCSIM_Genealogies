@@ -1478,9 +1478,17 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_color_manual(values = c( "#FF834C","#E7495B","#75007A", "#007A75"))+
   scale_shape_manual(values = c(8, 22, 18, 46)) + 
   theme_graphs() +
-  theme(legend.justification = "left", 
+  theme(legend.justification = "left",
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
+  # theme(legend.justification = "left",
+  #       strip.text = element_text(size=32),
+  #       legend.title = element_text(size = 28),
+  #       legend.text = element_text(size = 25),
+  #       axis.title.x = element_text( size = 30),
+  #       axis.title.y = element_text(size = 30))
+ggsave(file="Graphs/Socsim_Exp3A_TFR_e0.wmf", width=17, height=9, dpi=400)
+
 Summary_Exp3A
 # Save the plot
 ggsave(file="Graphs/Socsim_Exp3A_TFR_e0.jpeg", width=17, height=9, dpi=200)
