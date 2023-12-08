@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 11-07-2023
-# Last modified on 16-08-2023
+# Last modified on 08-12-2023
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -287,7 +287,7 @@ bind_rows(asfr_whole2, asfr_less_women_25b, asfr_less_women_50b, asfr_less_women
   scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_shape_manual(values = c(8, 21, 22, 23, 46)) +
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp3B_ASFR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_ASFR.jpeg", width=17, height=9, dpi=300)
 
 
 # ASMR ----
@@ -389,7 +389,7 @@ bind_rows(asmr_whole2, asmr_less_women_25b, asmr_less_women_50b, asmr_less_women
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp3B_ASMR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_ASMR.jpeg", width=17, height=9, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
@@ -402,6 +402,10 @@ age_plot <- c("[0,1)", "[1,5)", "[10,15)", "[20,25)", "[30,35)", "[40,45)", "[50
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_whole2$age)
+
+# Define the same y breaks for all plots
+y_breaks_asfr <- c(0.0, 0.05, 0.1, 0.15, 0.2)
+y_breaks_asmr <- c(0.0, 0.0001, 0.001, 0.01, 0.1, 0.3)
 
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and genealogical subsets
 By_Age_Exp3B <- 
@@ -434,8 +438,8 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
              aes(shape = Dataset), size = 11) +
   scale_color_manual(values = c("#2779B7"))+ 
   scale_shape_manual(values = c(8, 22, 18, 46)) + 
-  facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                               ASMR =  scale_y_continuous(trans = "log10")))+
+  facetted_pos_scales(y = list(ASFR = scale_y_continuous(breaks = y_breaks_asfr),
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() + 
   labs(x = "Age") +
@@ -479,12 +483,12 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
              aes(shape = Dataset), size = 11) +
   scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_shape_manual(values = c(8, 22, 18, 46)) + 
-  facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                               ASMR = scale_y_continuous(trans = "log10"),
-                               ASFR = scale_y_continuous(),
-                               ASMR = scale_y_continuous(trans = "log10"), 
-                               ASFR = scale_y_continuous(),
-                               ASMR = scale_y_continuous(trans = "log10")))+
+  facetted_pos_scales(y = list(ASFR = scale_y_continuous(breaks = y_breaks_asfr),
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
+                               ASFR = scale_y_continuous(breaks = y_breaks_asfr),
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
+                               ASFR = scale_y_continuous(breaks = y_breaks_asfr, limits = c(0, 0.2)),
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() + 
   labs(x = "Age") +
@@ -492,7 +496,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-ggsave(file="Final_Graphs/App_Socsim_Exp3B_ASFR_ASMR.jpeg", width=20, height=25, dpi=200)
+ggsave(file="Final_Graphs/App_Socsim_Exp3B_ASFR_ASMR.jpeg", width=20, height=25, dpi=300)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
@@ -641,7 +645,7 @@ bind_rows(TFR_whole, TFR_anc_col,
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   theme_graphs() 
-ggsave(file="Graphs/Socsim_Exp3B_TFR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_TFR.jpeg", width=17, height=9, dpi=300)
 
 
 # Summary measure of error in TFR ----
@@ -684,7 +688,7 @@ error_TFR_exp3B %>%
   facet_wrap(. ~ Dataset)+
   geom_line(linewidth = 1.3)+
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp3B_TFR_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_TFR_Error.jpeg", width=17, height=9, dpi=300)
 
 # Relative Error
 error_TFR_exp3B %>% 
@@ -692,7 +696,7 @@ error_TFR_exp3B %>%
   facet_wrap(. ~ Dataset)+
   geom_line(linewidth = 1.3)+
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp3B_TFR_Rel_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_TFR_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
 # Check minimum and maximum values of bias in TFR 
 error_TFR_exp3B %>% 
@@ -870,7 +874,7 @@ bind_rows(lt_whole2, lt_anc_col2,
   geom_line(linewidth = 1.3)+ 
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   theme_graphs() 
-ggsave(file="Graphs/Socsim_Exp3B_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_e0.jpeg", width=17, height=9, dpi=300)
 
 
 # Summary measure of error in e0 ----
@@ -913,7 +917,7 @@ error_e0_exp3B %>%
   facet_grid(Dataset ~ sex)+
   geom_line(linewidth = 1.3)+
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp3B_e0_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_e0_Error.jpeg", width=17, height=9, dpi=300)
 
 # Relative error
 error_e0_exp3B %>% 
@@ -921,7 +925,7 @@ error_e0_exp3B %>%
   facet_grid(Dataset ~ sex)+
   geom_line(linewidth = 1.3)+
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp3B_e0_Rel_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_e0_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
 
 # Check minimum and maximum values of bias in e0 over the whole period for 25% omission
@@ -957,6 +961,10 @@ error_e0_exp3B %>%
 
 yrs_plot2 <- c(1750, 1800, 1850, 1900, 1950, 2000)
 
+# Define the same y breaks for all plots
+y_breaks_TFR <- c(0:5)
+y_breaks_e0 <- c(20, 40, 60, 80)
+
 ## TFR and e0 (for females) from whole SOCSIM simulation and subsets of "direct" and all collateral kin
 
 Summary_Exp3B <- 
@@ -988,13 +996,17 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c( "#FF834C","#E7495B","#75007A", "#007A75"))+
   scale_shape_manual(values = c(8, 22, 18, 46)) + 
+  scale_x_continuous(breaks = yrs_plot2)+
+  facetted_pos_scales(y = list("Total Fertility Rate" = scale_y_continuous(breaks = y_breaks_TFR, 
+                                                                           limits = c(0, NA)),
+                               "Life Expectancy at Birth" =  scale_y_continuous(breaks = y_breaks_e0)))+
   theme_graphs() +
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 Summary_Exp3B
 # Save the plot
-ggsave(file="Graphs/Socsim_Exp3B_TFR_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp3B_TFR_e0.jpeg", width=17, height=9, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and summary measures -----
@@ -1016,4 +1028,4 @@ By_Age_Exp3B +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Final_Graphs/Final_Socsim_Exp3B_Combined.jpeg", width=18, height=21, dpi=200)
+ggsave(file="Final_Graphs/Final_Socsim_Exp3B_Combined.jpeg", width=18, height=21, dpi=300)

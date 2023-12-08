@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created on 18-01-2022
-# Last modified on 16-08-2023
+# Last modified on 08-12-2023
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ bind_rows(asfr_10 %>%
   scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   labs(x = "Age", y = "Estimate")
-ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
 ## Comparison with HFC/HFD and HMD data (used as input) ----
@@ -195,7 +195,7 @@ bind_rows(HFCD0, SocsimF0) %>%
   scale_alpha_discrete(guide="none", range = c(1, 0.4))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs()
-ggsave(file="Graphs/HFD_SOCSIM_10_ASFR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/HFD_SOCSIM_10_ASFR.jpeg", width=17, height=9, dpi=300)
 
 
 # ASMR ----
@@ -271,7 +271,7 @@ bind_rows(HMD, SocsimM) %>%
   scale_alpha_discrete(guide="none", range = c(1, 0.4))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs()
-ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/HMD_SOCSIM_10_log_NA.jpeg", width=17, height=9, dpi=300)
 
 #---------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
@@ -281,6 +281,10 @@ yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(SocsimM$age)
+
+# Define the same x and y breaks for all plots
+y_breaks_asfr <- c(0.0, 0.05, 0.1, 0.15, 0.2)
+y_breaks_asmr <- c(0.0, 0.0001, 0.001, 0.01, 0.1, 0.3)
 
 By_Age <- 
   bind_rows(HFCD0 %>% rename(Estimate = ASFR), 
@@ -301,13 +305,13 @@ By_Age <-
   geom_line(aes(colour = Year, alpha = transp), linewidth = 1.5)+
   scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_alpha_discrete(guide="none", range = c(0.2, 1))+
-  facetted_pos_scales(y = list("Age-Specific Fertility Rates" = scale_y_continuous(),
-                               "Age-Specific Mortality Rates" =  scale_y_continuous(trans = "log10")))+
+  facetted_pos_scales(y = list("Age-Specific Fertility Rates" = scale_y_continuous(breaks = y_breaks_asfr),
+                               "Age-Specific Mortality Rates" =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   labs(x = "Age")+
   theme_graphs()
 By_Age
-ggsave(file="Graphs/Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the socsim rates by 1 year age group and 1 calendar year
@@ -367,7 +371,7 @@ bind_rows(TFR_HFCD, TFR_whole) %>%
   scale_alpha_discrete(guide = "none", range = c(0.2, 1))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs()
-ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/HFD_SOCSIM_10_TFR.jpeg", width=17, height=9, dpi=300)
 
 # Summary measure of error in TFR ----
 
@@ -399,7 +403,7 @@ bind_rows(DM_TFR, MD_TFR) %>%
   geom_line(linewidth = 1.3)+
   geom_point(aes(shape = Type), size = 2)+
   theme_graphs()
-ggsave(file="Graphs/HFD_SOCSIM_TFR_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/HFD_SOCSIM_TFR_Error.jpeg", width=17, height=9, dpi=300)
 # The difference between both measure is almost imperceptible. 
 
 # Life Expectancy at birth ----
@@ -477,7 +481,7 @@ bind_rows(lt_HMD, lt_whole2) %>%
   facet_wrap(~Sex) +
   theme_graphs()+
   labs(y = "e0") 
-ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/HMD_SOCSIM_10_e0.jpeg", width=17, height=9, dpi=300)
 
 # Summary measure of error in e0 ----
 
@@ -511,10 +515,14 @@ bind_rows(DM_e0, MD_e0) %>%
   geom_point(aes(shape = Type), size = 3)+
   theme_graphs()
 # The difference between both measures is almost imperceptible. 
-ggsave(file="Graphs/HFD_SOCSIM_e0_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/HFD_SOCSIM_e0_Error.jpeg", width=17, height=9, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
+
+# Define the same y breaks for all plots
+y_breaks_TFR <- c(0:5)
+y_breaks_e0 <- c(20, 40, 60, 80)
 
 ## Plotting TFR and e0 (for females) from HFD/HMD vs SOCSIM 
 Summary <- 
@@ -532,10 +540,13 @@ bind_rows(TFR_HFCD %>% rename(Estimate = TFR) %>%  mutate(Rate = "TFR"),
   geom_line(aes(colour = Source, alpha = transp), linewidth = 1.2) +
   scale_color_manual(values = c("#CA650D", "#0C0B7F", "#007A75")) +
   scale_alpha_discrete(guide="none", range = c(0.1, 1)) +
+  facetted_pos_scales(y = list("Total Fertility Rate" = scale_y_continuous(breaks = y_breaks_TFR, 
+                                                                           limits = c(0, NA)),
+                               "Life Expectancy at Birth" =  scale_y_continuous(breaks = y_breaks_e0)))+
   scale_x_continuous(breaks = c(1750, 1800, 1850, 1900, 1950, 2000))+
   theme_graphs()
 Summary
-ggsave(file="Graphs/Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and summary measures -----
@@ -549,7 +560,7 @@ plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific 
                         labels = c("a","b"))
 plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expectancy at Birth")),
                         x = c(1755, 1755),
-                        y = c(5.3, 81),
+                        y = c(5.3, 83),
                         labels = c("c","d"))
 
 By_Age + 
@@ -561,4 +572,4 @@ By_Age +
             size = 15, family="serif") +
   plot_layout(ncol = 1)
 
-ggsave(file="Final_Graphs/App_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=200)
+ggsave(file="Final_Graphs/App_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=300)

@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 16-08-2023
+# Last modified on 08-12-2023
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ bind_rows(asfr_whole2, asfr_dir_wd2, asfr_dir_wod2) %>%
   scale_color_manual(values = c("#79B727", "#2779B7", "#B72779")) +
   scale_linetype_manual(values = c("11", "22", "solid")) +
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp1_ASFR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_ASFR.jpeg", width=17, height=9, dpi=300)
 
 
 # ASMR ----
@@ -260,7 +260,7 @@ bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>%
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp1_ASMR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_ASMR.jpeg", width=17, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 
@@ -272,7 +272,11 @@ age_plot <- c("[0,1)", "[1,5)", "[10,15)", "[20,25)", "[30,35)", "[40,45)", "[50
 # Get the age levels to define them before plotting and avoid wrong order
 age_levels <- levels(asmr_whole2$age)
 
-## Plot ASFR and ASMR (for females) from whole SOCSIM simulation and some genealogical subsets
+# Define the same y breaks for all plots
+y_breaks_asfr <- c(0.0, 0.05, 0.1, 0.15, 0.2)
+y_breaks_asmr <- c(0.0, 0.0001, 0.001, 0.01, 0.1, 0.3)
+
+## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and some genealogical subsets
 By_Age_Exp1 <- 
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
           asfr_dir_wd2 %>% rename(Estimate = ASFR),
@@ -295,8 +299,8 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
              aes(shape = Dataset), size = 11) +
   scale_color_manual(values = c("#2779B7"))+ 
   scale_shape_manual(values = c(15, 19 ,46)) + 
-  facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                               ASMR =  scale_y_continuous(trans = "log10")))+
+  facetted_pos_scales(y = list(ASFR = scale_y_continuous(breaks = y_breaks_asfr),
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(x = "Age") +
@@ -332,12 +336,12 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
            aes(shape = Dataset), size = 11) +
   scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
   scale_shape_manual(values = c(15, 19 ,46)) + 
-  facetted_pos_scales(y = list(ASFR = scale_y_continuous(),
-                               ASMR = scale_y_continuous(trans = "log10"),
-                               ASFR = scale_y_continuous(),
-                               ASMR = scale_y_continuous(trans = "log10"), 
-                               ASFR = scale_y_continuous(),
-                               ASMR = scale_y_continuous(trans = "log10")))+
+  facetted_pos_scales(y = list(ASFR = scale_y_continuous(breaks = y_breaks_asfr),
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
+                               ASFR = scale_y_continuous(breaks = y_breaks_asfr),
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
+                               ASFR = scale_y_continuous(breaks = y_breaks_asfr, limits = c(0, 0.2)),
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(x = "Age") +
@@ -346,7 +350,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme(legend.justification = "left", 
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 17))
-ggsave(file="Final_Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=25, dpi=200)
+ggsave(file="Final_Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=25, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
@@ -440,7 +444,7 @@ bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>%
   scale_color_manual(values = c("#00057A", "#7A7500" , "#007A75"))+
   scale_shape_manual(values = c(15,19,46)) + 
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp1_TFR.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_TFR.jpeg", width=17, height=9, dpi=300)
 
 # Summary measure of error in TFR ----
 
@@ -480,7 +484,7 @@ error_TFR_exp1 %>%
   facet_wrap(. ~ Dataset)+
   geom_line(linewidth = 1.3)+
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp1_TFR_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_TFR_Error.jpeg", width=17, height=9, dpi=300)
 
 # Relative Error
 error_TFR_exp1 %>% 
@@ -488,7 +492,7 @@ ggplot(aes(x = Year, y = Relative_Error, group = Dataset, colour = Type)) +
   facet_wrap(. ~ Dataset)+
   geom_line(linewidth = 1.3)+
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp1_TFR_Rel_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_TFR_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
 # Change in the magnitude of the bias around 1900
 
@@ -593,7 +597,7 @@ bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>%
   scale_color_manual(values = c("#00057A", "#7A7500" , "#007A75"))+
   facet_wrap(~Sex) +
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp1_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_e0.jpeg", width=17, height=9, dpi=300)
 
 # Summary measure of error in e0 ----
 
@@ -633,7 +637,7 @@ error_e0_exp1 %>%
   facet_grid(Dataset ~ sex)+
   geom_line(linewidth = 1.3)+
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp1_e0_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_e0_Error.jpeg", width=17, height=9, dpi=300)
 
 # Relative error
 error_e0_exp1 %>% 
@@ -641,7 +645,7 @@ error_e0_exp1 %>%
   facet_grid(Dataset ~ sex)+
   geom_line(linewidth = 1.3)+
   theme_graphs()
-ggsave(file="Graphs/Socsim_Exp1_e0_Rel_Error.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_e0_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
 # Change in the direction of the bias around 1948
 
@@ -676,6 +680,10 @@ error_e0_exp1 %>%
 
 yrs_plot2 <- c(1750, 1800, 1850, 1900, 1950, 2000)
 
+# Define the same y breaks for all plots
+y_breaks_TFR <- c(0:5)
+y_breaks_e0 <- c(20, 40, 60, 80)
+
 Summary_Exp1 <-
 bind_rows(TFR_whole %>% rename(Estimate = TFR), 
           TFR_dir_wd %>% rename(Estimate = TFR),
@@ -696,21 +704,17 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   scale_color_manual(values = c("#00057A", "#7A7500" , "#007A75"))+
   scale_shape_manual(values = c(15,19,46)) + 
   scale_x_continuous(breaks = yrs_plot2)+
+  facetted_pos_scales(y = list("Total Fertility Rate" = scale_y_continuous(breaks = y_breaks_TFR, 
+                                                                           limits = c(0, NA)),
+                               "Life Expectancy at Birth" =  scale_y_continuous(breaks = y_breaks_e0)))+
   theme_graphs() + 
   theme(legend.justification = "left",
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-#   theme(legend.justification = "left",
-#         strip.text = element_text(size=32),
-#         legend.title = element_text(size = 28),
-#         legend.text = element_text(size = 25),
-#         axis.title.x = element_text( size = 30),
-#         axis.title.y = element_text(size = 30))
-# ggsave(file="Graphs/Socsim_Exp1_TFR_e0.wmf", width=17, height=9, dpi=400)
 
 # Save the plot
 Summary_Exp1
-ggsave(file="Graphs/Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=200)
+ggsave(file="Graphs/Socsim_Exp1_TFR_e0.jpeg", width=17, height=9, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
 ## Plot combining age-specific rates and Summary measures -----
@@ -732,4 +736,4 @@ By_Age_Exp1 +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Final_Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=21, dpi=200)
+ggsave(file="Final_Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=21, dpi=300)
