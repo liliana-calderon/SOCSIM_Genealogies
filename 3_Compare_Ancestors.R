@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 08-12-2023
+# Last modified on 23-04-2024
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -24,16 +24,19 @@ library(rsocsim) # Functions to estimate rates
 ## Load function to get direct ancestors
 source("Functions/Functions_Ancestors.R")
 
-## Load function to estimate age-specific fertility rates 
-# This is a slightly modified version of the function in the package 
-# that allows to handle the intentional duplicates in the data
+## Load functions to estimate age-specific fertility and mortality rates 
+# These are a slightly modified version of the functions in the rsocsim package 
+# that allow to handle the intentional duplicates in the data (in fertility rates)
+# Also, take the last month from dod instead of dob. 
+# Important here as last dob in the ancestors subset is 18 years ago (age of genealogists)
 source("Functions/Functions_Fertility_Rates_Mod.R")
+source("Functions/Functions_Mortality_Rates_Mod.R")
 
 ## Load theme for the graphs and to convert SOCSIM time
 source("Functions/Functions_Graphs.R")
 
 # Load function to calculate life table from asmr 1x1
-# Currently, it only works with asmr calculated with rsocsim::estimate_mortality_rates()
+# Currently, it only works with asmr calculated with estimate_mortality_rates()
 source("Functions/Functions_Life_Table.R")
 
 #------------------------------------------------------------------------------------------------------
@@ -81,6 +84,11 @@ save(ancestors_10, file = "Subsets/ancestors_10.RData")
 # Load the data frame with the ancestors of the 10 simulations samples of egos alive in 2023
 load("Subsets/ancestors_10.RData")
 
+# The most recent dob in this subset is 18 years ago (the minimum age of the genealogists). 
+# So, the function in rsocsim will assign incorrectly the last month of the simulation
+# and hence calculate wrongly the years of birth and death
+# We need to use a slightly modified function to estimate the rates
+
 #  Estimate ASFR and ASMR for genealogical subset of direct ancestors of population alive in 01-01-2023 with duplicates 
 
 # Create a list of data frames containing opop of ancestors for each simulation
@@ -89,6 +97,7 @@ ancestors_dir_wd <- ancestors_10 %>%
 
 # Estimate age-specific fertility rates for the genealogical subset of Direct Ancestors (with duplicates)
 # We need to use here the modified function that allows the joining of data frames with duplicates
+# And extract last_month from max(dod) instead of max(dob)
 asfr_dir_wd <- map_dfr(ancestors_dir_wd, ~ estimate_fertility_rates_mod(opop = .x,
                                                                         final_sim_year = 2022, #[Jan-Dec]
                                                                         year_min = 1750, # Closed [
@@ -101,13 +110,14 @@ asfr_dir_wd <- map_dfr(ancestors_dir_wd, ~ estimate_fertility_rates_mod(opop = .
 save(asfr_dir_wd, file = "Measures/asfr_dir_wd.RData")
 
 # Estimate age-specific mortality rates for the genealogical subset of direct ancestor with duplicates
-asmr_dir_wd <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates(opop = .x,
-                                                                    final_sim_year = 2022, #[Jan-Dec]
-                                                                    year_min = 1750, # Closed
-                                                                    year_max = 2020, # Open )
-                                                                    year_group = 5,
-                                                                    age_max_mort = 110, # Open )
-                                                                    age_group = 5), # [,)
+# We need to use here the modified function that extracts last_month from max(dod) instead of max(dob)
+asmr_dir_wd <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates_mod(opop = .x,
+                                                                        final_sim_year = 2022, #[Jan-Dec]
+                                                                        year_min = 1750, # Closed
+                                                                        year_max = 2020, # Open )
+                                                                        year_group = 5,
+                                                                        age_max_mort = 110, # Open )
+                                                                        age_group = 5), # [,)
                    .id = "Sim_id") 
 save(asmr_dir_wd, file = "Measures/asmr_dir_wd.RData")
 
@@ -122,25 +132,25 @@ ancestors_dir_wod <- ancestors_10 %>%
   split(.$Sim_id)
 
 # Estimate age-specific fertility rates for the genealogical subset of Direct Ancestors (without duplicates)
-asfr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_fertility_rates(opop = .x,
-                                                                      final_sim_year = 2022, #[Jan-Dec]
-                                                                      year_min = 1750, # Closed [
-                                                                      year_max = 2020, # Open )
-                                                                      year_group = 5, 
-                                                                      age_min_fert = 10, # Closed [
-                                                                      age_max_fert = 55, # Open )
-                                                                      age_group = 5), # [,)
+asfr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                                          year_min = 1750, # Closed [
+                                                                          year_max = 2020, # Open )
+                                                                          year_group = 5, 
+                                                                          age_min_fert = 10, # Closed [
+                                                                          age_max_fert = 55, # Open )
+                                                                          age_group = 5), # [,)
                              .id = "Sim_id") 
 save(asfr_dir_wod, file = "Measures/asfr_dir_wod.RData")
 
 # Estimate age-specific mortality rates for the genealogical subset of Direct Ancestors (without duplicates)
-asmr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates(opop = .x,
-                                                                      final_sim_year = 2022, #[Jan-Dec]
-                                                                      year_min = 1750, # Closed
-                                                                      year_max = 2020, # Open )
-                                                                      year_group = 5,
-                                                                      age_max_mort = 110, # Open )
-                                                                      age_group = 5), # [,)
+asmr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates_mod(opop = .x,
+                                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                                          year_min = 1750, # Closed
+                                                                          year_max = 2020, # Open )
+                                                                          year_group = 5,
+                                                                          age_max_mort = 110, # Open )
+                                                                          age_group = 5), # [,)
                    .id = "Sim_id") 
 save(asmr_dir_wod, file = "Measures/asmr_dir_wod.RData")
 
@@ -373,14 +383,14 @@ asfr_dir_wd_1 <- map_dfr(ancestors_dir_wd, ~ estimate_fertility_rates_mod(opop =
 save(asfr_dir_wd_1, file = "Measures/asfr_dir_wd_1.RData")
 
 # Estimate age-specific fertility rates 1x1 for the genealogical subset of Direct Ancestors (without duplicates)
-asfr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_fertility_rates(opop = .x,
-                                                                final_sim_year = 2022, #[Jan-Dec]
-                                                                year_min = 1750, # Closed [
-                                                                year_max = 2023, # Open )
-                                                                year_group = 1, 
-                                                                age_min_fert = 10, # Closed [
-                                                                age_max_fert = 55, # Open )
-                                                                age_group = 1), # [,)
+asfr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                            final_sim_year = 2022, #[Jan-Dec]
+                                                                            year_min = 1750, # Closed [
+                                                                            year_max = 2023, # Open )
+                                                                            year_group = 1, 
+                                                                            age_min_fert = 10, # Closed [
+                                                                            age_max_fert = 55, # Open )
+                                                                            age_group = 1), # [,)
                     .id = "Sim_id") 
 save(asfr_dir_wod_1, file = "Measures/asfr_dir_wod_1.RData")
 
@@ -438,6 +448,8 @@ bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>%
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
   ungroup() %>% 
   filter(Year >= 1751) %>%
+  # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
+  filter(TFR != 0 & !is.nan(TFR)) %>% 
   ggplot(aes(x = Year, y = TFR, colour = Dataset)) +
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 11)+
   geom_line(linewidth = 1.3, show.legend = TRUE) +
@@ -469,7 +481,7 @@ MoD_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
   mutate(Error = Genealogy - `Whole Simulation`, 
          Relative_Error = (Error/`Whole Simulation`)*100) %>% 
   group_by(Year, Dataset) %>% 
-  reframe(Error = mean(Error, na.rm = T), 
+  summarise(Error = mean(Error, na.rm = T), 
           Relative_Error = mean(Relative_Error, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Type = "MoD")
@@ -517,13 +529,13 @@ error_TFR_exp1 %>%
 # Estimate life expectancy at birth from asmr 1x1 for the different genealogical subsets ----
 
 # Estimate age-specific mortality rates for the genealogical subset of direct ancestor with duplicates
-asmr_dir_wd_1 <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates(opop = .x,
-                                                                      final_sim_year = 2022, #[Jan-Dec]
-                                                                      year_min = 1750, # Closed
-                                                                      year_max = 2023, # Open )
-                                                                      year_group = 1,
-                                                                      age_max_mort = 110, # Open )
-                                                                      age_group = 1), # [,)
+asmr_dir_wd_1 <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates_mod(opop = .x,
+                                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                                          year_min = 1750, # Closed
+                                                                          year_max = 2023, # Open )
+                                                                          year_group = 1,
+                                                                          age_max_mort = 110, # Open )
+                                                                          age_group = 1), # [,)
                      .id = "Sim_id") 
 save(asmr_dir_wd_1, file = "Measures/asmr_dir_wd_1.RData")
 
@@ -532,7 +544,7 @@ lt_dir_wd <- lt_socsim_sims(asmr_socsim_sims = asmr_dir_wd_1)
 save(lt_dir_wd, file = "Measures/lt_dir_wd.RData")
 
 # Estimate age-specific mortality rates for the genealogical subset of Direct Ancestors (without duplicates)
-asmr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates(opop = .x,
+asmr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates_mod(opop = .x,
                                                                        final_sim_year = 2022, #[Jan-Dec]
                                                                        year_min = 1750, # Closed
                                                                        year_max = 2023, # Open )
@@ -622,7 +634,7 @@ MoD_e0_Exp1 <- bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>%
   mutate(Error = Genealogy - `Whole Simulation`, 
          Relative_Error = (Error/`Whole Simulation`)*100) %>% 
   group_by(Year, sex, Dataset) %>% 
-  reframe(Error = mean(Error, na.rm = T), 
+  summarise(Error = mean(Error, na.rm = T), 
           Relative_Error = mean(Relative_Error, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Type = "MoD")
@@ -686,8 +698,9 @@ y_breaks_e0 <- c(20, 40, 60, 80)
 
 Summary_Exp1 <-
 bind_rows(TFR_whole %>% rename(Estimate = TFR), 
-          TFR_dir_wd %>% rename(Estimate = TFR),
-          TFR_dir_wod %>% rename(Estimate = TFR)) %>%  
+          # There can be TFR of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
+          TFR_dir_wd %>% rename(Estimate = TFR) %>% filter(Estimate != 0 & !is.nan(Estimate)),
+          TFR_dir_wod %>% rename(Estimate = TFR) %>% filter(Estimate != 0 & !is.nan(Estimate))) %>%  
   bind_rows(lt_whole2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_dir_wd2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_dir_wod2 %>% rename(Estimate = ex) %>% filter(Age == 0)) %>% 

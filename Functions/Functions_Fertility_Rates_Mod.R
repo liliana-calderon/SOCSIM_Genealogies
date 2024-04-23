@@ -2,7 +2,7 @@
 # Functions to estimate age-specific fertility from SOCSIM output ----
 
 # Created on 18-01-2022
-# Last modified on 01-06-2023
+# Last modified on 22-04-2024
 
 #----------------------------------------------------------------------------------------------------
 ## Notes ----
@@ -37,7 +37,7 @@ jul <- function(year, last_month, final_sim_year){
 
 estimate_fertility_rates_mod <- function(opop, final_sim_year, year_min, year_max, year_group, age_min_fert, age_max_fert, age_group) {
   
-  last_month <- max(opop$dob)
+  last_month <- max(opop$dod) # Change to dod as minimum dob in this experiment is 18 years ago (age of genealogists)
   
   # Year range and breaks
   year_range <- year_min:(year_max-1)
@@ -82,12 +82,14 @@ estimate_fertility_rates_mod <- function(opop, final_sim_year, year_min, year_ma
 
 yearly_birth_by_age_socsim <- function(opop, year_range, age_breaks_fert) {
   
-  last_month <- max(opop$dob)
+  last_month <- max(opop$dod) # Change to dod as minimum dob in this experiment is 18 years ago (age of genealogists)
   
   out <- opop %>% 
-    left_join(opop %>% select(mom = pid, mother_birth = birth_year), 
-              # multiple = "first to return only the first "mom" match for each (children) id
-              by = "mom", multiple = "first") %>% 
+    left_join(opop %>% 
+                # Add distinct function to avoid joining duplicated values (multiple = "first no longer works)
+                distinct(pid, .keep_all = T) %>% 
+                select(mom = pid, mother_birth = birth_year),
+              by = "mom") %>% 
     select(birth_year, mother_birth) %>% 
     filter(birth_year %in% year_range) %>% 
     mutate(birth_year_factor = factor(birth_year, levels = year_range),
@@ -110,7 +112,7 @@ yearly_birth_by_age_socsim <- function(opop, year_range, age_breaks_fert) {
 
 get_women_reproductive_age_socsim <- function(opop, final_sim_year, year, age_breaks_fert) {
   
-  last_month <- max(opop$dob)
+  last_month <- max(opop$dod) # Change to dod as minimum dob in this experiment is 18 years ago (age of genealogists)
   opop$census <- year
   
   out <- opop %>% 
