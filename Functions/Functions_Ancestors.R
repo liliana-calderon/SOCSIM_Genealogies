@@ -638,6 +638,6 @@ recode_ancestors <- function(opop_ancestors) {
                                                 "ffmfmmmf", "ffmfmmff", "ffmfmfmf", "ffmfmfff", "ffmffmmf", "ffmffmff", "ffmfffmf", "ffmfffff", 
                                                 "fffmmmmf", "fffmmmff", "fffmmfmf", "fffmmfff", "fffmfmmf", "fffmfmff", "fffmffmf", "fffmffff", 
                                                 "ffffmmmf", "ffffmmff", "ffffmfmf", "ffffmfff", "fffffmmf", "fffffmff", "ffffffmf", "ffffffff") ~ "gggggggparents", 
-                                TRUE ~ NA))
+                                TRUE ~ NA_character_))
   return(opop_ancestors)
 }
