@@ -673,7 +673,7 @@ MoD_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
   mutate(Error = Genealogy - `Whole Simulation`, 
          Relative_Error = (Error/`Whole Simulation`)*100) %>% 
   group_by(Year, Dataset) %>% 
-  reframe(Error = mean(Error, na.rm = T), 
+  summarise(Error = mean(Error, na.rm = T), 
           Relative_Error = mean(Relative_Error, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Type = "MoD")
@@ -902,7 +902,7 @@ MoD_e0_Exp3B <- bind_rows(lt_whole2,
   mutate(Error = Genealogy - `Whole Simulation`, 
          Relative_Error = (Error/`Whole Simulation`)*100) %>% 
   group_by(Year, sex, Dataset) %>% 
-  reframe(Error = mean(Error, na.rm = T), 
+  summarise(Error = mean(Error, na.rm = T), 
           Relative_Error = mean(Relative_Error, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Type = "MoD")
