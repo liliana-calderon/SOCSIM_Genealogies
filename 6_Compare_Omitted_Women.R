@@ -49,7 +49,7 @@ anc_kin_list <- anc_kin_10 %>% split(.$Sim_id)
 # Function to get a sample of childless women, born after 1735
 # who survived at least until reproductive ages
 
-sample_women <- function(opop = opop, age_threshold, percentage) {
+sample_women <- function(opop = opop, percentage) {
   
   childless_women <- opop %>% 
     filter(fem == 1 & lborn == 0) %>% 
@@ -497,6 +497,38 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
         legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 ggsave(file="Final_Graphs/App_Socsim_Exp3B_ASFR_ASMR.jpeg", width=20, height=25, dpi=300)
+
+#----------------------------------------------------------------------------------------------------
+# Figure for EPC presentation
+
+# Choose three years to plot
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+age_plot <- c("[0,1)", "[1,5)", "[10,15)", "[15,20)", "[20,25)", "[30,35)", "[40,45)", "[50,55)",  "[60,65)", 
+              "[70,75)", "[80,85)", "[90,95)", "[100,105)") 
+
+bind_rows(asmr_whole2, asmr_anc_col2, asmr_less_women_25b, asmr_less_women_100b) %>%
+  rename(Year = year) %>% 
+  filter(Year %in% yrs_plot) %>%
+  filter(Sex == "Female" & Year %in% yrs_plot) %>%
+  # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
+  filter(mx != 0 & !is.infinite(mx) & !is.nan(mx)) %>% 
+  ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset), colour = Year))+
+  facet_wrap( ~ Year, nrow = 1, ncol = 3, scales = "free") +
+  geom_line(linewidth = 1.3, show.legend = TRUE)+
+  geom_point(data = . %>% filter(age %in% age_plot), 
+             aes(shape = Dataset), size = 11) +
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
+  scale_shape_manual(values = c(8, 22, 18, 46)) + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  scale_y_log10() +
+  theme_graphs() +
+  labs(x = "Age") +
+  theme(legend.justification = "left", 
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18))+
+  guides(shape = guide_legend(order = 1))
+
+ggsave(file="Graphs/Socsim_Exp3B_ASMR_years.jpeg", width=24, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year

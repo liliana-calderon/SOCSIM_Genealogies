@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 23-04-2024
+# Last modified on 29-05-2024
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -264,13 +264,16 @@ bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>%
   filter(mx != 0 & !is.infinite(mx) & !is.nan(mx)) %>% 
   ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset)))+
   facet_wrap(~Sex) +
-  geom_line(aes(colour = Year, linetype = Dataset), linewidth = 1.2)+ 
-  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779")) +
+  geom_line(aes(colour = Year, linetype = Dataset), linewidth = 1.3)+ 
   scale_linetype_manual(values = c("11", "22", "solid")) +
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779")) +
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   scale_y_log10() +
-  theme_graphs()
+  theme_graphs() +
+  labs(x = "Age")
+
 ggsave(file="Graphs/Socsim_Exp1_ASMR.jpeg", width=17, height=9, dpi=300)
+
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining ASFR and ASMR ----
 
@@ -363,6 +366,38 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
 ggsave(file="Final_Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=25, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
+# Figure for EPC presentation
+
+# Choose three years to plot
+yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
+age_plot <- c("[0,1)", "[1,5)", "[10,15)", "[20,25)", "[30,35)", "[40,45)", "[50,55)",  "[60,65)", 
+              "[70,75)", "[80,85)", "[90,95)", "[100,105)") 
+
+bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>% 
+  rename(Year = year) %>% 
+  filter(Year %in% yrs_plot) %>%
+  filter(Sex == "Female" & Year %in% yrs_plot) %>%
+  # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
+  filter(mx != 0 & !is.infinite(mx) & !is.nan(mx)) %>% 
+  ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset), colour = Year))+
+  facet_wrap( ~ Year, nrow = 1, ncol = 3, scales = "free") +
+  geom_line(linewidth = 1.3, show.legend = TRUE)+
+  geom_point(data = . %>% filter(age %in% age_plot), 
+             aes(shape = Dataset), size = 11) +
+  scale_color_manual(values = c("#79B727", "#2779B7", "#B72779"))+ 
+  scale_shape_manual(values = c(15, 19 ,46)) + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  scale_y_log10() +
+  theme_graphs() +
+  labs(x = "Age") +
+  theme(legend.justification = "left", 
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18))+
+  guides(shape = guide_legend(order = 1))
+
+ggsave(file="Graphs/Socsim_Exp1_ASMR_years.jpeg", width=24, height=9, dpi=300)
+
+#----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
 
@@ -417,7 +452,7 @@ TFR_whole <- asfr_10_1 %>%
   ungroup() %>% 
   mutate(Dataset = "Whole Simulation",
          Rate = "TFR", 
-         sex = "female")
+         sex = "female") 
 
 # Direct Ancestors (with duplicates)
 TFR_dir_wd <- asfr_dir_wd_1 %>% 
@@ -437,7 +472,7 @@ TFR_dir_wod <- asfr_dir_wod_1 %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors (without duplicates)",
          Rate = "TFR", 
-         sex = "female")
+         sex = "female") 
 
 ## Plot TFR from whole SOCSIM simulation and genealogical subsets of direct ancestors with(out) duplicates
 
@@ -449,6 +484,7 @@ bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>%
   ungroup() %>% 
   filter(Year >= 1751) %>%
   # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
+  # This happens after 2004
   filter(TFR != 0 & !is.nan(TFR)) %>% 
   ggplot(aes(x = Year, y = TFR, colour = Dataset)) +
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 11)+
@@ -463,6 +499,9 @@ ggsave(file="Graphs/Socsim_Exp1_TFR.jpeg", width=17, height=9, dpi=300)
 # Difference in means
 DiM_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
   filter(Year > 1750) %>% 
+  # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
+  # This happens after 2004
+  filter(TFR != 0 & !is.nan(TFR)) %>% 
   group_by(Year, Dataset) %>% 
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
   ungroup() %>% 
@@ -476,6 +515,9 @@ DiM_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
 # Mean of differences
 MoD_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
   filter(Year > 1750) %>% 
+  # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
+  # This happens after 2004
+  filter(TFR != 0 & !is.nan(TFR)) %>% 
   pivot_wider(id_cols = c(Year, Sim_id), names_from = "Dataset", values_from = "TFR") %>% 
   pivot_longer(cols = 4:5, names_to = "Dataset", values_to = "Genealogy") %>% 
   mutate(Error = Genealogy - `Whole Simulation`, 
@@ -511,16 +553,16 @@ ggsave(file="Graphs/Socsim_Exp1_TFR_Rel_Error.jpeg", width=17, height=9, dpi=300
 # Check minimum and maximum values of bias in TFR before 1900
 error_TFR_exp1 %>% 
   filter(Year < 1900) %>% 
-  filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
-  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
+  #filter(Dataset == "Direct Ancestors (with duplicates)") %>% # -3.805727 -2.897351
+  filter(Dataset == "Direct Ancestors (without duplicates)") %>% # -2.394818 -1.554828
   pull(Error) %>% 
   range()
 
 # Check minimum and maximum values of relative bias in TFR before 1900
 error_TFR_exp1 %>% 
   filter(Year < 1900) %>% 
-  # filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
-  filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
+  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # -40.57787
+  # filter(Dataset == "Direct Ancestors (without duplicates)") %>% # -74.68845
   pull(Relative_Error) %>% 
   mean()
 
@@ -659,30 +701,20 @@ error_e0_exp1 %>%
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp1_e0_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
-# Change in the direction of the bias around 1948
-
-# Check minimum and maximum values of bias in e0 before 1948
+# Check minimum and maximum values of bias in e0
 error_e0_exp1 %>% 
-  filter(Year < 1948 & sex == "female") %>% 
-  filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
-  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
-  pull(Error) %>%
-  range()
-
-# Check minimum and maximum values of bias in e0 after 1948
-error_e0_exp1 %>% 
-  filter(Year > 1948 & sex == "female" & Year != 2022) %>% 
-  #filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
-  filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
+  filter(sex == "female") %>% 
+  #filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 0.4583637 34.4324961
+  filter(Dataset == "Direct Ancestors (without duplicates)") %>% # 0.6488196 33.0404727
   pull(Error) %>%
   range()
 
 # Check minimum and maximum values of relative bias in e0 before 1948
 error_e0_exp1 %>% 
-  filter(Year < 1948 & sex == "female") %>% 
-  # filter(Dataset == "Direct Ancestors (with duplicates)") %>% 
+  filter(sex == "female") %>% 
+  # filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 33.53097
   filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
-  pull(Relative_Error) %>% 
+  pull(Relative_Error) %>% # 32.07998
   mean()
 
 #----------------------------------------------------------------------------------------------------
