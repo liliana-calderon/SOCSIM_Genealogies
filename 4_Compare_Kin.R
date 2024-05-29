@@ -1726,12 +1726,32 @@ bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2,
   ungroup() %>% 
   ggplot(aes(x = Year, y = ex, group = Dataset))+
   geom_line(aes(colour = Dataset), linewidth = 1.3)+
-  scale_color_viridis(option = "H", discrete = T, direction = -1)+
+  scale_color_manual(values = c("#7A7500", "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF", 
+                                "#E4695EFF", "#D45270FF", "#C23C81FF", "#AC2694FF", "#75007A", "#007A75"))+
+ # scale_color_viridis(option = "H", discrete = T, direction = -1)+
   facet_wrap(~Sex) +
   theme_graphs() +
-  labs(y = "e0")
+  labs(y = "Life expectancy at birth")
 ggsave(file="Graphs/Socsim_Exp2_e0.jpeg", width=17, height=9, dpi=300)
 
+#----------------------------------------------------------------------------------------------------
+# Figure for EPC presentation
+
+# Plot the estimates of life expectancy at birth
+bind_rows(lt_whole2, lt_dir_wod2, lt_anc_col2)  %>%
+  filter(Age == 0) %>%
+  mutate(Sex = ifelse(sex == "female", "Female", "Male")) %>%
+  group_by(Year, Sex, Dataset) %>% 
+  summarise(ex = mean(ex, na.rm = T)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = Year, y = ex, group = Dataset))+
+  geom_line(aes(colour = Dataset), linewidth = 1.3)+
+  scale_color_manual(values = c("#7A7500", "#75007A", "#007A75"))+
+  facet_wrap(~Sex) +
+  theme_graphs() +
+  labs(y = "Life expectancy at birth")
+ggsave(file="Graphs/Socsim_Exp2_e0_grp.jpeg", width=17, height=9, dpi=300)
+#----------------------------------------------------------------------------------------------------
 # Summary measure of error in e0 ----
 
 # Difference in means

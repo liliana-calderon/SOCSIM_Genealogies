@@ -650,7 +650,8 @@ bind_rows(lt_whole2, lt_dir_wd2, lt_dir_wod2) %>%
   geom_line(aes(colour = Dataset), linewidth = 1.3)+
   scale_color_manual(values = c("#00057A", "#7A7500" , "#007A75"))+
   facet_wrap(~Sex) +
-  theme_graphs()
+  theme_graphs()+
+  labs(y = "Life expectancy at birth")
 ggsave(file="Graphs/Socsim_Exp1_e0.jpeg", width=17, height=9, dpi=300)
 
 # Summary measure of error in e0 ----
@@ -709,7 +710,7 @@ error_e0_exp1 %>%
   pull(Error) %>%
   range()
 
-# Check minimum and maximum values of relative bias in e0 before 1948
+# Check minimum and maximum values of relative bias in e0
 error_e0_exp1 %>% 
   filter(sex == "female") %>% 
   # filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 33.53097

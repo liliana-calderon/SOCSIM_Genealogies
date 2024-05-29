@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 27-06-2023
-# Last modified on 08-12-2023
+# Last modified on 29-05-2024
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -1385,6 +1385,26 @@ bind_rows(lt_whole2, lt_anc_col2,
   scale_color_viridis(option = "D", discrete = T, direction = -1)+
   theme_graphs() 
 ggsave(file="Graphs/Socsim_Exp3A_e0.jpeg", width=17, height=9, dpi=300)
+
+#----------------------------------------------------------------------------------------------------
+# Figure for EPC presentation
+
+# Plot the estimates of life expectancy at birth
+bind_rows(lt_whole2,  lt_anc_col2, lt_less_children_5_25b, lt_less_children_5_100b)  %>%
+  filter(Age == 0) %>%
+  mutate(Sex = ifelse(sex == "female", "Female", "Male")) %>%
+  group_by(Year, Sex, Dataset) %>% 
+  summarise(ex = mean(ex, na.rm = T)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = Year, y = ex, group = Dataset))+
+  geom_line(aes(colour = Dataset), linewidth = 1.3)+
+  scale_color_manual(values = c( "#FF834C","#E7495B","#75007A", "#007A75"))+
+  facet_wrap(~Sex) +
+  theme_graphs() +
+  labs(y = "Life expectancy at birth")
+
+ggsave(file="Graphs/Socsim_Exp3A_e0_grp.jpeg", width=17, height=9, dpi=300)
+#----------------------------------------------------------------------------------------------------
 
 # Summary measure of error in e0 ----
 
