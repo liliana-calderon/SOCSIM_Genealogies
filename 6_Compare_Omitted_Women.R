@@ -925,10 +925,8 @@ bind_rows(lt_whole2,  lt_anc_col2, lt_less_women_25b, lt_less_women_100b)  %>%
   theme_graphs() +
   labs(y = "Life expectancy at birth")
 
-ggsave(file="Graphs/Socsim_Exp3A_e0_grp.jpeg", width=17, height=9, dpi=300)
+ggsave(file="Graphs/Socsim_Exp3B_e0_grp.jpeg", width=17, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
-
-
 # Summary measure of error in e0 ----
 
 # Difference in means
