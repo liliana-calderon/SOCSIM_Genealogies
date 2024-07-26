@@ -35,7 +35,7 @@ theme_graphs <- function() {
         legend.title = element_text(family="serif", size = 20, colour = "#000000", face = "bold"),
         legend.text = element_text(family="serif", size = 20, colour = "#000000"),
         legend.background = element_rect(fill = "#FFFFFF", colour = "#000000", linewidth = 0.3, linetype = "solid"), 
-        legend.key = element_rect(fill = NA), 
+        legend.key = element_rect(fill = NA, color = NA), 
         legend.position = "bottom", 
         legend.direction = "horizontal"
   )
