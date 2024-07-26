@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 11-07-2023
-# Last modified on 29-05-2024
+# Last modified on 26-07-2024
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -34,11 +34,12 @@ source("Functions/Functions_Life_Table.R")
 #------------------------------------------------------------------------------------------------------
 ## Load necessary data and randomly removed proportions of childless women ----
 
-# Load the data frame with the ancestors and collateral kin of 10 simulations samples
+# Load the data frame with the ancestors and their offspring of 10 simulations samples
 load("Subsets/anc_kin_10.RData")
 
 # NB: This data still contains duplicates within each simulation, as someone can be a relative of different egos
 # As we do not distinguish now between type of kin, we will keep only unique pids before merging. 
+### COUSINS NEED TO BE REMOVED
 anc_kin_10 <- anc_kin_10 %>% 
   group_by(Sim_id) %>% 
   distinct(pid, .keep_all= TRUE) %>% 
@@ -88,7 +89,7 @@ save(less_women_100, file = "Subsets/less_women_100.RData")
 
 #----------------------------------------------------------------------------------------------------
 ## Age-Specific Fertility and Mortality rates, 5x5  -----
-#  Estimate ASFR and ASMR for the genealogical subsets with direct ancestors and collateral kin, 
+#  Estimate ASFR and ASMR for the genealogical subsets with direct ancestors and their offspring, 
 # after removing a proportion of childless women
 
 # All direct ancestors and kin from the subset without 25% childless women
@@ -208,8 +209,8 @@ save(asmr_less_women_100, file = "Measures/asmr_less_women_100.RData")
 
 # Load ASFR 5x5 from the 10 simulations
 load("Measures/asfr_10.RData")
-# Load asfr from the subset of all direct ancestors and collateral kin
-load("Measures/asfr_anc_col.RData")
+# Load asfr from the subset of All direct ancestors and their offspring
+load("Measures/asfr_anc_off.RData")
 # Load asfr for the genealogical subset without 25% childless women
 load("Measures/asfr_less_women_25.RData")
 # Load asfr for the genealogical subset without 25% childless women
@@ -229,16 +230,16 @@ asfr_whole2 <- asfr_10 %>%
   mutate(Dataset = "Whole Simulation", 
          Rate = "ASFR") 
 
-# All Direct ancestors and collateral kin 
-asfr_anc_col2 <- asfr_anc_col %>% 
+# All direct ancestors and their offspring 
+asfr_anc_off2 <- asfr_anc_off %>% 
   group_by(year, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>% 
   rename(ASFR = socsim) %>% 
-  mutate(Dataset = "Direct Ancestors + Collateral Kin",
+  mutate(Dataset = "Direct Ancestors and their Offspring",
          Rate = "ASFR") 
 
-# All Direct ancestors and collateral kin without 25% childless women
+# All direct ancestors and their offspring without 25% childless women
 asfr_less_women_25b <- asfr_less_women_25 %>% 
   group_by(year, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -247,7 +248,7 @@ asfr_less_women_25b <- asfr_less_women_25 %>%
   mutate(Dataset = "25% Omission",
          Rate = "ASFR")
 
-# All Direct ancestors and collateral kin without 50% childless women
+# All direct ancestors and their offspring without 50% childless women
 asfr_less_women_50b <- asfr_less_women_50 %>% 
   group_by(year, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -256,7 +257,7 @@ asfr_less_women_50b <- asfr_less_women_50 %>%
   mutate(Dataset = "50% Omission",
          Rate = "ASFR")
 
-# All Direct ancestors and collateral kin without 75% childless women
+# All direct ancestors and their offspring without 75% childless women
 asfr_less_women_75b <- asfr_less_women_75 %>% 
   group_by(year, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -265,7 +266,7 @@ asfr_less_women_75b <- asfr_less_women_75 %>%
   mutate(Dataset = "75% Omission",
          Rate = "ASFR")
 
-# All Direct ancestors and collateral kin without 100% childless women
+# All direct ancestors and their offspring without 100% childless women
 asfr_less_women_100b <- asfr_less_women_100 %>% 
   group_by(year, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -294,8 +295,8 @@ ggsave(file="Graphs/Socsim_Exp3B_ASFR.jpeg", width=17, height=9, dpi=300)
 
 # Load ASMR 5x5 from the 10 simulations
 load("Measures/asmr_10.RData")
-# Load asmr from the subset of all direct ancestors and collateral kin, calculated on 3_Compare_Ancestors
-load("Measures/asmr_anc_col.RData")
+# Load asmr from the subset of All direct ancestors and their offspring, calculated on 3_Compare_Ancestors
+load("Measures/asmr_anc_off.RData")
 # Load asmr for the genealogical subset without 25% childless women
 load("Measures/asmr_less_women_25.RData")
 # Load asmr for the genealogical subset without 25% childless women
@@ -306,7 +307,7 @@ load("Measures/asmr_less_women_75.RData")
 load("Measures/asmr_less_women_100.RData")
 
 # Get the age levels to define them before plotting and avoid wrong order
-age_levels <- levels(asmr_anc_col$age)
+age_levels <- levels(asmr_anc_off$age)
 
 # Whole SOCSIM simulations
 asmr_whole2 <- asmr_10 %>%
@@ -318,17 +319,17 @@ asmr_whole2 <- asmr_10 %>%
          Rate = "ASMR") %>%    
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
-asmr_anc_col2 <- asmr_anc_col %>% 
+asmr_anc_off2 <- asmr_anc_off %>% 
   group_by(year, sex, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(Sex = ifelse(sex == "male", "Male", "Female"),          
-         Dataset = "Direct Ancestors + Collateral Kin",
+         Dataset = "Direct Ancestors and their Offspring",
          Rate = "ASMR", 
          Omitted = "NA") %>%    
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
-# All Direct ancestors and collateral kin without 25% childless women
+# All direct ancestors and their offspring without 25% childless women
 asmr_less_women_25b <- asmr_less_women_25 %>% 
   group_by(year, sex, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -338,7 +339,7 @@ asmr_less_women_25b <- asmr_less_women_25 %>%
          Rate = "ASMR") %>%
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
-# All Direct ancestors and collateral kin without 50% childless women
+# All direct ancestors and their offspring without 50% childless women
 asmr_less_women_50b <- asmr_less_women_50 %>% 
   group_by(year, sex, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -348,7 +349,7 @@ asmr_less_women_50b <- asmr_less_women_50 %>%
          Rate = "ASMR") %>%    
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
-# All Direct ancestors and collateral kin without 75% childless women
+# All direct ancestors and their offspring without 75% childless women
 asmr_less_women_75b <- asmr_less_women_75 %>% 
   group_by(year, sex, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -358,7 +359,7 @@ asmr_less_women_75b <- asmr_less_women_75 %>%
          Rate = "ASMR") %>%    
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
-# All Direct ancestors and collateral kin without 75% childless women
+# All direct ancestors and their offspring without 75% childless women
 asmr_less_women_100b <- asmr_less_women_100 %>% 
   group_by(year, sex, age) %>% 
   summarise(socsim = mean(socsim, na.rm = T)) %>% 
@@ -410,14 +411,14 @@ y_breaks_asmr <- c(0.0, 0.0001, 0.001, 0.01, 0.1, 0.3)
 ## Plotting ASFR and ASMR (for females) from whole SOCSIM simulation and genealogical subsets
 By_Age_Exp3B <- 
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
-          asfr_anc_col2 %>% rename(Estimate = ASFR), 
+          asfr_anc_off2 %>% rename(Estimate = ASFR), 
           asfr_less_women_25b %>% rename(Estimate = ASFR),
           # asfr_less_women_50b %>% rename(Estimate = ASFR),
           # asfr_less_women_75b %>% rename(Estimate = ASFR), 
           asfr_less_women_100b %>% rename(Estimate = ASFR)) %>%
   mutate(Sex = "Female") %>%  
   bind_rows(asmr_whole2 %>% rename(Estimate = mx), 
-            asmr_anc_col2 %>% rename(Estimate = mx), 
+            asmr_anc_off2 %>% rename(Estimate = mx), 
             asmr_less_women_25b %>% rename(Estimate = mx),
             # asmr_less_women_50b %>% rename(Estimate = mx),
             # asmr_less_women_75b %>% rename(Estimate = mx),
@@ -430,7 +431,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
          Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
                        "Age-Specific Mortality Rates"),
          Dataset = factor(Dataset, levels = c("100% Omission", "25% Omission", 
-                                              "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
+                                              "Direct Ancestors and their Offspring", "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(linewidth = 1.3, show.legend = T)+
@@ -455,14 +456,14 @@ By_Age_Exp3B
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
-          asfr_anc_col2 %>% rename(Estimate = ASFR), 
+          asfr_anc_off2 %>% rename(Estimate = ASFR), 
           asfr_less_women_25b %>% rename(Estimate = ASFR),
           # asfr_less_women_50b %>% rename(Estimate = ASFR),
           # asfr_less_women_75b %>% rename(Estimate = ASFR), 
           asfr_less_women_100b %>% rename(Estimate = ASFR)) %>%
   mutate(Sex = "Female") %>%  
   bind_rows(asmr_whole2 %>% rename(Estimate = mx), 
-            asmr_anc_col2 %>% rename(Estimate = mx), 
+            asmr_anc_off2 %>% rename(Estimate = mx), 
             asmr_less_women_25b %>% rename(Estimate = mx),
             # asmr_less_women_50b %>% rename(Estimate = mx),
             # asmr_less_women_75b %>% rename(Estimate = mx),
@@ -475,7 +476,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
          Rate = ifelse(Rate == "ASFR", "Age-Specific Fertility Rates", 
                        "Age-Specific Mortality Rates"),
          Dataset = factor(Dataset, levels = c("100% Omission", "25% Omission", 
-                                              "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
+                                              "Direct Ancestors and their Offspring", "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Year))+
   facet_wrap(Year ~ Rate, nrow = 3, ncol = 2, scales = "free") + 
   geom_line(linewidth = 1.2, show.legend = T)+ 
@@ -506,7 +507,7 @@ yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 age_plot <- c("[0,1)", "[1,5)", "[10,15)", "[15,20)", "[20,25)", "[30,35)", "[40,45)", "[50,55)",  "[60,65)", 
               "[70,75)", "[80,85)", "[90,95)", "[100,105)") 
 
-bind_rows(asmr_whole2, asmr_anc_col2, asmr_less_women_25b, asmr_less_women_100b) %>%
+bind_rows(asmr_whole2, asmr_anc_off2, asmr_less_women_25b, asmr_less_women_100b) %>%
   rename(Year = year) %>% 
   filter(Year %in% yrs_plot) %>%
   filter(Sex == "Female" & Year %in% yrs_plot) %>%
@@ -589,8 +590,8 @@ save(asfr_less_women_100_1, file = "Measures/asfr_less_women_100_1.RData")
 
 # Load asfr 1x1 from the 10 simulations
 load("Measures/asfr_10_1.RData")
-# Load asfr 1x1 from the subset with all direct ancestors and collateral kin
-load("Measures/asfr_anc_col_1.RData")
+# Load asfr 1x1 from the subset with All direct ancestors and their offspring
+load("Measures/asfr_anc_off_1.RData")
 # Load asfr 1x1 from the subset without 25% childless women
 load("Measures/asfr_less_women_25_1.RData")
 # Load asfr 1x1 from the subset without 25% childless women
@@ -616,17 +617,17 @@ TFR_whole <- asfr_10_1 %>%
          Rate = "TFR", 
          sex = "female")
 
-# All Direct ancestors and collateral kin
-TFR_anc_col <- asfr_anc_col_1 %>% 
+# All direct ancestors and their offspring
+TFR_anc_off <- asfr_anc_off_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
   summarise(TFR = sum(socsim)*age_group_fert_1) %>%
   ungroup() %>% 
-  mutate(Dataset = "Direct Ancestors + Collateral Kin",
+  mutate(Dataset = "Direct Ancestors and their Offspring",
          Rate = "TFR",           
          sex = "female") 
 
-# All Direct ancestors and collateral kin without 25% childless women
+# All direct ancestors and their offspring without 25% childless women
 TFR_less_women_25 <- asfr_less_women_25_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
@@ -636,7 +637,7 @@ TFR_less_women_25 <- asfr_less_women_25_1 %>%
          Rate = "TFR",           
          sex = "female")
 
-# All Direct ancestors and collateral kin without 50% childless women
+# All direct ancestors and their offspring without 50% childless women
 TFR_less_women_50 <- asfr_less_women_50_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
@@ -646,7 +647,7 @@ TFR_less_women_50 <- asfr_less_women_50_1 %>%
          Rate = "TFR",           
          sex = "female")
 
-# All Direct ancestors and collateral kin without 75% childless women
+# All direct ancestors and their offspring without 75% childless women
 TFR_less_women_75 <- asfr_less_women_75_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
@@ -656,7 +657,7 @@ TFR_less_women_75 <- asfr_less_women_75_1 %>%
          Rate = "TFR",           
          sex = "female")
 
-# All Direct ancestors and collateral kin without 100% childless women
+# All direct ancestors and their offspring without 100% childless women
 TFR_less_women_100 <- asfr_less_women_100_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
@@ -668,7 +669,7 @@ TFR_less_women_100 <- asfr_less_women_100_1 %>%
 
 ## Plot TFR from whole SOCSIM simulation and subsets with different proportions of omitted children
 
-bind_rows(TFR_whole, TFR_anc_col,
+bind_rows(TFR_whole, TFR_anc_off,
           TFR_less_women_25, TFR_less_women_50, TFR_less_women_75, TFR_less_women_100) %>% 
   group_by(Year, Dataset) %>% 
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
@@ -683,7 +684,7 @@ ggsave(file="Graphs/Socsim_Exp3B_TFR.jpeg", width=17, height=9, dpi=300)
 # Summary measure of error in TFR ----
 
 # Difference in means
-DiM_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
+DiM_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_off,
            TFR_less_women_25, TFR_less_women_50, TFR_less_women_75, TFR_less_women_100) %>%
   filter(Year > 1750) %>% 
   group_by(Year, Dataset) %>% 
@@ -697,7 +698,7 @@ DiM_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
   select(-c(Genealogy,`Whole Simulation`)) 
 
 # Mean of differences
-MoD_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_col,
+MoD_TFR_Exp3B <- bind_rows(TFR_whole, TFR_anc_off,
                     TFR_less_women_25, TFR_less_women_50, TFR_less_women_75, TFR_less_women_100) %>%
   filter(Year > 1750) %>% 
   pivot_wider(id_cols = c(Year, Sim_id), names_from = "Dataset", values_from = "TFR") %>% 
@@ -830,8 +831,8 @@ save(lt_less_women_100, file = "Measures/lt_less_women_100.RData")
 
 # Load life tables from each whole SOCSIM simulation
 load("Measures/lt_10.RData")
-# Load life tables from subset of all direct ancestors and collateral kin
-load("Measures/lt_anc_col.RData")
+# Load life tables from subset of All direct ancestors and their offspring
+load("Measures/lt_anc_off.RData")
 # Load life tables from subset without 25% childless women
 load("Measures/lt_less_women_25.RData")
 # Load life tables from subset without 25% childless women
@@ -856,35 +857,35 @@ lt_whole2 <-  lt_10 %>%
          Rate = "e0")  %>% 
   select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
-# All Direct ancestors and collateral kin 
-lt_anc_col2 <- lt_anc_col %>% 
+# All direct ancestors and their offspring 
+lt_anc_off2 <- lt_anc_off %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
-         Dataset = "Direct Ancestors + Collateral Kin",
+         Dataset = "Direct Ancestors and their Offspring",
          Rate = "e0") %>%    
   select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
-# All Direct ancestors and collateral kin without 25% childless women
+# All direct ancestors and their offspring without 25% childless women
 lt_less_women_25b <- lt_less_women_25 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "25% Omission",
          Rate = "e0") %>%
   select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
-# All Direct ancestors and collateral kin without 25% childless women
+# All direct ancestors and their offspring without 25% childless women
 lt_less_women_50b <- lt_less_women_50 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "50% Omission",
          Rate = "e0") %>%    
   select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
-# All Direct ancestors and collateral kin without 75% childless women
+# All direct ancestors and their offspring without 75% childless women
 lt_less_women_75b <- lt_less_women_75 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "75% Omission",
          Rate = "e0") %>%    
   select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
-# All Direct ancestors and collateral kin without 100% childless women
+# All direct ancestors and their offspring without 100% childless women
 lt_less_women_100b <- lt_less_women_100 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
          Dataset = "100% Omission",
@@ -893,11 +894,11 @@ lt_less_women_100b <- lt_less_women_100 %>%
 
 
 # Plot the estimates of life expectancy at birth
-bind_rows(lt_whole2, lt_anc_col2,
+bind_rows(lt_whole2, lt_anc_off2,
           lt_less_women_25b, lt_less_women_50b, lt_less_women_75b, lt_less_women_100b) %>% 
   filter(Age == 0) %>%
   mutate(Dataset = factor(Dataset, levels = c("100% Omission", "75% Omission", "50% Omission", "25% Omission", 
-                                              "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>% 
+                                              "Direct Ancestors and their Offspring", "Whole Simulation"))) %>% 
   group_by(Year, sex, Dataset) %>% 
   summarise(ex = mean(ex, na.rm = T)) %>% 
   ungroup() %>% 
@@ -912,7 +913,7 @@ ggsave(file="Graphs/Socsim_Exp3B_e0.jpeg", width=17, height=9, dpi=300)
 # Figure for EPC presentation
 
 # Plot the estimates of life expectancy at birth
-bind_rows(lt_whole2,  lt_anc_col2, lt_less_women_25b, lt_less_women_100b)  %>%
+bind_rows(lt_whole2,  lt_anc_off2, lt_less_women_25b, lt_less_women_100b)  %>%
   filter(Age == 0) %>%
   mutate(Sex = ifelse(sex == "female", "Female", "Male")) %>%
   group_by(Year, Sex, Dataset) %>% 
@@ -1015,18 +1016,18 @@ yrs_plot2 <- c(1750, 1800, 1850, 1900, 1950, 2000)
 y_breaks_TFR <- c(0:5)
 y_breaks_e0 <- c(20, 40, 60, 80)
 
-## TFR and e0 (for females) from whole SOCSIM simulation and subsets of "direct" and all collateral kin
+## TFR and e0 (for females) from whole SOCSIM simulation and subsets of direct ancestors and their offspring
 
 Summary_Exp3B <- 
 bind_rows(TFR_whole %>% rename(Estimate = TFR),
-          TFR_anc_col %>% rename(Estimate = TFR),
+          TFR_anc_off %>% rename(Estimate = TFR),
           TFR_less_women_25 %>% rename(Estimate = TFR),
           # TFR_less_women_50 %>% rename(Estimate = TFR),
           # TFR_less_women_75 %>% rename(Estimate = TFR),
           TFR_less_women_100 %>% rename(Estimate = TFR)) %>%
   mutate(sex = "female") %>%  
   bind_rows(lt_whole2 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_anc_col2 %>% rename(Estimate = ex) %>% filter(Age == 0),
+            lt_anc_off2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_less_women_25b %>% rename(Estimate = ex) %>% filter(Age == 0),
             # lt_less_women_50b %>% rename(Estimate = ex) %>% filter(Age == 0),
             # lt_less_women_75b %>% rename(Estimate = ex) %>% filter(Age == 0), 
@@ -1038,7 +1039,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
   mutate(Rate = ifelse(Rate == "TFR", "Total Fertility Rate", "Life Expectancy at Birth"), 
          Rate = factor(Rate, levels = c("Total Fertility Rate", "Life Expectancy at Birth")),
          Dataset = factor(Dataset, levels = c("100% Omission", "25% Omission", 
-                                              "Direct Ancestors + Collateral Kin", "Whole Simulation"))) %>%
+                                              "Direct Ancestors and their Offspring", "Whole Simulation"))) %>%
   ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_point(data = . %>% filter(Year %in% yrs_plot2),
