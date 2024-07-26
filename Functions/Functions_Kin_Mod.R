@@ -660,7 +660,7 @@ retrieve_kin_mod <- function (opop = opop, omar = omar, pid, KidsOf = KidsOf) {
   g1 <- ko(KidsOf = KidsOf, p = res$gparents)
   res$unclesaunts <- lapply(seq_along(g1), function(i) g1[[i]][g1[[i]] %ni% res$parents[[i]]])
   
-  res$firstcousins <- ko(KidsOf = KidsOf, p = res$unclesaunts)
+  #res$firstcousins <- ko(KidsOf = KidsOf, p = res$unclesaunts)
   
   g2 <- ko(KidsOf = KidsOf, p = res$ggparents)
   res$gunclesaunts <- lapply(seq_along(g2), function(i) g2[[i]][g2[[i]] %ni% res$gparents[[i]]])
