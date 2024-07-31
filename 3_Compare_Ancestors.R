@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 29-05-2024
+# Last modified on 31-07-2024
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ options(scipen=999999)
 library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(patchwork) # To combine ggplots
-library(rsocsim) # Functions to estimate rates
+# library(rsocsim) # Functions to estimate rates
 
 ## Load function to get direct ancestors
 source("Functions/Functions_Ancestors.R")
@@ -27,8 +27,10 @@ source("Functions/Functions_Ancestors.R")
 ## Load functions to estimate age-specific fertility and mortality rates 
 # These are a slightly modified version of the functions in the rsocsim package 
 # that allow to handle the intentional duplicates in the data (in fertility rates)
-# Also, take the last month from dod instead of dob. 
-# Important here as last dob in the ancestors subset is 18 years ago (age of genealogists)
+# and retrieve the last month from max(dod) instead of dob. 
+# Important here as max(dob) in most subsets and simulations is not the last simulated month
+# So, the function in rsocsim will assign incorrectly the last month of the simulation
+# and hence calculate wrongly the years of birth and death
 source("Functions/Functions_Fertility_Rates_Mod.R")
 source("Functions/Functions_Mortality_Rates_Mod.R")
 
@@ -38,7 +40,6 @@ source("Functions/Functions_Graphs.R")
 # Load function to calculate life table from asmr 1x1
 # Currently, it only works with asmr calculated with estimate_mortality_rates()
 source("Functions/Functions_Life_Table.R")
-
 #------------------------------------------------------------------------------------------------------
 ## Trace direct ancestors of people alive in 2023 ----
 

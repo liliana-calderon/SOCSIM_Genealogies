@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 13-04-2022
-# Last modified on 26-07-2024
+# Last modified on 31-07-2024
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -21,14 +21,25 @@ options(scipen=999999)
 library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(patchwork) # To combine ggplots
-library(rsocsim) # Functions to estimate rates
+#library(rsocsim) # Functions to estimate rates
 library(viridis)
 
 ## Load theme for the graphs and to convert SOCSIM time
 source("Functions/Functions_Graphs.R")
 
+## Load functions to estimate age-specific fertility and mortality rates 
+# These are a slightly modified version of the functions in the rsocsim package 
+# that allow to handle the intentional duplicates in the data (in fertility rates)
+# and retrieve the last month from max(dod) instead of dob. 
+# Important here as max(dob) in most subsets and simulations is not the last simulated month
+# So, the function in rsocsim will assign incorrectly the last month of the simulation
+# and hence calculate wrongly the years of birth and death
+source("Functions/Functions_Fertility_Rates_Mod.R")
+#source("Functions/Functions_Fertility_Rates_Mod_Denom.R") # Remove direct ancestors' offspring from denominator
+source("Functions/Functions_Mortality_Rates_Mod.R")
+
 # Load function to calculate life table from asmr 1x1
-# Currently, it only works with asmr calculated with rsocsim::estimate_mortality_rates_mod()
+# Currently, it only works with asmr calculated with estimate_mortality_rates_mod()
 source("Functions/Functions_Life_Table.R")
 
 ## Load function to re-code the kin_type for the ancestors
@@ -36,16 +47,6 @@ source("Functions/Functions_Ancestors.R")
 
 # Load modified function to retrieve kin
 source("Functions/Functions_Kin_Mod.R")
-
-## Load functions to estimate age-specific fertility and mortality rates 
-# These are a slightly modified version of the functions in the rsocsim package 
-# that allow to handle the intentional duplicates in the data (in fertility rates)
-# Also, take the last month from dod instead of dob. 
-# Important here as last dob in the ancestors subset is 18 years ago (age of genealogists)
-#source("Functions/Functions_Fertility_Rates_Mod.R")
-source("Functions/Functions_Fertility_Rates_Mod_Denom.R") # Remove direct ancestors' offspring from denominator
-source("Functions/Functions_Mortality_Rates_Mod.R")
-
 #------------------------------------------------------------------------------------------------------
 ## Trace kin of people alive in 2023 ----
 
@@ -150,7 +151,7 @@ anc_off <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors and siblings, 2.7%
+# Direct ancestors and siblings, 3.7%
 type_anc_z <- c("ego", "parents", "gparents", "ggparents", 
                 "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                 "siblings") 
@@ -164,7 +165,7 @@ anc_z <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and aunts/uncles, 3.7%
+# Direct ancestors, offspring above and aunts/uncles, 4.8%
 type_anc_au <- c("ego", "parents", "gparents", "ggparents", 
                  "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                  "siblings", "unclesaunts")
@@ -178,7 +179,7 @@ anc_au <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-## Direct ancestors, offspring above and great-aunt/uncles, 5.4%
+## Direct ancestors, offspring above and great-aunt/uncles, 6.3%
 type_anc_gau <- c("ego", "parents", "gparents", "ggparents", 
                   "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                   "siblings", "unclesaunts", "gunclesaunts")
@@ -192,7 +193,7 @@ anc_gau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-aunt/uncles, 6.9%
+# Direct ancestors, offspring above and great-great-aunt/uncles, 7.6%
 
 type_anc_ggau <- c("ego", "parents", "gparents", "ggparents", 
                    "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
@@ -207,7 +208,7 @@ anc_ggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-great-aunt/uncles, 5.7 %
+# Direct ancestors, offspring above and great-great-great-aunt/uncles, 6.3 %
 type_anc_gggau <- c("ego", "parents", "gparents", "ggparents", 
                     "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                     "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
@@ -222,7 +223,7 @@ anc_gggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-great-great-aunt/uncles, 4.1 %
+# Direct ancestors, offspring above and great-great-great-great-aunt/uncles, 4.5 %
 type_anc_ggggau <- c("ego", "parents", "gparents", "ggparents", 
                      "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                      "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
@@ -237,7 +238,7 @@ anc_ggggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles, 3.9 %
+# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles, 4.2 %
 type_anc_gggggau <- c("ego", "parents", "gparents", "ggparents", 
                       "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                       "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
@@ -252,7 +253,7 @@ anc_gggggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles, 7.5 %
+# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles, 8.2 %
 type_anc_ggggggau <- c("ego", "parents", "gparents", "ggparents", 
                        "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
                        "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
@@ -287,10 +288,11 @@ anc_gggggau %>% map(.f = ~ max(.x$dob)) %>% unique()
 # Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles
 anc_ggggggau %>% map(.f = ~ max(.x$dob)) %>% unique()
 
-# The most recent dob in some subsets is not the last simulated month
+# The max(dob) in most subsets and simulations is not the last simulated month
 # So, the function in rsocsim will assign incorrectly the last month of the simulation
 # and hence calculate wrongly the years of birth and death
 # We must use the modified rate functions (using dod) to ensure that the last month correctly retrieved
+# With max(dod), in all subsets and simulations, the last month will be properly identified
 
 #----------------------------------------------------------------------------------------------------
 ## Age-Specific Fertility and Mortality rates, 5x5  -----
@@ -303,24 +305,24 @@ anc_ggggggau %>% map(.f = ~ max(.x$dob)) %>% unique()
 
 # Estimate age-specific fertility rates from the subset of all direct ancestors and their offspring
 asfr_anc_off <- map_dfr(anc_off, ~ estimate_fertility_rates_mod(opop = .x,
-                                                            final_sim_year = 2022, #[Jan-Dec]
-                                                            year_min = 1750, # Closed [
-                                                            year_max = 2020, # Open )
-                                                            year_group = 5, 
-                                                            age_min_fert = 10, # Closed [
-                                                            age_max_fert = 55, # Open )
-                                                            age_group = 5), # [,)
+                                                                final_sim_year = 2022, #[Jan-Dec]
+                                                                year_min = 1750, # Closed [
+                                                                year_max = 2020, # Open )
+                                                                year_group = 5, 
+                                                                age_min_fert = 10, # Closed [
+                                                                age_max_fert = 55, # Open )
+                                                                age_group = 5), # [,)
                         .id = "Sim_id") 
 save(asfr_anc_off, file = "Measures/asfr_anc_off.RData")
 
 # Estimate age-specific mortality rates from the subset of all direct ancestors and their offspring
 asmr_anc_off <- map_dfr(anc_off, ~ estimate_mortality_rates_mod(opop = .x,
-                                                            final_sim_year = 2022, #[Jan-Dec]
-                                                            year_min = 1750, # Closed
-                                                            year_max = 2020, # Open )
-                                                            year_group = 5,
-                                                            age_max_mort = 110, # Open )
-                                                            age_group = 5), # [,)
+                                                                final_sim_year = 2022, #[Jan-Dec]
+                                                                year_min = 1750, # Closed
+                                                                year_max = 2020, # Open )
+                                                                year_group = 5,
+                                                                age_max_mort = 110, # Open )
+                                                                age_group = 5), # [,)
                         .id = "Sim_id") 
 save(asmr_anc_off, file = "Measures/asmr_anc_off.RData")
 
@@ -329,24 +331,24 @@ save(asmr_anc_off, file = "Measures/asmr_anc_off.RData")
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and siblings
 asfr_anc_z <- map_dfr(anc_z, ~ estimate_fertility_rates_mod(opop = .x,
-                                                        final_sim_year = 2022, #[Jan-Dec]
-                                                        year_min = 1750, # Closed [
-                                                        year_max = 2020, # Open )
-                                                        year_group = 5, 
-                                                        age_min_fert = 10, # Closed [
-                                                        age_max_fert = 55, # Open )
-                                                        age_group = 5), # [,)
+                                                            final_sim_year = 2022, #[Jan-Dec]
+                                                            year_min = 1750, # Closed [
+                                                            year_max = 2020, # Open )
+                                                            year_group = 5, 
+                                                            age_min_fert = 10, # Closed [
+                                                            age_max_fert = 55, # Open )
+                                                            age_group = 5), # [,)
                       .id = "Sim_id") 
 save(asfr_anc_z, file = "Measures/asfr_anc_z.RData")
 
 # Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and siblings
 asmr_anc_z <- map_dfr(anc_z, ~ estimate_mortality_rates_mod(opop = .x,
-                                                        final_sim_year = 2022, #[Jan-Dec]
-                                                        year_min = 1750, # Closed
-                                                        year_max = 2020, # Open )
-                                                        year_group = 5,
-                                                        age_max_mort = 110, # Open )
-                                                        age_group = 5), # [,)
+                                                            final_sim_year = 2022, #[Jan-Dec]
+                                                            year_min = 1750, # Closed
+                                                            year_max = 2020, # Open )
+                                                            year_group = 5,
+                                                            age_max_mort = 110, # Open )
+                                                            age_group = 5), # [,)
                       .id = "Sim_id") 
 save(asmr_anc_z, file = "Measures/asmr_anc_z.RData")
 
@@ -355,24 +357,24 @@ save(asmr_anc_z, file = "Measures/asmr_anc_z.RData")
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and aunts/uncles
 asfr_anc_au <- map_dfr(anc_au, ~ estimate_fertility_rates_mod(opop = .x,
-                                                          final_sim_year = 2022, #[Jan-Dec]
-                                                          year_min = 1750, # Closed [
-                                                          year_max = 2020, # Open )
-                                                          year_group = 5, 
-                                                          age_min_fert = 10, # Closed [
-                                                          age_max_fert = 55, # Open )
-                                                          age_group = 5), # [,)
+                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                              year_min = 1750, # Closed [
+                                                              year_max = 2020, # Open )
+                                                              year_group = 5, 
+                                                              age_min_fert = 10, # Closed [
+                                                              age_max_fert = 55, # Open )
+                                                              age_group = 5), # [,)
                        .id = "Sim_id") 
 save(asfr_anc_au, file = "Measures/asfr_anc_au.RData")
 
 # Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and aunts/uncles
 asmr_anc_au <- map_dfr(anc_au, ~ estimate_mortality_rates_mod(opop = .x,
-                                                          final_sim_year = 2022, #[Jan-Dec]
-                                                          year_min = 1750, # Closed
-                                                          year_max = 2020, # Open )
-                                                          year_group = 5,
-                                                          age_max_mort = 110, # Open )
-                                                          age_group = 5), # [,)
+                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                              year_min = 1750, # Closed
+                                                              year_max = 2020, # Open )
+                                                              year_group = 5,
+                                                              age_max_mort = 110, # Open )
+                                                              age_group = 5), # [,)
                        .id = "Sim_id") 
 save(asmr_anc_au, file = "Measures/asmr_anc_au.RData")
 
@@ -381,24 +383,24 @@ save(asmr_anc_au, file = "Measures/asmr_anc_au.RData")
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and great-aunt/uncles
 asfr_anc_gau <- map_dfr(anc_gau, ~ estimate_fertility_rates_mod(opop = .x,
-                                                            final_sim_year = 2022, #[Jan-Dec]
-                                                            year_min = 1750, # Closed [
-                                                            year_max = 2020, # Open )
-                                                            year_group = 5, 
-                                                            age_min_fert = 10, # Closed [
-                                                            age_max_fert = 55, # Open )
-                                                            age_group = 5), # [,)
+                                                                final_sim_year = 2022, #[Jan-Dec]
+                                                                year_min = 1750, # Closed [
+                                                                year_max = 2020, # Open )
+                                                                year_group = 5, 
+                                                                age_min_fert = 10, # Closed [
+                                                                age_max_fert = 55, # Open )
+                                                                age_group = 5), # [,)
                         .id = "Sim_id") 
 save(asfr_anc_gau, file = "Measures/asfr_anc_gau.RData")
 
 # Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and great-aunt/uncles
 asmr_anc_gau <- map_dfr(anc_gau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                            final_sim_year = 2022, #[Jan-Dec]
-                                                            year_min = 1750, # Closed
-                                                            year_max = 2020, # Open )
-                                                            year_group = 5,
-                                                            age_max_mort = 110, # Open )
-                                                            age_group = 5), # [,)
+                                                                final_sim_year = 2022, #[Jan-Dec]
+                                                                year_min = 1750, # Closed
+                                                                year_max = 2020, # Open )
+                                                                year_group = 5,
+                                                                age_max_mort = 110, # Open )
+                                                                age_group = 5), # [,)
                         .id = "Sim_id") 
 save(asmr_anc_gau, file = "Measures/asmr_anc_gau.RData")
 
@@ -407,24 +409,24 @@ save(asmr_anc_gau, file = "Measures/asmr_anc_gau.RData")
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 2x-great-aunt/uncles
 asfr_anc_ggau <- map_dfr(anc_ggau, ~ estimate_fertility_rates_mod(opop = .x,
-                                                              final_sim_year = 2022, #[Jan-Dec]
-                                                              year_min = 1750, # Closed [
-                                                              year_max = 2020, # Open )
-                                                              year_group = 5, 
-                                                              age_min_fert = 10, # Closed [
-                                                              age_max_fert = 55, # Open )
-                                                              age_group = 5), # [,)
+                                                                  final_sim_year = 2022, #[Jan-Dec]
+                                                                  year_min = 1750, # Closed [
+                                                                  year_max = 2020, # Open )
+                                                                  year_group = 5, 
+                                                                  age_min_fert = 10, # Closed [
+                                                                  age_max_fert = 55, # Open )
+                                                                  age_group = 5), # [,)
                          .id = "Sim_id") 
 save(asfr_anc_ggau, file = "Measures/asfr_anc_ggau.RData")
 
 # Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 2x-great-aunt/uncles
 asmr_anc_ggau <- map_dfr(anc_ggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                              final_sim_year = 2022, #[Jan-Dec]
-                                                              year_min = 1750, # Closed
-                                                              year_max = 2020, # Open )
-                                                              year_group = 5,
-                                                              age_max_mort = 110, # Open )
-                                                              age_group = 5), # [,)
+                                                                  final_sim_year = 2022, #[Jan-Dec]
+                                                                  year_min = 1750, # Closed
+                                                                  year_max = 2020, # Open )
+                                                                  year_group = 5,
+                                                                  age_max_mort = 110, # Open )
+                                                                  age_group = 5), # [,)
                          .id = "Sim_id") 
 save(asmr_anc_ggau, file = "Measures/asmr_anc_ggau.RData")
 
@@ -433,24 +435,24 @@ save(asmr_anc_ggau, file = "Measures/asmr_anc_ggau.RData")
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 3x-great-great-aunt/uncles
 asfr_anc_gggau <- map_dfr(anc_gggau, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                final_sim_year = 2022, #[Jan-Dec]
-                                                                year_min = 1750, # Closed [
-                                                                year_max = 2020, # Open )
-                                                                year_group = 5, 
-                                                                age_min_fert = 10, # Closed [
-                                                                age_max_fert = 55, # Open )
-                                                                age_group = 5), # [,)
+                                                                    final_sim_year = 2022, #[Jan-Dec]
+                                                                    year_min = 1750, # Closed [
+                                                                    year_max = 2020, # Open )
+                                                                    year_group = 5, 
+                                                                    age_min_fert = 10, # Closed [
+                                                                    age_max_fert = 55, # Open )
+                                                                    age_group = 5), # [,)
                           .id = "Sim_id") 
 save(asfr_anc_gggau, file = "Measures/asfr_anc_gggau.RData")
 
 # Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 3x-great-great-aunt/uncles
 asmr_anc_gggau <- map_dfr(anc_gggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                final_sim_year = 2022, #[Jan-Dec]
-                                                                year_min = 1750, # Closed
-                                                                year_max = 2020, # Open )
-                                                                year_group = 5,
-                                                                age_max_mort = 110, # Open )
-                                                                age_group = 5), # [,)
+                                                                    final_sim_year = 2022, #[Jan-Dec]
+                                                                    year_min = 1750, # Closed
+                                                                    year_max = 2020, # Open )
+                                                                    year_group = 5,
+                                                                    age_max_mort = 110, # Open )
+                                                                    age_group = 5), # [,)
                           .id = "Sim_id") 
 save(asmr_anc_gggau, file = "Measures/asmr_anc_gggau.RData")
 
@@ -459,56 +461,6 @@ save(asmr_anc_gggau, file = "Measures/asmr_anc_gggau.RData")
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 4x-great-aunt/uncles
 asfr_anc_ggggau <- map_dfr(anc_ggggau, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                  final_sim_year = 2022, #[Jan-Dec]
-                                                                  year_min = 1750, # Closed [
-                                                                  year_max = 2020, # Open )
-                                                                  year_group = 5, 
-                                                                  age_min_fert = 10, # Closed [
-                                                                  age_max_fert = 55, # Open )
-                                                                  age_group = 5), # [,)
-                           .id = "Sim_id") 
-save(asfr_anc_ggggau, file = "Measures/asfr_anc_ggggau.RData")
-
-# Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 4x-great-aunt/uncles
-asmr_anc_ggggau <- map_dfr(anc_ggggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                  final_sim_year = 2022, #[Jan-Dec]
-                                                                  year_min = 1750, # Closed
-                                                                  year_max = 2020, # Open )
-                                                                  year_group = 5,
-                                                                  age_max_mort = 110, # Open )
-                                                                  age_group = 5), # [,)
-                           .id = "Sim_id") 
-save(asmr_anc_ggggau, file = "Measures/asmr_anc_ggggau.RData")
-
-# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles 
-
-# Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 5x-great-aunt/uncles
-asfr_anc_gggggau <- map_dfr(anc_gggggau, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                    final_sim_year = 2022, #[Jan-Dec]
-                                                                    year_min = 1750, # Closed [
-                                                                    year_max = 2020, # Open )
-                                                                    year_group = 5, 
-                                                                    age_min_fert = 10, # Closed [
-                                                                    age_max_fert = 55, # Open )
-                                                                    age_group = 5), # [,)
-                            .id = "Sim_id") 
-save(asfr_anc_gggggau, file = "Measures/asfr_anc_gggggau.RData")
-
-# Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 5x-great-aunt/uncles
-asmr_anc_gggggau <- map_dfr(anc_gggggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                    final_sim_year = 2022, #[Jan-Dec]
-                                                                    year_min = 1750, # Closed
-                                                                    year_max = 2020, # Open )
-                                                                    year_group = 5,
-                                                                    age_max_mort = 110, # Open )
-                                                                    age_group = 5), # [,)
-                            .id = "Sim_id") 
-save(asmr_anc_gggggau, file = "Measures/asmr_anc_gggggau.RData")
-
-## Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles 
-
-# Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 6x-great-aunt/uncles
-asfr_anc_ggggggau <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates_mod(opop = .x,
                                                                       final_sim_year = 2022, #[Jan-Dec]
                                                                       year_min = 1750, # Closed [
                                                                       year_max = 2020, # Open )
@@ -516,17 +468,67 @@ asfr_anc_ggggggau <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates_mod(opop =
                                                                       age_min_fert = 10, # Closed [
                                                                       age_max_fert = 55, # Open )
                                                                       age_group = 5), # [,)
-                             .id = "Sim_id") 
-save(asfr_anc_ggggggau, file = "Measures/asfr_anc_ggggggau.RData")
+                           .id = "Sim_id") 
+save(asfr_anc_ggggau, file = "Measures/asfr_anc_ggggau.RData")
 
-# Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 6x-great-aunt/uncles
-asmr_anc_ggggggau <- map_dfr(anc_ggggggau, ~ estimate_mortality_rates_mod(opop = .x,
+# Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 4x-great-aunt/uncles
+asmr_anc_ggggau <- map_dfr(anc_ggggau, ~ estimate_mortality_rates_mod(opop = .x,
                                                                       final_sim_year = 2022, #[Jan-Dec]
                                                                       year_min = 1750, # Closed
                                                                       year_max = 2020, # Open )
                                                                       year_group = 5,
                                                                       age_max_mort = 110, # Open )
                                                                       age_group = 5), # [,)
+                           .id = "Sim_id") 
+save(asmr_anc_ggggau, file = "Measures/asmr_anc_ggggau.RData")
+
+# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles 
+
+# Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 5x-great-aunt/uncles
+asfr_anc_gggggau <- map_dfr(anc_gggggau, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                        final_sim_year = 2022, #[Jan-Dec]
+                                                                        year_min = 1750, # Closed [
+                                                                        year_max = 2020, # Open )
+                                                                        year_group = 5, 
+                                                                        age_min_fert = 10, # Closed [
+                                                                        age_max_fert = 55, # Open )
+                                                                        age_group = 5), # [,)
+                            .id = "Sim_id") 
+save(asfr_anc_gggggau, file = "Measures/asfr_anc_gggggau.RData")
+
+# Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 5x-great-aunt/uncles
+asmr_anc_gggggau <- map_dfr(anc_gggggau, ~ estimate_mortality_rates_mod(opop = .x,
+                                                                        final_sim_year = 2022, #[Jan-Dec]
+                                                                        year_min = 1750, # Closed
+                                                                        year_max = 2020, # Open )
+                                                                        year_group = 5,
+                                                                        age_max_mort = 110, # Open )
+                                                                        age_group = 5), # [,)
+                                .id = "Sim_id") 
+save(asmr_anc_gggggau, file = "Measures/asmr_anc_gggggau.RData")
+
+## Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles 
+
+# Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 6x-great-aunt/uncles
+asfr_anc_ggggggau <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                                          year_min = 1750, # Closed [
+                                                                          year_max = 2020, # Open )
+                                                                          year_group = 5, 
+                                                                          age_min_fert = 10, # Closed [
+                                                                          age_max_fert = 55, # Open )
+                                                                          age_group = 5), # [,)
+                             .id = "Sim_id") 
+save(asfr_anc_ggggggau, file = "Measures/asfr_anc_ggggggau.RData")
+
+# Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 6x-great-aunt/uncles
+asmr_anc_ggggggau <- map_dfr(anc_ggggggau, ~ estimate_mortality_rates_mod(opop = .x,
+                                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                                          year_min = 1750, # Closed
+                                                                          year_max = 2020, # Open )
+                                                                          year_group = 5,
+                                                                          age_max_mort = 110, # Open )
+                                                                          age_group = 5), # [,)
                              .id = "Sim_id") 
 save(asmr_anc_ggggggau, file = "Measures/asmr_anc_ggggggau.RData")
 
@@ -538,7 +540,8 @@ save(asmr_anc_ggggggau, file = "Measures/asmr_anc_ggggggau.RData")
 # Load ASFR 5x5 from the 10 simulations
 load("Measures/asfr_10.RData")
 # Load ASFR from the subset of "direct" family trees without duplicates
-load("Measures/asfr_dir_wod.RData")
+load("Measures/with_distinct/asfr_dir_wod.RData")
+#load("Measures/asfr_dir_wod.RData")
 # Load ASFR from the subset of all direct ancestors and their offspring
 load("Measures/asfr_anc_off.RData")
 # Load asfr from the subset of direct ancestors, offspring above and siblings
@@ -683,7 +686,7 @@ ggsave(file="Graphs/Socsim_Exp2_ASFR.jpeg", width=17, height=14, dpi=300)
 # Load ASMR 5x5 from the 10 simulations
 load("Measures/asmr_10.RData")
 # Load ASMR from the subset of "direct" family trees without duplicates
-load("Measures/asmr_dir_wod.RData")
+load("Measures/with_distinct/asmr_dir_wod.RData")
 # Load asmr from the subset of all direct ancestors and their offspring
 load("Measures/asmr_anc_off.RData")
 # Load asmr from the subset of direct ancestors, offspring above and siblings
@@ -972,66 +975,6 @@ ggsave(file="Graphs/Socsim_Exp2_ASMR_years.jpeg", width=24, height=9, dpi=300)
 
 # Estimate age-specific fertility rates 1x1 from the subset of all direct ancestors and their offspring
 asfr_anc_off_1 <- map_dfr(anc_off, ~ estimate_fertility_rates_mod(opop = .x,
-                                                              final_sim_year = 2022, #[Jan-Dec]
-                                                              year_min = 1750, # Closed [
-                                                              year_max = 2023, # Open )
-                                                              year_group = 1, 
-                                                              age_min_fert = 10, # Closed [
-                                                              age_max_fert = 55, # Open )
-                                                              age_group = 1), # [,)
-                          .id = "Sim_id") 
-save(asfr_anc_off_1, file = "Measures/asfr_anc_off_1.RData")
-
-# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and siblings
-asfr_anc_z_1 <- map_dfr(anc_z, ~ estimate_fertility_rates_mod(opop = .x,
-                                                          final_sim_year = 2022, #[Jan-Dec]
-                                                          year_min = 1750, # Closed [
-                                                          year_max = 2023, # Open )
-                                                          year_group = 1, 
-                                                          age_min_fert = 10, # Closed [
-                                                          age_max_fert = 55, # Open )
-                                                          age_group = 1), # [,)
-                        .id = "Sim_id") 
-save(asfr_anc_z_1, file = "Measures/asfr_anc_z_1.RData")
-
-# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and aunts/uncles
-asfr_anc_au_1 <- map_dfr(anc_au, ~ estimate_fertility_rates_mod(opop = .x,
-                                                            final_sim_year = 2022, #[Jan-Dec]
-                                                            year_min = 1750, # Closed [
-                                                            year_max = 2023, # Open )
-                                                            year_group = 1, 
-                                                            age_min_fert = 10, # Closed [
-                                                            age_max_fert = 55, # Open )
-                                                            age_group = 1), # [,)
-                         .id = "Sim_id") 
-save(asfr_anc_au_1, file = "Measures/asfr_anc_au_1.RData")
-
-# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and great-aunts/uncles
-asfr_anc_gau_1 <- map_dfr(anc_gau, ~ estimate_fertility_rates_mod(opop = .x,
-                                                              final_sim_year = 2022, #[Jan-Dec]
-                                                              year_min = 1750, # Closed [
-                                                              year_max = 2023, # Open )
-                                                              year_group = 1, 
-                                                              age_min_fert = 10, # Closed [
-                                                              age_max_fert = 55, # Open )
-                                                              age_group = 1), # [,)
-                          .id = "Sim_id") 
-save(asfr_anc_gau_1, file = "Measures/asfr_anc_gau_1.RData")
-
-# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 2x-great-aunts/uncles
-asfr_anc_ggau_1 <- map_dfr(anc_ggau, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                final_sim_year = 2022, #[Jan-Dec]
-                                                                year_min = 1750, # Closed [
-                                                                year_max = 2023, # Open )
-                                                                year_group = 1, 
-                                                                age_min_fert = 10, # Closed [
-                                                                age_max_fert = 55, # Open )
-                                                                age_group = 1), # [,)
-                          .id = "Sim_id") 
-save(asfr_anc_ggau_1, file = "Measures/asfr_anc_ggau_1.RData")
-
-# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 3x-great-aunts/uncles
-asfr_anc_gggau_1 <- map_dfr(anc_gggau, ~ estimate_fertility_rates_mod(opop = .x,
                                                                   final_sim_year = 2022, #[Jan-Dec]
                                                                   year_min = 1750, # Closed [
                                                                   year_max = 2023, # Open )
@@ -1039,11 +982,47 @@ asfr_anc_gggau_1 <- map_dfr(anc_gggau, ~ estimate_fertility_rates_mod(opop = .x,
                                                                   age_min_fert = 10, # Closed [
                                                                   age_max_fert = 55, # Open )
                                                                   age_group = 1), # [,)
-                            .id = "Sim_id") 
-save(asfr_anc_gggau_1, file = "Measures/asfr_anc_gggau_1.RData")
+                          .id = "Sim_id") 
+save(asfr_anc_off_1, file = "Measures/asfr_anc_off_1.RData")
 
-# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 4x-great-aunts/uncles
-asfr_anc_ggggau_1 <- map_dfr(anc_ggggau, ~ estimate_fertility_rates_mod(opop = .x,
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and siblings
+asfr_anc_z_1 <- map_dfr(anc_z, ~ estimate_fertility_rates_mod(opop = .x,
+                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                              year_min = 1750, # Closed [
+                                                              year_max = 2023, # Open )
+                                                              year_group = 1, 
+                                                              age_min_fert = 10, # Closed [
+                                                              age_max_fert = 55, # Open )
+                                                              age_group = 1), # [,)
+                        .id = "Sim_id") 
+save(asfr_anc_z_1, file = "Measures/asfr_anc_z_1.RData")
+
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and aunts/uncles
+asfr_anc_au_1 <- map_dfr(anc_au, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                final_sim_year = 2022, #[Jan-Dec]
+                                                                year_min = 1750, # Closed [
+                                                                year_max = 2023, # Open )
+                                                                year_group = 1, 
+                                                                age_min_fert = 10, # Closed [
+                                                                age_max_fert = 55, # Open )
+                                                                age_group = 1), # [,)
+                         .id = "Sim_id") 
+save(asfr_anc_au_1, file = "Measures/asfr_anc_au_1.RData")
+
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and great-aunts/uncles
+asfr_anc_gau_1 <- map_dfr(anc_gau, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                  final_sim_year = 2022, #[Jan-Dec]
+                                                                  year_min = 1750, # Closed [
+                                                                  year_max = 2023, # Open )
+                                                                  year_group = 1, 
+                                                                  age_min_fert = 10, # Closed [
+                                                                  age_max_fert = 55, # Open )
+                                                                  age_group = 1), # [,)
+                          .id = "Sim_id") 
+save(asfr_anc_gau_1, file = "Measures/asfr_anc_gau_1.RData")
+
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 2x-great-aunts/uncles
+asfr_anc_ggau_1 <- map_dfr(anc_ggau, ~ estimate_fertility_rates_mod(opop = .x,
                                                                     final_sim_year = 2022, #[Jan-Dec]
                                                                     year_min = 1750, # Closed [
                                                                     year_max = 2023, # Open )
@@ -1051,11 +1030,11 @@ asfr_anc_ggggau_1 <- map_dfr(anc_ggggau, ~ estimate_fertility_rates_mod(opop = .
                                                                     age_min_fert = 10, # Closed [
                                                                     age_max_fert = 55, # Open )
                                                                     age_group = 1), # [,)
-                             .id = "Sim_id") 
-save(asfr_anc_ggggau_1, file = "Measures/asfr_anc_ggggau_1.RData")
+                          .id = "Sim_id") 
+save(asfr_anc_ggau_1, file = "Measures/asfr_anc_ggau_1.RData")
 
-# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 5x-great-aunts/uncles
-asfr_anc_gggggau_1 <- map_dfr(anc_gggggau, ~ estimate_fertility_rates_mod(opop = .x,
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 3x-great-aunts/uncles
+asfr_anc_gggau_1 <- map_dfr(anc_gggau, ~ estimate_fertility_rates_mod(opop = .x,
                                                                       final_sim_year = 2022, #[Jan-Dec]
                                                                       year_min = 1750, # Closed [
                                                                       year_max = 2023, # Open )
@@ -1063,11 +1042,11 @@ asfr_anc_gggggau_1 <- map_dfr(anc_gggggau, ~ estimate_fertility_rates_mod(opop =
                                                                       age_min_fert = 10, # Closed [
                                                                       age_max_fert = 55, # Open )
                                                                       age_group = 1), # [,)
-                              .id = "Sim_id") 
-save(asfr_anc_gggggau_1, file = "Measures/asfr_anc_gggggau_1.RData")
+                            .id = "Sim_id") 
+save(asfr_anc_gggau_1, file = "Measures/asfr_anc_gggau_1.RData")
 
-# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 6x-great-aunts/uncles
-asfr_anc_ggggggau_1 <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates_mod(opop = .x,
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 4x-great-aunts/uncles
+asfr_anc_ggggau_1 <- map_dfr(anc_ggggau, ~ estimate_fertility_rates_mod(opop = .x,
                                                                         final_sim_year = 2022, #[Jan-Dec]
                                                                         year_min = 1750, # Closed [
                                                                         year_max = 2023, # Open )
@@ -1075,6 +1054,30 @@ asfr_anc_ggggggau_1 <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates_mod(opop
                                                                         age_min_fert = 10, # Closed [
                                                                         age_max_fert = 55, # Open )
                                                                         age_group = 1), # [,)
+                             .id = "Sim_id") 
+save(asfr_anc_ggggau_1, file = "Measures/asfr_anc_ggggau_1.RData")
+
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 5x-great-aunts/uncles
+asfr_anc_gggggau_1 <- map_dfr(anc_gggggau, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                                          year_min = 1750, # Closed [
+                                                                          year_max = 2023, # Open )
+                                                                          year_group = 1, 
+                                                                          age_min_fert = 10, # Closed [
+                                                                          age_max_fert = 55, # Open )
+                                                                          age_group = 1), # [,)
+                              .id = "Sim_id") 
+save(asfr_anc_gggggau_1, file = "Measures/asfr_anc_gggggau_1.RData")
+
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 6x-great-aunts/uncles
+asfr_anc_ggggggau_1 <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                            final_sim_year = 2022, #[Jan-Dec]
+                                                                            year_min = 1750, # Closed [
+                                                                            year_max = 2023, # Open )
+                                                                            year_group = 1, 
+                                                                            age_min_fert = 10, # Closed [
+                                                                            age_max_fert = 55, # Open )
+                                                                            age_group = 1), # [,)
                                .id = "Sim_id") 
 save(asfr_anc_ggggggau_1, file = "Measures/asfr_anc_ggggggau_1.RData")
 
@@ -1083,7 +1086,7 @@ save(asfr_anc_ggggggau_1, file = "Measures/asfr_anc_ggggggau_1.RData")
 # Load asfr 1x1 from the 10 simulations
 load("Measures/asfr_10_1.RData")
 # Load asfr 1x1 from the subset of direct ancestors
-load("Measures/asfr_dir_wod_1.RData")
+load("Measures/with_distinct/asfr_dir_wod_1.RData")
 # Load asfr 1x1 from the subset of direct ancestors and their offspring
 load("Measures/asfr_anc_off_1.RData")
 # Load asfr 1x1 from the subset of direct ancestors and siblings
@@ -1477,7 +1480,7 @@ save(lt_anc_ggggggau, file = "Measures/lt_anc_ggggggau.RData")
 # Load life tables from each whole SOCSIM simulation
 load("Measures/lt_10.RData")
 # Load life tables from the subset of direct ancestors (without duplicates)
-load("Measures/lt_dir_wod.RData")
+load("Measures/with_distinct/lt_dir_wod.RData")
 # Load life tables from subset of direct ancestors and siblings
 load("Measures/lt_anc_z.RData")
 # Load life tables from subset of direct ancestors, offspring above and aunts/uncles
