@@ -37,7 +37,7 @@ jul <- function(year, last_month, final_sim_year){
 
 estimate_fertility_rates_mod <- function(opop, final_sim_year, year_min, year_max, year_group, age_min_fert, age_max_fert, age_group) {
   
-  last_month <- max(opop$dod) # Change to dod as minimum dob in this experiment is 18 years ago (age of genealogists)
+  last_month <- max(opop$dod) # Change to dod as max(dob) in most subsets and simulations is not the last simulated month
   
   # Year range and breaks
   year_range <- year_min:(year_max-1)
@@ -82,7 +82,7 @@ estimate_fertility_rates_mod <- function(opop, final_sim_year, year_min, year_ma
 
 yearly_birth_by_age_socsim <- function(opop, year_range, age_breaks_fert) {
   
-  last_month <- max(opop$dod) # Change to dod as minimum dob in this experiment is 18 years ago (age of genealogists)
+  last_month <- max(opop$dod) # Change to dod as max(dob) in most subsets and simulations is not the last simulated month
   
   out <- opop %>% 
     left_join(opop %>% 
@@ -112,7 +112,7 @@ yearly_birth_by_age_socsim <- function(opop, year_range, age_breaks_fert) {
 
 get_women_reproductive_age_socsim <- function(opop, final_sim_year, year, age_breaks_fert) {
   
-  last_month <- max(opop$dod) # Change to dod as minimum dob in this experiment is 18 years ago (age of genealogists)
+  last_month <- max(opop$dod) # Change to dod as max(dob) in most subsets and simulations is not the last simulated month
   opop$census <- year
   
   out <- opop %>% 
