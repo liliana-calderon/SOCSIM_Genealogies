@@ -558,9 +558,6 @@ retrieve_ancestors <- function(egos, opop = opop) {
     mutate(ego_id = ego) %>% 
     pivot_longer(-ego_id, names_to = "kin_type", values_to = "pid") %>% 
     filter(!is.na(pid)) %>% 
-    # group_by(ego_id, pid) %>% 
-    # distinct(pid, .keep_all = TRUE) %>% 
-    # ungroup() %>% 
     left_join(select(opop, c(pid, fem, dob, dod, mom, lborn, marid, mstat)), by = "pid") 
   
   return(opop2)
