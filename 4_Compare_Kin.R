@@ -34,8 +34,8 @@ source("Functions/Functions_Graphs.R")
 # Important here as max(dob) in most subsets and simulations is not the last simulated month
 # So, the function in rsocsim will assign incorrectly the last month of the simulation
 # and hence calculate wrongly the years of birth and death
-source("Functions/Functions_Fertility_Rates_Mod.R")
-#source("Functions/Functions_Fertility_Rates_Mod_Denom.R") # Remove direct ancestors' offspring from denominator
+#source("Functions/Functions_Fertility_Rates_Mod.R")
+source("Functions/Functions_Fertility_Rates_Mod_Denom.R") # Remove direct ancestors' offspring from denominator
 source("Functions/Functions_Mortality_Rates_Mod.R")
 
 # Load function to calculate life table from asmr 1x1
@@ -137,14 +137,13 @@ anc_kin_10 %>%
 load("Subsets/anc_kin_10.RData")
 
 # All direct ancestors and their offspring:
-type_anc_off <- c("ego", "parents", "gparents", "ggparents", 
-                  "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
-                  "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
-                  "gggunclesaunts", "ggggunclesaunts",  "gggggunclesaunts", "ggggggunclesaunts")
+# type_anc_off <- c("ego", "parents", "gparents", "ggparents", 
+#                   "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
+#                   "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
+#                   "gggunclesaunts", "ggggunclesaunts",  "gggggunclesaunts", "ggggggunclesaunts")
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
 anc_off <- anc_kin_10 %>%
-  filter(kin_type %in% type_anc_off) %>% 
   group_by(Sim_id) %>% 
   distinct(pid, .keep_all= TRUE) %>% 
   ungroup() %>% 
