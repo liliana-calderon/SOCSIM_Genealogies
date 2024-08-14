@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 27-06-2023
-# Last modified on 31-07-2024
+# Last modified on 13-08-2024
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -21,7 +21,6 @@ options(scipen=999999)
 library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(patchwork) # To combine ggplots
-#library(rsocsim) # Functions to estimate rates
 library(viridis)
 
 ## Load theme for the graphs and to convert SOCSIM time
@@ -32,8 +31,10 @@ source("Functions/Functions_Graphs.R")
 # that allow to handle the intentional duplicates in the data (in fertility rates)
 # and retrieve the last month from max(dod) instead of dob. 
 # Important here as max(dob) in most subsets and simulations is not the last simulated month
-# So, the function in rsocsim will assign incorrectly the last month of the simulation
+# So, the function in rsocsim would assign incorrectly the last month of the simulation
 # and hence calculate wrongly the years of birth and death
+# Also, the direct ancestors offspring (e.g., ego, siblings, aunts/uncles etc)  
+# are only counted in the numerator but not in the denominator of fertility rates
 source("Functions/Functions_Fertility_Rates_Mod.R")
 source("Functions/Functions_Mortality_Rates_Mod.R")
 
