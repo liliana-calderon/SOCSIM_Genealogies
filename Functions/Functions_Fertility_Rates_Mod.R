@@ -2,7 +2,7 @@
 # Functions to estimate age-specific fertility from SOCSIM output ----
 
 # Created on 18-01-2022
-# Last modified on 22-04-2024
+# Last modified on 13-08-2024
 
 #----------------------------------------------------------------------------------------------------
 ## Notes ----
@@ -30,10 +30,14 @@ jul <- function(year, last_month, final_sim_year){
 
 #----------------------------------------------------------------------------------------------------
 #### Estimate SOCSIM period age-specific fertility rates ----
-# This is a modified version of the function included in the rsocsim package
-# It allows to handle the errors emerging from intentional duplicates in the data
-# specially when left_joining the opop data frame to add the mothers' birth year
-# which are duplicated in the opop file
+
+# These are a modified version of the functions in the rsocsim package 
+# that allow to handle the errors emerging from intentional duplicates in the data
+# (specially when left_joining the opop data frame to add the mothers' birth year)
+# and retrieve the last month from max(dod) instead of dob. 
+# Important here as max(dob) in most subsets and simulations is not the last simulated month
+# Also, the direct ancestors offspring (e.g., ego, siblings, aunts/uncles, etc) 
+# are only counted in the numerator but not in the denominator of fertility rates
 
 estimate_fertility_rates_mod <- function(opop, final_sim_year, year_min, year_max, year_group, age_min_fert, age_max_fert, age_group) {
   
@@ -55,7 +59,7 @@ estimate_fertility_rates_mod <- function(opop, final_sim_year, year_min, year_ma
                                           year_range = year_range, 
                                           age_breaks_fert = age_breaks_fert)
   
-  # 2. Denominator - women in reproductive years (1st July)
+  # 2. Denominator - women in reproductive years (1st July), excluding direct ancestors offspring
   denom <- lapply(year_range, get_women_reproductive_age_socsim,
                   opop = opop2,
                   final_sim_year = final_sim_year,
@@ -71,7 +75,7 @@ estimate_fertility_rates_mod <- function(opop, final_sim_year, year_min, year_ma
                          include.lowest = F, right = F, ordered_results = T)) %>%
     group_by(year = year_gr, age = agegr) %>%
     summarise(socsim = mean(socsim)) %>%
-    ungroup
+    ungroup()
   
   return(asfr)
   
@@ -115,9 +119,14 @@ get_women_reproductive_age_socsim <- function(opop, final_sim_year, year, age_br
   last_month <- max(opop$dod) # Change to dod as max(dob) in most subsets and simulations is not the last simulated month
   opop$census <- year
   
+  # Kin type of direct ancestors' offspring
+  type_off <- c("ego", "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", "gggunclesaunts", 
+                "ggggunclesaunts",  "gggggunclesaunts", "ggggggunclesaunts", "gggggggunclesaunts")
+  
   out <- opop %>% 
     mutate(dod2 = ifelse(dod == 0, 999999999, dod)) %>%
     filter(fem == 1 & dob < jul(year, last_month, final_sim_year) & dod2 >= jul(year, last_month, final_sim_year)) %>%
+    filter(!kin_type %in% type_off) %>% 
     mutate(age_at_census = trunc((jul(census, last_month, final_sim_year)-dob)/12),
            agegr_at_census = cut(age_at_census, breaks = age_breaks_fert, 
                                  include.lowest = F, right = F, ordered_results = T)) %>% 
