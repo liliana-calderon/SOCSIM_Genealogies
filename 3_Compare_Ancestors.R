@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 31-07-2024
+# Last modified on 13-08-2024
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -19,7 +19,6 @@ options(scipen=999999)
 library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(patchwork) # To combine ggplots
-# library(rsocsim) # Functions to estimate rates
 
 ## Load function to get direct ancestors
 source("Functions/Functions_Ancestors.R")
@@ -29,8 +28,10 @@ source("Functions/Functions_Ancestors.R")
 # that allow to handle the intentional duplicates in the data (in fertility rates)
 # and retrieve the last month from max(dod) instead of dob. 
 # Important here as max(dob) in most subsets and simulations is not the last simulated month
-# So, the function in rsocsim will assign incorrectly the last month of the simulation
+# So, the function in rsocsim would assign incorrectly the last month of the simulation
 # and hence calculate wrongly the years of birth and death
+# Also, the direct ancestors offspring (e.g., here, ego, and siblings/aunts/uncles later) 
+# are only counted in the numerator but not in the denominator of fertility rates
 source("Functions/Functions_Fertility_Rates_Mod.R")
 source("Functions/Functions_Mortality_Rates_Mod.R")
 
@@ -69,11 +70,13 @@ egos_samp_10 <- map(sims_opop, ~ sample_egos(opop = .x,
                                              final_sim_year = 2022, 
                                              percentage = 10)) 
 # save(egos_samp_10, file = "Subsets/egos_samp_10.RData")
-
+start <- Sys.time()
 ## Retrieve the ancestors of each simulation sample of egos alive in 2023
 ancestors_10 <- map2_dfr(egos_samp_10, sims_opop,
                            ~ retrieve_ancestors(egos = .x, opop = .y), 
                            .id = "Sim_id") 
+end <- Sys.time()
+print(end-start) # Time difference of 5.097815 mins
 # Save the data frame with the ancestors of 10 simulations samples
 save(ancestors_10, file = "Subsets/ancestors_10.RData")
 
@@ -102,7 +105,7 @@ ancestors_dir_wd <- ancestors_10 %>%
 asfr_dir_wd <- map_dfr(ancestors_dir_wd, ~ estimate_fertility_rates_mod(opop = .x,
                                                                         final_sim_year = 2022, #[Jan-Dec]
                                                                         year_min = 1750, # Closed [
-                                                                        year_max = 2020, # Open )
+                                                                        year_max = 2005, # Open )
                                                                         year_group = 5, 
                                                                         age_min_fert = 10, # Closed [
                                                                         age_max_fert = 55, # Open )
@@ -115,7 +118,7 @@ save(asfr_dir_wd, file = "Measures/asfr_dir_wd.RData")
 asmr_dir_wd <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates_mod(opop = .x,
                                                                         final_sim_year = 2022, #[Jan-Dec]
                                                                         year_min = 1750, # Closed
-                                                                        year_max = 2020, # Open )
+                                                                        year_max = 2005, # Open )
                                                                         year_group = 5,
                                                                         age_max_mort = 110, # Open )
                                                                         age_group = 5), # [,)
@@ -136,7 +139,7 @@ ancestors_dir_wod <- ancestors_10 %>%
 asfr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_fertility_rates_mod(opop = .x,
                                                                           final_sim_year = 2022, #[Jan-Dec]
                                                                           year_min = 1750, # Closed [
-                                                                          year_max = 2020, # Open )
+                                                                          year_max = 2005, # Open )
                                                                           year_group = 5, 
                                                                           age_min_fert = 10, # Closed [
                                                                           age_max_fert = 55, # Open )
@@ -148,7 +151,7 @@ save(asfr_dir_wod, file = "Measures/asfr_dir_wod.RData")
 asmr_dir_wod <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates_mod(opop = .x,
                                                                           final_sim_year = 2022, #[Jan-Dec]
                                                                           year_min = 1750, # Closed
-                                                                          year_max = 2020, # Open )
+                                                                          year_max = 2005, # Open )
                                                                           year_group = 5,
                                                                           age_max_mort = 110, # Open )
                                                                           age_group = 5), # [,)
@@ -272,7 +275,6 @@ bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>%
   scale_y_log10() +
   theme_graphs() +
   labs(x = "Age")
-
 ggsave(file="Graphs/Socsim_Exp1_ASMR.jpeg", width=17, height=9, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
@@ -410,7 +412,7 @@ ggsave(file="Graphs/Socsim_Exp1_ASMR_years.jpeg", width=24, height=9, dpi=300)
 asfr_dir_wd_1 <- map_dfr(ancestors_dir_wd, ~ estimate_fertility_rates_mod(opop = .x,
                                                                           final_sim_year = 2022, #[Jan-Dec]
                                                                           year_min = 1750, # Closed [
-                                                                          year_max = 2023, # Open )
+                                                                          year_max = 2005, # Open )
                                                                           year_group = 1, 
                                                                           age_min_fert = 10, # Closed [
                                                                           age_max_fert = 55, # Open )
@@ -422,7 +424,7 @@ save(asfr_dir_wd_1, file = "Measures/asfr_dir_wd_1.RData")
 asfr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_fertility_rates_mod(opop = .x,
                                                                             final_sim_year = 2022, #[Jan-Dec]
                                                                             year_min = 1750, # Closed [
-                                                                            year_max = 2023, # Open )
+                                                                            year_max = 2005, # Open )
                                                                             year_group = 1, 
                                                                             age_min_fert = 10, # Closed [
                                                                             age_max_fert = 55, # Open )
@@ -483,9 +485,10 @@ bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>%
   group_by(Year, Dataset) %>% 
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
   ungroup() %>% 
-  filter(Year >= 1751) %>%
+  filter(Year >= 1751) %>% 
+  filter(TFR == 0 | is.nan(TFR))  %>% pull(Year) %>% range()
   # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
-  # This happens after 2004
+  # This happens since 1997
   filter(TFR != 0 & !is.nan(TFR)) %>% 
   ggplot(aes(x = Year, y = TFR, colour = Dataset)) +
   geom_point(data = . %>% filter(Year %in% yrs_plot2), aes(shape = Dataset), size = 11)+
@@ -501,7 +504,7 @@ ggsave(file="Graphs/Socsim_Exp1_TFR.jpeg", width=17, height=9, dpi=300)
 DiM_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
   filter(Year > 1750) %>% 
   # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
-  # This happens after 2004
+  # This happens after 1995
   filter(TFR != 0 & !is.nan(TFR)) %>% 
   group_by(Year, Dataset) %>% 
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
@@ -517,7 +520,7 @@ DiM_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
 MoD_TFR_Exp1 <- bind_rows(TFR_whole, TFR_dir_wd,  TFR_dir_wod) %>%
   filter(Year > 1750) %>% 
   # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
-  # This happens after 2004
+  # This happens after 1995
   filter(TFR != 0 & !is.nan(TFR)) %>% 
   pivot_wider(id_cols = c(Year, Sim_id), names_from = "Dataset", values_from = "TFR") %>% 
   pivot_longer(cols = 4:5, names_to = "Dataset", values_to = "Genealogy") %>% 
@@ -549,23 +552,14 @@ ggplot(aes(x = Year, y = Relative_Error, group = Dataset, colour = Type)) +
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp1_TFR_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
-# Change in the magnitude of the bias around 1900
 
-# Check minimum and maximum values of bias in TFR before 1900
+# Check minimum and maximum values of bias in TFR 
 error_TFR_exp1 %>% 
-  filter(Year < 1900) %>% 
-  #filter(Dataset == "Direct Ancestors (with duplicates)") %>% # -3.805727 -2.897351
-  filter(Dataset == "Direct Ancestors (without duplicates)") %>% # -2.394818 -1.554828
+  filter(!is.na(Error)) %>% # NA after 1997
+  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # -3.9385728 -0.5122089
+  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% # --2.395861 -0.342730
   pull(Error) %>% 
   range()
-
-# Check minimum and maximum values of relative bias in TFR before 1900
-error_TFR_exp1 %>% 
-  filter(Year < 1900) %>% 
-  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # -40.57787
-  # filter(Dataset == "Direct Ancestors (without duplicates)") %>% # -74.68845
-  pull(Relative_Error) %>% 
-  mean()
 
 
 # Life Expectancy at birth ----
@@ -575,7 +569,7 @@ error_TFR_exp1 %>%
 asmr_dir_wd_1 <- map_dfr(ancestors_dir_wd, ~ estimate_mortality_rates_mod(opop = .x,
                                                                           final_sim_year = 2022, #[Jan-Dec]
                                                                           year_min = 1750, # Closed
-                                                                          year_max = 2023, # Open )
+                                                                          year_max = 2005, # Open )
                                                                           year_group = 1,
                                                                           age_max_mort = 110, # Open )
                                                                           age_group = 1), # [,)
@@ -588,12 +582,12 @@ save(lt_dir_wd, file = "Measures/lt_dir_wd.RData")
 
 # Estimate age-specific mortality rates for the genealogical subset of Direct Ancestors (without duplicates)
 asmr_dir_wod_1 <- map_dfr(ancestors_dir_wod, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                       final_sim_year = 2022, #[Jan-Dec]
-                                                                       year_min = 1750, # Closed
-                                                                       year_max = 2023, # Open )
-                                                                       year_group = 1,
-                                                                       age_max_mort = 110, # Open )
-                                                                       age_group = 1), # [,)
+                                                                           final_sim_year = 2022, #[Jan-Dec]
+                                                                           year_min = 1750, # Closed
+                                                                           year_max = 2005, # Open )
+                                                                           year_group = 1,
+                                                                           age_max_mort = 110, # Open )
+                                                                           age_group = 1), # [,)
                     .id = "Sim_id") 
 save(asmr_dir_wod_1, file = "Measures/asmr_dir_wod_1.RData")
 
@@ -705,18 +699,20 @@ ggsave(file="Graphs/Socsim_Exp1_e0_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
 # Check minimum and maximum values of bias in e0
 error_e0_exp1 %>% 
-  filter(sex == "female") %>% 
-  #filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 0.4583637 34.4324961
-  filter(Dataset == "Direct Ancestors (without duplicates)") %>% # 0.6488196 33.0404727
+  filter(sex == "female" ) %>% 
+  filter(!is.na(Error)) %>% # There can be NAs in error due to missing values
+  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 0.4583637 34.1262260
+  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% # 0.6488196 33.0424507
   pull(Error) %>%
   range()
 
 # Check minimum and maximum values of relative bias in e0
 error_e0_exp1 %>% 
   filter(sex == "female") %>% 
-  # filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 33.53097
-  filter(Dataset == "Direct Ancestors (without duplicates)") %>% 
-  pull(Relative_Error) %>% # 32.07998
+  filter(!is.na(Error)) %>% # There can be NAs in error due to missing values
+  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 35.65846
+  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% # 34.21708
+  pull(Relative_Error) %>% 
   mean()
 
 #----------------------------------------------------------------------------------------------------
