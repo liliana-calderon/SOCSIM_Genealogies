@@ -219,7 +219,8 @@ save(asmr_less_women_100, file = "Measures/asmr_less_women_100.RData")
 # Load ASFR 5x5 from the 10 simulations
 load("Measures/asfr_10.RData")
 # Load asfr from the subset of All direct ancestors and their offspring
-load("Measures/asfr_anc_off.RData")
+#load("Measures/asfr_anc_off.RData")
+load("Measures/off_denom/asfr_anc_off.RData")
 # Load asfr for the genealogical subset without 25% childless women
 load("Measures/asfr_less_women_25.RData")
 # Load asfr for the genealogical subset without 25% childless women
@@ -305,7 +306,8 @@ ggsave(file="Graphs/Socsim_Exp3B_ASFR.jpeg", width=17, height=9, dpi=300)
 # Load ASMR 5x5 from the 10 simulations
 load("Measures/asmr_10.RData")
 # Load asmr from the subset of All direct ancestors and their offspring, calculated on 3_Compare_Ancestors
-load("Measures/asmr_anc_off.RData")
+#load("Measures/asmr_anc_off.RData")
+load("Measures/off_denom/asmr_anc_off.RData")
 # Load asmr for the genealogical subset without 25% childless women
 load("Measures/asmr_less_women_25.RData")
 # Load asmr for the genealogical subset without 25% childless women
@@ -600,7 +602,8 @@ save(asfr_less_women_100_1, file = "Measures/asfr_less_women_100_1.RData")
 # Load asfr 1x1 from the 10 simulations
 load("Measures/asfr_10_1.RData")
 # Load asfr 1x1 from the subset with All direct ancestors and their offspring
-load("Measures/asfr_anc_off_1.RData")
+#load("Measures/asfr_anc_off_1.RData")
+load("Measures/off_denom/asfr_anc_off_1.RData")
 # Load asfr 1x1 from the subset without 25% childless women
 load("Measures/asfr_less_women_25_1.RData")
 # Load asfr 1x1 from the subset without 25% childless women
@@ -841,7 +844,8 @@ save(lt_less_women_100, file = "Measures/lt_less_women_100.RData")
 # Load life tables from each whole SOCSIM simulation
 load("Measures/lt_10.RData")
 # Load life tables from subset of All direct ancestors and their offspring
-load("Measures/lt_anc_off.RData")
+#load("Measures/lt_anc_off.RData")
+load("Measures/off_denom/lt_anc_off.RData")
 # Load life tables from subset without 25% childless women
 load("Measures/lt_less_women_25.RData")
 # Load life tables from subset without 25% childless women
