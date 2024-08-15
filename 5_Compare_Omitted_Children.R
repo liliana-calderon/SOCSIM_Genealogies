@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 27-06-2023
-# Last modified on 13-08-2024
+# Last modified on 15-08-2024
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -722,9 +722,8 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() + 
   labs(x = "Age") +
-  guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
+  guides(colour = "none") +
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 By_Age_Exp3A
 
@@ -772,14 +771,13 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
                                ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
-                               ASFR = scale_y_continuous(breaks = y_breaks_asfr, limits = c(0, 0.2)),
+                               ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() + 
   labs(x = "Age") +
-  guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
+  guides(colour = "none") +
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 ggsave(file="Final_Graphs/App_Socsim_Exp3A_ASFR_ASMR.jpeg", width=20, height=25, dpi=300)
 
@@ -808,10 +806,9 @@ bind_rows(asmr_whole2, asmr_anc_off2, asmr_less_children_5_25b, asmr_less_childr
   scale_y_log10() +
   theme_graphs() +
   labs(x = "Age") +
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))+
-  guides(shape = guide_legend(order = 1))
+  guides(colour = "none")
 
 ggsave(file="Graphs/Socsim_Exp3A_ASMR_years.jpeg", width=24, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
@@ -1553,8 +1550,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
                                                                            limits = c(0, NA)),
                                "Life Expectancy at Birth" =  scale_y_continuous(breaks = y_breaks_e0)))+
   theme_graphs() +
-  theme(legend.justification = "left",
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 
 Summary_Exp3A
