@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 13-08-2024
+# Last modified on 15-08-2024
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -320,10 +320,9 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(x = "Age") +
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))+
-  guides(shape = guide_legend(order = 1))
+  guides(colour = "none")
 By_Age_Exp1
 
 ## Plot ASFR and ASMR (for females), with three years for appendix
@@ -356,16 +355,14 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
                                ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
-                               ASFR = scale_y_continuous(breaks = y_breaks_asfr, limits = c(0, 0.2)),
+                               ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
   labs(x = "Age") +
-  guides(shape = guide_legend(order = 1), 
-         col = guide_legend(order = 2, nrow=2,byrow=TRUE))+
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 17))
+  guides(colour = "none") +
+  theme(legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18)) #or 17
 ggsave(file="Final_Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=25, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
@@ -393,10 +390,9 @@ bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>%
   scale_y_log10() +
   theme_graphs() +
   labs(x = "Age") +
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))+
-  guides(shape = guide_legend(order = 1))
+  guides(colour = "none")
 
 ggsave(file="Graphs/Socsim_Exp1_ASMR_years.jpeg", width=24, height=9, dpi=300)
 
@@ -486,7 +482,7 @@ bind_rows(TFR_whole, TFR_dir_wd, TFR_dir_wod) %>%
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
   ungroup() %>% 
   filter(Year >= 1751) %>% 
-  filter(TFR == 0 | is.nan(TFR))  %>% pull(Year) %>% range()
+  filter(TFR == 0 | !is.nan(TFR)) %>% 
   # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
   # This happens since 1997
   filter(TFR != 0 & !is.nan(TFR)) %>% 
@@ -751,8 +747,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
                                                                            limits = c(0, NA)),
                                "Life Expectancy at Birth" =  scale_y_continuous(breaks = y_breaks_e0)))+
   theme_graphs() + 
-  theme(legend.justification = "left",
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 
 # Save the plot
