@@ -2,12 +2,12 @@
 # SOCSIM - SOCSIM Sweden - Trace and compare genealogical subsets of kin of a given ego(s) 
 # U:/SOCSIM/SOCSIM_Genealogies/4_Compare_Kin.R
 
-## Trace relevant ascending and lateral kin up to the 4th generation
+## Trace relevant ascending and lateral kin 9 generations backwards
 # of a given ego(s) from a SOCSIM microsimulation for Sweden (1751-2022)
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 13-04-2022
-# Last modified on 31-07-2024
+# Last modified on 15-08-2024
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -21,7 +21,6 @@ options(scipen=999999)
 library(tidyverse)
 library(ggh4x)  # To facet scales-
 library(patchwork) # To combine ggplots
-#library(rsocsim) # Functions to estimate rates
 library(viridis)
 
 ## Load theme for the graphs and to convert SOCSIM time
@@ -32,10 +31,11 @@ source("Functions/Functions_Graphs.R")
 # that allow to handle the intentional duplicates in the data (in fertility rates)
 # and retrieve the last month from max(dod) instead of dob. 
 # Important here as max(dob) in most subsets and simulations is not the last simulated month
-# So, the function in rsocsim will assign incorrectly the last month of the simulation
+# So, the function in rsocsim would assign incorrectly the last month of the simulation
 # and hence calculate wrongly the years of birth and death
-#source("Functions/Functions_Fertility_Rates_Mod.R")
-source("Functions/Functions_Fertility_Rates_Mod_Denom.R") # Remove direct ancestors' offspring from denominator
+# Also, the direct ancestors offspring (e.g., ego, siblings, aunts/uncles etc) 
+# are only counted in the numerator but not in the denominator of fertility rates
+source("Functions/Functions_Fertility_Rates_Mod.R")
 source("Functions/Functions_Mortality_Rates_Mod.R")
 
 # Load function to calculate life table from asmr 1x1
@@ -61,12 +61,15 @@ load("sims_omar.RData")
 load("Subsets/egos_samp_10.RData")
 
 ## Retrieve the relatives of each simulation sample of egos alive in 2023
+start <- Sys.time()
 kin_10_lc <- pmap_dfr(list(sims_opop, sims_omar, egos_samp_10),
                       ~ retrieve_kin_mod(opop = ..1, omar = ..2, pid = ..3,
                                          KidsOf = KidsOf),
                       .id = "Sim_id")
 save(kin_10_lc, file = "Subsets/kin_10_lc.RData")
-# Time difference of 3.9178 hours for 10 simulations with initial population of 5000, with hetfert0
+end <- Sys.time()
+print(end-start) 
+# Time difference of 7.644086 hours for 10 simulations with initial population of 5000, with hetfert0
 
 # Select relevant variables from each opop and add Sim_id to allow merging with the kin_10 df 
 sims_opop_id <- map_dfr(sims_opop, ~ select(.x, c(pid, fem, dob, dod, mom, lborn, marid, mstat)), 
@@ -136,13 +139,7 @@ anc_kin_10 %>%
 # Load the data frame with the ancestors and relatives of 10 simulations samples
 load("Subsets/anc_kin_10.RData")
 
-# All direct ancestors and their offspring:
-# type_anc_off <- c("ego", "parents", "gparents", "ggparents", 
-#                   "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
-#                   "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
-#                   "gggunclesaunts", "ggggunclesaunts",  "gggggunclesaunts", "ggggggunclesaunts")
-
-# Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
+# Create a list of data frames with opop of all selected kin keeping only unique pids for each simulation
 anc_off <- anc_kin_10 %>%
   group_by(Sim_id) %>% 
   distinct(pid, .keep_all= TRUE) %>% 
@@ -151,8 +148,8 @@ anc_off <- anc_kin_10 %>%
 
 
 # Direct ancestors and siblings, 3.7%
-type_anc_z <- c("ego", "parents", "gparents", "ggparents", 
-                "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
+type_anc_z <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
                 "siblings") 
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
@@ -165,8 +162,8 @@ anc_z <- anc_kin_10 %>%
 
 
 # Direct ancestors, offspring above and aunts/uncles, 4.8%
-type_anc_au <- c("ego", "parents", "gparents", "ggparents", 
-                 "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
+type_anc_au <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                 "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
                  "siblings", "unclesaunts")
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
@@ -178,9 +175,9 @@ anc_au <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-## Direct ancestors, offspring above and great-aunt/uncles, 6.3%
-type_anc_gau <- c("ego", "parents", "gparents", "ggparents", 
-                  "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
+## Direct ancestors, offspring above and 1x-great-aunt/uncles, 6.3%
+type_anc_gau <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                  "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
                   "siblings", "unclesaunts", "gunclesaunts")
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
@@ -192,10 +189,9 @@ anc_gau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-aunt/uncles, 7.6%
-
-type_anc_ggau <- c("ego", "parents", "gparents", "ggparents", 
-                   "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
+# Direct ancestors, offspring above and 2x-great-aunt/uncles, 7.6%
+type_anc_ggau <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                   "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
                    "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts")
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
@@ -207,11 +203,10 @@ anc_ggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-great-aunt/uncles, 6.3 %
-type_anc_gggau <- c("ego", "parents", "gparents", "ggparents", 
-                    "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
-                    "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
-                    "gggunclesaunts")
+# Direct ancestors, offspring above and 3x-great-aunt/uncles, 6.3 %
+type_anc_gggau <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                    "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
+                    "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", "gggunclesaunts")
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
 anc_gggau <- anc_kin_10 %>% 
@@ -222,11 +217,11 @@ anc_gggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-great-great-aunt/uncles, 4.5 %
-type_anc_ggggau <- c("ego", "parents", "gparents", "ggparents", 
-                     "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
-                     "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
-                     "gggunclesaunts", "ggggunclesaunts")
+# Direct ancestors, offspring above and 4x-great-aunt/uncles, 4.5 %
+type_anc_ggggau <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                     "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
+                     "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", "gggunclesaunts", 
+                     "ggggunclesaunts")
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
 anc_ggggau <- anc_kin_10 %>% 
@@ -237,11 +232,11 @@ anc_ggggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles, 4.2 %
-type_anc_gggggau <- c("ego", "parents", "gparents", "ggparents", 
-                      "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
-                      "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
-                      "gggunclesaunts", "ggggunclesaunts", "gggggunclesaunts")
+# Direct ancestors, offspring above and 5x-great-aunt/uncles, 4.2 %
+type_anc_gggggau <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                      "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
+                      "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", "gggunclesaunts", 
+                      "ggggunclesaunts", "gggggunclesaunts")
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
 anc_gggggau <- anc_kin_10 %>% 
@@ -252,11 +247,11 @@ anc_gggggau <- anc_kin_10 %>%
   split(.$Sim_id)
 
 
-# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles, 8.2 %
-type_anc_ggggggau <- c("ego", "parents", "gparents", "ggparents", 
-                       "gggparents", "ggggparents", "gggggparents", "ggggggparents", "gggggggparents", 
-                       "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", 
-                       "gggunclesaunts", "ggggunclesaunts", "gggggunclesaunts", "ggggggunclesaunts")
+# Direct ancestors, offspring above and 6x-great-aunt/uncles, 8.2 %
+type_anc_ggggggau <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                       "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
+                       "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", "gggunclesaunts",     
+                       "ggggunclesaunts", "gggggunclesaunts", "ggggggunclesaunts")
 
 # Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
 anc_ggggggau <- anc_kin_10 %>% 
@@ -266,32 +261,53 @@ anc_ggggggau <- anc_kin_10 %>%
   ungroup() %>% 
   split(.$Sim_id)
 
+
+# Direct ancestors, offspring above and 7x-great-aunt/uncles, 8.2 %
+type_anc_gggggggau <- c("ego", "parents", "gparents", "ggparents", "gggparents", "ggggparents", 
+                       "gggggparents", "ggggggparents", "gggggggparents", "ggggggggparents",
+                       "siblings", "unclesaunts", "gunclesaunts", "ggunclesaunts", "gggunclesaunts",     
+                       "ggggunclesaunts", "gggggunclesaunts", "ggggggunclesaunts", "gggggggunclesaunts")
+
+# Create a list of data frames with opop of selected kin keeping only unique pids for each simulation
+anc_gggggggau <- anc_kin_10 %>% 
+  filter(kin_type %in% type_anc_gggggggau) %>% 
+  group_by(Sim_id) %>% 
+  distinct(pid, .keep_all= TRUE) %>% 
+  ungroup() %>% 
+  split(.$Sim_id)
+
+
 ## Check maximum dob in the different subsets to check the last month is correctly retrieved. 
 
 # All direct ancestors and their offspring:
-anc_off %>% map(.f = ~ max(.x$dob)) %>% unique()
+anc_off %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
 # Direct ancestors and siblings
-anc_z %>% map(.f = ~ max(.x$dob)) %>% unique()
+anc_z %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
 # Direct ancestors, offspring above and aunts/uncles
-anc_au %>% map(.f = ~ max(.x$dob)) %>% unique()
-## Direct ancestors, offspring above and great-aunt/uncles
-anc_gau %>% map(.f = ~ max(.x$dob)) %>% unique()
-# Direct ancestors, offspring above and great-great-aunt/uncles
-anc_ggau %>% map(.f = ~ max(.x$dob)) %>% unique()
-# Direct ancestors, offspring above and great-great-great-aunt/uncles
-anc_gggau %>% map(.f = ~ max(.x$dob)) %>% unique()
-# Direct ancestors, offspring above and great-great-great-great-aunt/uncles
-anc_ggggau %>% map(.f = ~ max(.x$dob)) %>% unique()
-# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles
-anc_gggggau %>% map(.f = ~ max(.x$dob)) %>% unique()
-# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles
-anc_ggggggau %>% map(.f = ~ max(.x$dob)) %>% unique()
-
+anc_au %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
+## Direct ancestors, offspring above and 1x-great-aunt/uncles
+anc_gau %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
+## Direct ancestors, offspring above and 2x-great-aunt/uncles
+anc_ggau %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
+## Direct ancestors, offspring above and 3x-great-aunt/uncles
+anc_gggau %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
+## Direct ancestors, offspring above and 4x-great-aunt/uncles
+anc_ggggau %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
+## Direct ancestors, offspring above and 5x-great-aunt/uncles
+anc_gggggau %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
+## Direct ancestors, offspring above and 6x-great-aunt/uncles
+anc_ggggggau %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
+## Direct ancestors, offspring above and 7x-great-aunt/uncles
+anc_gggggggau %>% map_dbl(.f = ~ max(.x$dob)) %>% unique() %>% range()
+ 
 # The max(dob) in most subsets and simulations is not the last simulated month
 # So, the function in rsocsim will assign incorrectly the last month of the simulation
 # and hence calculate wrongly the years of birth and death
 # We must use the modified rate functions (using dod) to ensure that the last month correctly retrieved
 # With max(dod), in all subsets and simulations, the last month will be properly identified
+
+# After including siblings, most recent births corresponds to year 2021. 
+# So, we can use the function below without problems
 
 #----------------------------------------------------------------------------------------------------
 ## Age-Specific Fertility and Mortality rates, 5x5  -----
@@ -404,7 +420,7 @@ asmr_anc_gau <- map_dfr(anc_gau, ~ estimate_mortality_rates_mod(opop = .x,
 save(asmr_anc_gau, file = "Measures/asmr_anc_gau.RData")
 
 
-## Direct ancestors, offspring above and great-great-aunt/uncles
+## Direct ancestors, offspring above and 2x-great-aunt/uncles
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 2x-great-aunt/uncles
 asfr_anc_ggau <- map_dfr(anc_ggau, ~ estimate_fertility_rates_mod(opop = .x,
@@ -430,7 +446,7 @@ asmr_anc_ggau <- map_dfr(anc_ggau, ~ estimate_mortality_rates_mod(opop = .x,
 save(asmr_anc_ggau, file = "Measures/asmr_anc_ggau.RData")
 
 
-## Direct ancestors, offspring above and great-great-great-aunt/uncles
+## Direct ancestors, offspring above and 3x-great-aunt/uncles
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 3x-great-great-aunt/uncles
 asfr_anc_gggau <- map_dfr(anc_gggau, ~ estimate_fertility_rates_mod(opop = .x,
@@ -456,7 +472,7 @@ asmr_anc_gggau <- map_dfr(anc_gggau, ~ estimate_mortality_rates_mod(opop = .x,
 save(asmr_anc_gggau, file = "Measures/asmr_anc_gggau.RData")
 
 
-## Direct ancestors, offspring above and great-great-great-great-aunt/uncles 
+## Direct ancestors, offspring above and 4x-great-aunt/uncles 
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 4x-great-aunt/uncles
 asfr_anc_ggggau <- map_dfr(anc_ggggau, ~ estimate_fertility_rates_mod(opop = .x,
@@ -481,7 +497,8 @@ asmr_anc_ggggau <- map_dfr(anc_ggggau, ~ estimate_mortality_rates_mod(opop = .x,
                            .id = "Sim_id") 
 save(asmr_anc_ggggau, file = "Measures/asmr_anc_ggggau.RData")
 
-# Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles 
+
+# Direct ancestors, offspring above and 5x-great-aunt/uncles 
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 5x-great-aunt/uncles
 asfr_anc_gggggau <- map_dfr(anc_gggggau, ~ estimate_fertility_rates_mod(opop = .x,
@@ -506,7 +523,8 @@ asmr_anc_gggggau <- map_dfr(anc_gggggau, ~ estimate_mortality_rates_mod(opop = .
                                 .id = "Sim_id") 
 save(asmr_anc_gggggau, file = "Measures/asmr_anc_gggggau.RData")
 
-## Direct ancestors, offspring above and great-great-great-great-great-aunt/uncles 
+
+## Direct ancestors, offspring above and 6x-great-aunt/uncles 
 
 # Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 6x-great-aunt/uncles
 asfr_anc_ggggggau <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates_mod(opop = .x,
@@ -531,6 +549,32 @@ asmr_anc_ggggggau <- map_dfr(anc_ggggggau, ~ estimate_mortality_rates_mod(opop =
                              .id = "Sim_id") 
 save(asmr_anc_ggggggau, file = "Measures/asmr_anc_ggggggau.RData")
 
+
+## Direct ancestors, offspring above and 7x-great-aunt/uncles 
+
+# Estimate age-specific fertility rates from the subset of direct ancestors, offspring above and 7x-great-aunt/uncles
+asfr_anc_gggggggau <- map_dfr(anc_gggggggau, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                            final_sim_year = 2022, #[Jan-Dec]
+                                                                            year_min = 1750, # Closed [
+                                                                            year_max = 2020, # Open )
+                                                                            year_group = 5, 
+                                                                            age_min_fert = 10, # Closed [
+                                                                            age_max_fert = 55, # Open )
+                                                                            age_group = 5), # [,)
+                             .id = "Sim_id") 
+save(asfr_anc_gggggggau, file = "Measures/asfr_anc_gggggggau.RData")
+
+# Estimate age-specific mortality rates from the subset of direct ancestors, offspring above and 7x-great-aunt/uncles
+asmr_anc_gggggggau <- map_dfr(anc_gggggggau, ~ estimate_mortality_rates_mod(opop = .x,
+                                                                            final_sim_year = 2022, #[Jan-Dec]
+                                                                            year_min = 1750, # Closed
+                                                                            year_max = 2020, # Open )
+                                                                            year_group = 5,
+                                                                            age_max_mort = 110, # Open )
+                                                                            age_group = 5), # [,)
+                             .id = "Sim_id") 
+save(asmr_anc_gggggggau, file = "Measures/asmr_anc_gggggggau.RData")
+
 #----------------------------------------------------------------------------------------------------
 ## Comparison of whole simulation with subsets of direct ancestors without and with their offspring ----
 
@@ -539,8 +583,7 @@ save(asmr_anc_ggggggau, file = "Measures/asmr_anc_ggggggau.RData")
 # Load ASFR 5x5 from the 10 simulations
 load("Measures/asfr_10.RData")
 # Load ASFR from the subset of "direct" family trees without duplicates
-load("Measures/with_distinct/asfr_dir_wod.RData")
-#load("Measures/asfr_dir_wod.RData")
+load("Measures/asfr_dir_wod.RData")
 # Load ASFR from the subset of all direct ancestors and their offspring
 load("Measures/asfr_anc_off.RData")
 # Load asfr from the subset of direct ancestors, offspring above and siblings
@@ -559,6 +602,8 @@ load("Measures/asfr_anc_ggggau.RData")
 load("Measures/asfr_anc_gggggau.RData")
 # Load asfr from the subset of direct ancestors, offspring above and 6x-great-aunts/uncles
 load("Measures/asfr_anc_ggggggau.RData")
+# Load asfr from the subset of direct ancestors, offspring above and 7x-great-aunts/uncles
+load("Measures/asfr_anc_gggggggau.RData")
 
 ## Calculate the mean of the different simulations and add relevant columns
 
@@ -661,17 +706,26 @@ asfr_anc_ggggggau2 <- asfr_anc_ggggggau %>%
          Rate = "ASFR") 
 
 
+# Direct ancestors, offspring above and 6x-great-aunts/uncles
+asfr_anc_gggggggau2 <- asfr_anc_gggggggau %>% 
+  group_by(year, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
+  rename(ASFR = socsim) %>% 
+  mutate(Dataset = "9. + 7x-Great-Aunts/Uncles",
+         Rate = "ASFR") 
+
 ## Plot ASFR from whole SOCSIM simulation and subsets of direct and extended family trees without duplicates
 
 # Same years to plot than above (in intervals). 
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)")
 
 bind_rows(asfr_whole2, asfr_dir_wod2, asfr_anc_z2, asfr_anc_au2, asfr_anc_gau2, asfr_anc_ggau2, 
-          asfr_anc_gggau2, asfr_anc_ggggau2, asfr_anc_gggggau2, asfr_anc_ggggggau2) %>%
+          asfr_anc_gggau2, asfr_anc_ggggau2, asfr_anc_gggggau2, asfr_anc_ggggggau2, asfr_anc_gggggggau2) %>%
   filter(year %in% yrs_plot & !is.nan(ASFR)) %>%
   mutate(Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Great-Aunts/Uncles", 
                                                "4. + 2x-Great-Aunts/Uncles", "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", 
-                                               "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles", "Whole Simulation"))) %>% 
+                                             "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles", "9. + 7x-Great-Aunts/Uncles", "Whole Simulation"))) %>% 
   ggplot(aes(x = age, y = ASFR, group = interaction(year, Dataset), colour = Dataset))+
   facet_grid(year ~ . , scales = "free") +
   geom_line(linewidth = 1.2)+
@@ -684,8 +738,8 @@ ggsave(file="Graphs/Socsim_Exp2_ASFR.jpeg", width=17, height=14, dpi=300)
 
 # Load ASMR 5x5 from the 10 simulations
 load("Measures/asmr_10.RData")
-# Load ASMR from the subset of "direct" family trees without duplicates
-load("Measures/with_distinct/asmr_dir_wod.RData")
+# Load ASMR from the subset of direct ancestors without duplicates
+load("Measures/asmr_dir_wod.RData")
 # Load asmr from the subset of all direct ancestors and their offspring
 load("Measures/asmr_anc_off.RData")
 # Load asmr from the subset of direct ancestors, offspring above and siblings
@@ -704,6 +758,8 @@ load("Measures/asmr_anc_ggggau.RData")
 load("Measures/asmr_anc_gggggau.RData")
 # Load asmr from the subset of direct ancestors, offspring above and 6x-great-aunts/uncles
 load("Measures/asmr_anc_ggggggau.RData")
+# Load asmr from the subset of direct ancestors, offspring above and 7x-great-aunts/uncles
+load("Measures/asmr_anc_gggggggau.RData")
 
 # Whole SOCSIM simulations
 asmr_whole2 <- asmr_10 %>%
@@ -815,6 +871,16 @@ asmr_anc_ggggggau2 <- asmr_anc_ggggggau %>%
          Rate = "ASMR") %>%    
   select(year, age, Sex, mx = socsim, Dataset, Rate)
 
+# direct ancestors, offspring above and 7x-great-aunts/uncles
+asmr_anc_gggggggau2 <- asmr_anc_gggggggau %>% 
+  group_by(year, sex, age) %>% 
+  summarise(socsim = mean(socsim, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(Sex = ifelse(sex == "male", "Male", "Female"),          
+         Dataset = "9. + 7x-Great-Aunts/Uncles",
+         Rate = "ASMR") %>%    
+  select(year, age, Sex, mx = socsim, Dataset, Rate)
+
 ## Plotting ASMR from whole SOCSIM simulation and subsets of "direct" and "extended" family trees without duplicates
 
 # Get the age levels to define them before plotting and avoid wrong order
@@ -824,14 +890,14 @@ age_levels <- levels(asmr_dir_wod$age)
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
 bind_rows(asmr_whole2, asmr_dir_wod2, asmr_anc_z2, asmr_anc_au2, asmr_anc_gau2, asmr_anc_ggau2, 
-          asmr_anc_gggau2, asmr_anc_ggggau2, asmr_anc_gggggau2, asmr_anc_ggggggau2)  %>%
+          asmr_anc_gggau2, asmr_anc_ggggau2, asmr_anc_gggggau2, asmr_anc_ggggggau2, asmr_anc_gggggggau2)  %>%
   rename(Year = year) %>%
   filter(Year %in% yrs_plot) %>%
   # Some ages can have rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
   filter(mx != 0 & !is.infinite(mx) & !is.nan(mx)) %>%
   mutate(Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Great-Aunts/Uncles", 
                                                "4. + 2x-Great-Aunts/Uncles", "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", 
-                                               "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles", "Whole Simulation"))) %>%
+                                               "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles", "9. + 7x-Great-Aunts/Uncles", "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = mx, group = interaction(Year, Dataset), colour = Dataset))+
   facet_grid(Year ~ Sex) +
   geom_line(linewidth = 1.2, show.legend = T)+
@@ -888,8 +954,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme_graphs() + theme(legend.title = element_text(size = 18)) +
   labs(x = "Age") +
   guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 By_Age_Exp2
 
@@ -930,8 +995,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   theme_graphs() + theme(legend.title = element_text(size = 18)) +
   labs(x = "Age") +
   guides(shape = guide_legend(order = 1), col = guide_legend(order = 2)) +
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 ggsave(file="Graphs/Socsim_Exp2_ASFR_ASMR_grouped.jpeg", width=18, height=25, dpi=300)
 
@@ -960,11 +1024,9 @@ bind_rows(asmr_whole2, asmr_dir_wod2, asmr_anc_off2) %>%
   scale_y_log10() +
   theme_graphs() +
   labs(x = "Age") +
-  theme(legend.justification = "left", 
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))+
-  guides(shape = guide_legend(order = 1))
-
+  guides(colour = "none")
 ggsave(file="Graphs/Socsim_Exp2_ASMR_years.jpeg", width=24, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
@@ -1080,12 +1142,24 @@ asfr_anc_ggggggau_1 <- map_dfr(anc_ggggggau, ~ estimate_fertility_rates_mod(opop
                                .id = "Sim_id") 
 save(asfr_anc_ggggggau_1, file = "Measures/asfr_anc_ggggggau_1.RData")
 
+# Estimate age-specific fertility rates 1x1 from the subset of direct ancestors, offspring above and 7x-great-aunts/uncles
+asfr_anc_gggggggau_1 <- map_dfr(anc_gggggggau, ~ estimate_fertility_rates_mod(opop = .x,
+                                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                                              year_min = 1750, # Closed [
+                                                                              year_max = 2023, # Open )
+                                                                              year_group = 1, 
+                                                                              age_min_fert = 10, # Closed [
+                                                                              age_max_fert = 55, # Open )
+                                                                              age_group = 1), # [,)
+                               .id = "Sim_id") 
+save(asfr_anc_gggggggau_1, file = "Measures/asfr_anc_gggggggau_1.RData")
+
 # Load ASFR 1x1 and calculate TFR for plotting ----
 
 # Load asfr 1x1 from the 10 simulations
 load("Measures/asfr_10_1.RData")
 # Load asfr 1x1 from the subset of direct ancestors
-load("Measures/with_distinct/asfr_dir_wod_1.RData")
+load("Measures/asfr_dir_wod_1.RData")
 # Load asfr 1x1 from the subset of direct ancestors and their offspring
 load("Measures/asfr_anc_off_1.RData")
 # Load asfr 1x1 from the subset of direct ancestors and siblings
@@ -1104,6 +1178,8 @@ load("Measures/asfr_anc_ggggau_1.RData")
 load("Measures/asfr_anc_gggggau_1.RData")
 # Load asfr 1x1 from the subset of direct ancestors, offspring above and 6x-great-aunts/uncles
 load("Measures/asfr_anc_ggggggau_1.RData")
+# Load asfr 1x1 from the subset of direct ancestors, offspring above and 7x-great-aunts/uncles
+load("Measures/asfr_anc_gggggggau_1.RData")
 
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
 age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
@@ -1140,6 +1216,13 @@ TFR_anc_off <- asfr_anc_off_1 %>%
   mutate(Dataset = "Direct Ancestors and their Offspring",
          Rate = "TFR",           
          sex = "female")
+
+TFR_anc_off %>% 
+  filter(is.nan(TFR)) %>% 
+  pull(Year) %>% 
+  range()
+# There are NaN 0/0 for 1995-2022, probably because of missing births or women of a certain age 
+# This needs to be corrected
 
 # Direct ancestors and siblings
 TFR_anc_z <- asfr_anc_z_1 %>% 
@@ -1221,15 +1304,27 @@ TFR_anc_ggggggau <- asfr_anc_ggggggau_1 %>%
          Rate = "TFR",           
          sex = "female") 
 
+# direct ancestors, offspring above and 7x-great-aunts/uncles
+TFR_anc_gggggggau <- asfr_anc_gggggggau_1 %>% 
+  mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  group_by(Year, Sim_id) %>% 
+  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  ungroup() %>% 
+  mutate(Dataset = "9. + 7x-Great-Aunts/Uncles",
+         Rate = "TFR",           
+         sex = "female") 
+
 ## Plot TFR from whole SOCSIM simulation and subsets of "direct" and "extended"  family trees without duplicates
 ## Here we need to compute the mean for each dataset
 
-bind_rows(TFR_whole, TFR_dir_wod  %>% filter(TFR != 0 & !is.nan(TFR)), 
-          TFR_anc_z, TFR_anc_au, TFR_anc_gau, TFR_anc_ggau, 
-          TFR_anc_gggau, TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau) %>%
+bind_rows(TFR_whole, TFR_dir_wod  %>% filter(TFR != 0), 
+          TFR_anc_z, TFR_anc_au, TFR_anc_gau, TFR_anc_ggau, TFR_anc_gggau, 
+          TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau, TFR_anc_gggggggau) %>%
+  ### CHECK if this should stay or must be modified
+  filter(!is.nan(TFR)) %>% 
   mutate(Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Great-Aunts/Uncles", 
                                                "4. + 2x-Great-Aunts/Uncles", "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", 
-                                               "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles", "Whole Simulation"))) %>%
+                                               "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles", "9. + 7x-Great-Aunts/Uncles", "Whole Simulation"))) %>%
   group_by(Year, Dataset) %>% 
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
   ungroup() %>% 
@@ -1242,8 +1337,8 @@ ggsave(file="Graphs/Socsim_Exp2_TFR.jpeg", width=17, height=9, dpi=300)
 # Summary measure of error in TFR ----
 
 # Difference in means
-DiM_TFR_Exp2 <- bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_au, TFR_anc_gau, TFR_anc_ggau, 
-                          TFR_anc_gggau, TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau) %>%
+DiM_TFR_Exp2 <- bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_au, TFR_anc_gau, TFR_anc_ggau, TFR_anc_gggau, 
+                          TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau, TFR_anc_gggggggau) %>%
   filter(Year > 1750) %>% 
   # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
   # This happens after 2004
@@ -1252,21 +1347,21 @@ DiM_TFR_Exp2 <- bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_au, TFR_anc
   summarise(TFR = mean(TFR, na.rm = T)) %>% 
   ungroup() %>% 
   pivot_wider(id_cols = Year, names_from = "Dataset", values_from = "TFR") %>% 
-  pivot_longer(cols = 2:10, names_to = "Dataset", values_to = "Genealogy") %>%
+  pivot_longer(cols = 2:11, names_to = "Dataset", values_to = "Genealogy") %>%
   mutate(Error = Genealogy - `Whole Simulation` , 
          Relative_Error = (Error/`Whole Simulation`)*100,
          Type = "DiM") %>% 
   select(-c(Genealogy,`Whole Simulation`)) 
 
 # Mean of differences
-MoD_TFR_Exp2 <- bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_au, TFR_anc_gau, TFR_anc_ggau, 
-                          TFR_anc_gggau, TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau) %>%
+MoD_TFR_Exp2 <- bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_au, TFR_anc_gau, TFR_anc_ggau, TFR_anc_gggau, 
+                          TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau, TFR_anc_gggggggau) %>%
   filter(Year > 1750) %>% 
   # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
   # This happens after 2004
   filter(TFR != 0 & !is.nan(TFR)) %>% 
   pivot_wider(id_cols = c(Year, Sim_id), names_from = "Dataset", values_from = "TFR") %>% 
-  pivot_longer(cols = 4:12, names_to = "Dataset", values_to = "Genealogy") %>% 
+  pivot_longer(cols = 4:13, names_to = "Dataset", values_to = "Genealogy") %>% 
   mutate(Error = Genealogy - `Whole Simulation`, 
          Relative_Error = (Error/`Whole Simulation`)*100) %>% 
   group_by(Year, Dataset) %>% 
@@ -1297,40 +1392,19 @@ ggsave(file="Graphs/Socsim_Exp2_TFR_Rel_Error.jpeg", width=17, height=9, dpi=300
 
 # Retrieve the year with the smallest error (close to 0)
 error_TFR_exp2 %>%
-  filter(Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
+  filter(Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
   filter(Error == max(Error))
 
-# Check minimum and maximum values of bias in TFR before 1834
+# Check minimum and maximum values of bias
 error_TFR_exp2 %>%
-  filter(Year < 1834) %>% 
-  filter(Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
-  pull(Error) %>% # -0.17983396 -0.05247996
-  range()
-
-# Check mean value of bias and relative bias in TFR before 1834
-error_TFR_exp2 %>% 
-  filter(Year < 1851) %>% 
-  filter(Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
-  #pull(Error) %>% 
-  pull(Relative_Error) %>% # -2.438331
-  mean()
-
-# Check minimum and maximum values of bias in TFR after 1834 # Not sure why using this number
-error_TFR_exp2 %>%
-  filter(Year > 1834) %>% 
-  filter(Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
+  filter(Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
   pull(Error) %>% 
   range()
-
-# Check maximum values of relative bias in TFR
-error_TFR_exp2 %>%
-  filter(Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
-  filter(Relative_Error == min(Relative_Error))
 
 # Check bias and relative bias in TFR in 2022 (year with the greatest error)
 error_TFR_exp2 %>%
   filter(Year == 2022) %>% 
-  filter(Dataset == "8. + 6x-Great-Aunts/Uncles")
+  filter(Dataset == "9. + 7x-Great-Aunts/Uncles")
 
 
 # Life Expectancy at birth ----
@@ -1338,12 +1412,12 @@ error_TFR_exp2 %>%
 
 # Estimate age-specific mortality rates 1x1 from the subset of all direct ancestors and their offspring
 asmr_anc_off_1 <- map_dfr(anc_off, ~ estimate_mortality_rates_mod(opop = .x,
-                                                              final_sim_year = 2022, #[Jan-Dec]
-                                                              year_min = 1750, # Closed
-                                                              year_max = 2023, # Open )
-                                                              year_group = 1,
-                                                              age_max_mort = 110, # Open )
-                                                              age_group = 1), # [,)
+                                                                  final_sim_year = 2022, #[Jan-Dec]
+                                                                  year_min = 1750, # Closed
+                                                                  year_max = 2023, # Open )
+                                                                  year_group = 1,
+                                                                  age_max_mort = 110, # Open )
+                                                                  age_group = 1), # [,)
                           .id = "Sim_id") 
 save(asmr_anc_off_1, file = "Measures/asmr_anc_off_1.RData")
 
@@ -1353,12 +1427,12 @@ save(lt_anc_off, file = "Measures/lt_anc_off.RData")
 
 # Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and siblings
 asmr_anc_z_1 <- map_dfr(anc_z, ~ estimate_mortality_rates_mod(opop = .x,
-                                                          final_sim_year = 2022, #[Jan-Dec]
-                                                          year_min = 1750, # Closed
-                                                          year_max = 2023, # Open )
-                                                          year_group = 1,
-                                                          age_max_mort = 110, # Open )
-                                                          age_group = 1), # [,)
+                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                              year_min = 1750, # Closed
+                                                              year_max = 2023, # Open )
+                                                              year_group = 1,
+                                                              age_max_mort = 110, # Open )
+                                                              age_group = 1), # [,)
                         .id = "Sim_id") 
 save(asmr_anc_z_1, file = "Measures/asmr_anc_z_1.RData")
 
@@ -1368,12 +1442,12 @@ save(lt_anc_z, file = "Measures/lt_anc_z.RData")
 
 # Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and aunts/uncles
 asmr_anc_au_1 <- map_dfr(anc_au, ~ estimate_mortality_rates_mod(opop = .x,
-                                                            final_sim_year = 2022, #[Jan-Dec]
-                                                            year_min = 1750, # Closed
-                                                            year_max = 2023, # Open )
-                                                            year_group = 1,
-                                                            age_max_mort = 110, # Open )
-                                                            age_group = 1), # [,)
+                                                                final_sim_year = 2022, #[Jan-Dec]
+                                                                year_min = 1750, # Closed
+                                                                year_max = 2023, # Open )
+                                                                year_group = 1,
+                                                                age_max_mort = 110, # Open )
+                                                                age_group = 1), # [,)
                          .id = "Sim_id") 
 save(asmr_anc_au_1, file = "Measures/asmr_anc_au_1.RData")
 
@@ -1383,12 +1457,12 @@ save(lt_anc_au, file = "Measures/lt_anc_au.RData")
 
 # Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and great-aunts/uncles
 asmr_anc_gau_1 <- map_dfr(anc_gau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                              final_sim_year = 2022, #[Jan-Dec]
-                                                              year_min = 1750, # Closed
-                                                              year_max = 2023, # Open )
-                                                              year_group = 1,
-                                                              age_max_mort = 110, # Open )
-                                                              age_group = 1), # [,)
+                                                                  final_sim_year = 2022, #[Jan-Dec]
+                                                                  year_min = 1750, # Closed
+                                                                  year_max = 2023, # Open )
+                                                                  year_group = 1,
+                                                                  age_max_mort = 110, # Open )
+                                                                  age_group = 1), # [,)
                           .id = "Sim_id") 
 save(asmr_anc_gau_1, file = "Measures/asmr_anc_gau_1.RData")
 
@@ -1398,12 +1472,12 @@ save(lt_anc_gau, file = "Measures/lt_anc_gau.RData")
 
 # Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and 2x-great-aunts/uncles
 asmr_anc_ggau_1 <- map_dfr(anc_ggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                final_sim_year = 2022, #[Jan-Dec]
-                                                                year_min = 1750, # Closed
-                                                                year_max = 2023, # Open )
-                                                                year_group = 1,
-                                                                age_max_mort = 110, # Open )
-                                                                age_group = 1), # [,)
+                                                                    final_sim_year = 2022, #[Jan-Dec]
+                                                                    year_min = 1750, # Closed
+                                                                    year_max = 2023, # Open )
+                                                                    year_group = 1,
+                                                                    age_max_mort = 110, # Open )
+                                                                    age_group = 1), # [,)
                            .id = "Sim_id") 
 save(asmr_anc_ggau_1, file = "Measures/asmr_anc_ggau_1.RData")
 
@@ -1413,12 +1487,12 @@ save(lt_anc_ggau, file = "Measures/lt_anc_ggau.RData")
 
 # Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and 3x-great-aunts/uncles
 asmr_anc_gggau_1 <- map_dfr(anc_gggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                  final_sim_year = 2022, #[Jan-Dec]
-                                                                  year_min = 1750, # Closed
-                                                                  year_max = 2023, # Open )
-                                                                  year_group = 1,
-                                                                  age_max_mort = 110, # Open )
-                                                                  age_group = 1), # [,)
+                                                                      final_sim_year = 2022, #[Jan-Dec]
+                                                                      year_min = 1750, # Closed
+                                                                      year_max = 2023, # Open )
+                                                                      year_group = 1,
+                                                                      age_max_mort = 110, # Open )
+                                                                      age_group = 1), # [,)
                             .id = "Sim_id") 
 save(asmr_anc_gggau_1, file = "Measures/asmr_anc_gggau_1.RData")
 
@@ -1429,12 +1503,12 @@ save(lt_anc_gggau, file = "Measures/lt_anc_gggau.RData")
 
 # Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and 4x-great-aunts/uncles
 asmr_anc_ggggau_1 <- map_dfr(anc_ggggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                    final_sim_year = 2022, #[Jan-Dec]
-                                                                    year_min = 1750, # Closed
-                                                                    year_max = 2023, # Open )
-                                                                    year_group = 1,
-                                                                    age_max_mort = 110, # Open )
-                                                                    age_group = 1), # [,)
+                                                                        final_sim_year = 2022, #[Jan-Dec]
+                                                                        year_min = 1750, # Closed
+                                                                        year_max = 2023, # Open )
+                                                                        year_group = 1,
+                                                                        age_max_mort = 110, # Open )
+                                                                        age_group = 1), # [,)
                              .id = "Sim_id") 
 save(asmr_anc_ggggau_1, file = "Measures/asmr_anc_ggggau_1.RData")
 
@@ -1445,12 +1519,12 @@ save(lt_anc_ggggau, file = "Measures/lt_anc_ggggau.RData")
 
 # Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and 5x-great-aunts/uncles
 asmr_anc_gggggau_1 <- map_dfr(anc_gggggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                      final_sim_year = 2022, #[Jan-Dec]
-                                                                      year_min = 1750, # Closed
-                                                                      year_max = 2023, # Open )
-                                                                      year_group = 1,
-                                                                      age_max_mort = 110, # Open )
-                                                                      age_group = 1), # [,)
+                                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                                          year_min = 1750, # Closed
+                                                                          year_max = 2023, # Open )
+                                                                          year_group = 1,
+                                                                          age_max_mort = 110, # Open )
+                                                                          age_group = 1), # [,)
                               .id = "Sim_id") 
 save(asmr_anc_gggggau_1, file = "Measures/asmr_anc_gggggau_1.RData")
 
@@ -1461,12 +1535,12 @@ save(lt_anc_gggggau, file = "Measures/lt_anc_gggggau.RData")
 
 # Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and 6x-great-aunts/uncles
 asmr_anc_ggggggau_1 <- map_dfr(anc_ggggggau, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                        final_sim_year = 2022, #[Jan-Dec]
-                                                                        year_min = 1750, # Closed
-                                                                        year_max = 2023, # Open )
-                                                                        year_group = 1,
-                                                                        age_max_mort = 110, # Open )
-                                                                        age_group = 1), # [,)
+                                                                            final_sim_year = 2022, #[Jan-Dec]
+                                                                            year_min = 1750, # Closed
+                                                                            year_max = 2023, # Open )
+                                                                            year_group = 1,
+                                                                            age_max_mort = 110, # Open )
+                                                                            age_group = 1), # [,)
                                .id = "Sim_id") 
 save(asmr_anc_ggggggau_1, file = "Measures/asmr_anc_ggggggau_1.RData")
 
@@ -1474,12 +1548,28 @@ save(asmr_anc_ggggggau_1, file = "Measures/asmr_anc_ggggggau_1.RData")
 lt_anc_ggggggau <- lt_socsim_sims(asmr_socsim_sims = asmr_anc_ggggggau_1)
 save(lt_anc_ggggggau, file = "Measures/lt_anc_ggggggau.RData")
 
+
+# Estimate age-specific mortality rates 1x1 from the subset of direct ancestors, offspring above and 7x-great-aunts/uncles
+asmr_anc_gggggggau_1 <- map_dfr(anc_gggggggau, ~ estimate_mortality_rates_mod(opop = .x,
+                                                                              final_sim_year = 2022, #[Jan-Dec]
+                                                                              year_min = 1750, # Closed
+                                                                              year_max = 2023, # Open )
+                                                                              year_group = 1,
+                                                                              age_max_mort = 110, # Open )
+                                                                              age_group = 1), # [,)
+                               .id = "Sim_id") 
+save(asmr_anc_gggggggau_1, file = "Measures/asmr_anc_gggggggau_1.RData")
+
+# Compute life tables from the subset of direct ancestors, offspring above and 7x-great-aunts/uncles, 
+lt_anc_gggggggau <- lt_socsim_sims(asmr_socsim_sims = asmr_anc_gggggggau_1)
+save(lt_anc_gggggggau, file = "Measures/lt_anc_gggggggau.RData")
+
 # Load and wrangle life tables for plotting ----
 
 # Load life tables from each whole SOCSIM simulation
 load("Measures/lt_10.RData")
 # Load life tables from the subset of direct ancestors (without duplicates)
-load("Measures/with_distinct/lt_dir_wod.RData")
+load("Measures/lt_dir_wod.RData")
 # Load life tables from subset of direct ancestors and siblings
 load("Measures/lt_anc_z.RData")
 # Load life tables from subset of direct ancestors, offspring above and aunts/uncles
@@ -1496,6 +1586,8 @@ load("Measures/lt_anc_ggggau.RData")
 load("Measures/lt_anc_gggggau.RData")
 # Load life tables from subset of direct ancestors, offspring above and 6x-great-aunts/uncles
 load("Measures/lt_anc_ggggggau.RData")
+# Load life tables from subset of direct ancestors, offspring above and 7x-great-aunts/uncles
+load("Measures/lt_anc_gggggggau.RData")
 # Load life tables from subset of all direct ancestors and their offspring
 load("Measures/lt_anc_off.RData")
 
@@ -1577,6 +1669,13 @@ lt_anc_ggggggau2 <- lt_anc_ggggggau %>%
          Rate = "e0") %>% 
   select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
 
+# Direct ancestors, offspring above and 7x-great-aunts/uncles
+lt_anc_gggggggau2 <- lt_anc_gggggggau %>% 
+  mutate(Year = as.numeric(str_extract(year, "\\d+")),
+         Dataset = "9. + 7x-Great-Aunts/Uncles",
+         Rate = "e0") %>% 
+  select(Year, Sim_id, ex, Dataset, Rate, sex, Age)
+
 # All Direct ancestors, offspring above and their offspring
 lt_anc_off2 <- lt_anc_off %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+")),
@@ -1587,18 +1686,18 @@ lt_anc_off2 <- lt_anc_off %>%
 
 # Plot the estimates of life expectancy at birth
 bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2, lt_anc_gau2, lt_anc_ggau2, 
-          lt_anc_gggau2, lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2)  %>%
+          lt_anc_gggau2, lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2, lt_anc_gggggggau2)  %>%
   filter(Age == 0) %>%
   mutate(Sex = ifelse(sex == "female", "Female", "Male"),
          Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Great-Aunts/Uncles", "4. + 2x-Great-Aunts/Uncles", 
-                                               "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles",
-                                               "Whole Simulation"))) %>%
+                                               "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", "7. + 5x-Great-Aunts/Uncles", 
+                                               "8. + 6x-Great-Aunts/Uncles", "9. + 7x-Great-Aunts/Uncles", "Whole Simulation"))) %>%
   group_by(Year, Sex, Dataset) %>% 
   summarise(ex = mean(ex, na.rm = T)) %>% 
   ungroup() %>% 
   ggplot(aes(x = Year, y = ex, group = Dataset))+
   geom_line(aes(colour = Dataset), linewidth = 1.3)+
-  scale_color_manual(values = c("#7A7500", "#FBD724FF", "#FEB82CFF", "#F1804DFF", "#E4695EFF", 
+  scale_color_manual(values = c("#7A7500", "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF", "#E4695EFF", 
                                 "#D45270FF", "#C23C81FF", "#AC2694FF", "#75007A", "#007A75"))+
   facet_wrap(~Sex) +
   theme_graphs() +
@@ -1626,8 +1725,8 @@ ggsave(file="Graphs/Socsim_Exp2_e0_grp.jpeg", width=17, height=9, dpi=300)
 # Summary measure of error in e0 ----
 
 # Difference in means
-DiM_e0_Exp2 <- bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2, lt_anc_gau2, lt_anc_ggau2, 
-                         lt_anc_gggau2, lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2) %>%
+DiM_e0_Exp2 <- bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2, lt_anc_gau2, lt_anc_ggau2, lt_anc_gggau2, 
+                         lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2, lt_anc_gggggggau2) %>%
   filter(Year > 1750 & Age == 0) %>% 
   group_by(Year, sex, Dataset) %>% 
   summarise(ex = mean(ex, na.rm = T)) %>% 
@@ -1640,8 +1739,8 @@ DiM_e0_Exp2 <- bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2, lt_anc_g
   select(-c(Genealogy,`Whole Simulation`)) 
 
 # Mean of differences
-MoD_e0_Exp2 <- bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2, lt_anc_gau2, lt_anc_ggau2, 
-                         lt_anc_gggau2, lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2) %>%
+MoD_e0_Exp2 <- bind_rows(lt_whole2, lt_dir_wod2, lt_anc_z2, lt_anc_au2, lt_anc_gau2, lt_anc_ggau2, lt_anc_gggau2, 
+                         lt_anc_ggggau2, lt_anc_gggggau2, lt_anc_ggggggau2, lt_anc_gggggggau2) %>%
   filter(Year > 1750 & Age == 0) %>% 
   pivot_wider(id_cols = c(Year, sex, Sim_id), names_from = "Dataset", values_from = "ex") %>% 
   pivot_longer(cols = 5:13, names_to = "Dataset", values_to = "Genealogy") %>% 
@@ -1675,25 +1774,19 @@ ggsave(file="Graphs/Socsim_Exp2_e0_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
 # Check minimum and maximum values of bias in e0 
 error_e0_exp2 %>% 
-  filter(sex == "female" & Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
+  filter(sex == "female" & Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
   pull(Error) %>%
   range()
 
-## Check years when error is negative (so, underestimation) 
-error_e0_exp2 %>% 
-  filter(sex == "female" & Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
-  filter(Error < 0) %>% 
-  pull(Year)
-
 # Check mean values of bias in e0 
 error_e0_exp2 %>% 
-  filter(sex == "female" & Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
+  filter(sex == "female" & Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
   pull(Error) %>%
   mean()
 
 # Check mean values of relative bias in e0 
 error_e0_exp2 %>% 
-  filter(sex == "female" & Dataset == "8. + 6x-Great-Aunts/Uncles") %>% 
+  filter(sex == "female" & Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
   pull(Relative_Error) %>%
   mean()
 
@@ -1735,8 +1828,7 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
                                                                            limits = c(0, NA)),
                                "Life Expectancy at Birth" =  scale_y_continuous(breaks = y_breaks_e0)))+
   theme_graphs() +
-  theme(legend.justification = "left",
-        legend.title = element_text(size = 20),
+  theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
 
 # Save the plot
@@ -1780,7 +1872,8 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
           asfr_anc_gggau2 %>% rename(Estimate = ASFR),
           asfr_anc_ggggau2 %>% rename(Estimate = ASFR),
           asfr_anc_gggggau2 %>% rename(Estimate = ASFR),
-          asfr_anc_ggggggau2 %>% rename(Estimate = ASFR)) %>%  
+          asfr_anc_ggggggau2 %>% rename(Estimate = ASFR),
+          asfr_anc_gggggggau2 %>% rename(Estimate = ASFR)) %>%  
   mutate(Sex = "Female") %>%  
   bind_rows(asmr_whole2 %>% rename(Estimate = mx),
             asmr_dir_wod2 %>% rename(Estimate = mx),
@@ -1791,7 +1884,8 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
             asmr_anc_gggau2 %>% rename(Estimate = mx),
             asmr_anc_ggggau2 %>% rename(Estimate = mx),
             asmr_anc_gggggau2 %>% rename(Estimate = mx),
-            asmr_anc_ggggggau2 %>% rename(Estimate = mx)) %>% 
+            asmr_anc_ggggggau2 %>% rename(Estimate = mx),
+            asmr_anc_gggggggau2 %>% rename(Estimate = mx)) %>% 
   rename(Year = year) %>% 
   filter(Sex == "Female" & Year %in% yrs_plot) %>%
   # There can be rates of 0, infinite (N_Deaths/0_Pop) and NaN (0_Deaths/0_Pop) values
@@ -1801,19 +1895,19 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                        "Age-Specific Mortality Rates"), 
          Dataset = ifelse(Dataset == "Direct Ancestors", "0. Direct Ancestors", Dataset),
          Dataset = factor(Dataset, levels =  c("0. Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Great-Aunts/Uncles", "4. + 2x-Great-Aunts/Uncles", 
-                                               "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles",
-                                               "Whole Simulation"))) %>%
+                                               "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", "7. + 5x-Great-Aunts/Uncles", 
+                                               "8. + 6x-Great-Aunts/Uncles", "9. + 7x-Great-Aunts/Uncles", "Whole Simulation"))) %>%
   ggplot(aes(x = age, y = Estimate, group = interaction(Year, Dataset), colour = Dataset))+
   facet_wrap(Year ~ Rate, nrow = 3, ncol = 2, scales = "free") + 
   geom_line(linewidth = 1.2, show.legend = T)+ 
   geom_point(size = 9)+ 
-  scale_color_manual(values = c("#7A7500",  "#FBD724FF", "#FEB82CFF", "#F1804DFF", "#E4695EFF", 
+  scale_color_manual(values = c("#7A7500",  "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF", "#E4695EFF", 
                                 "#D45270FF", "#C23C81FF", "#AC2694FF", "#75007A", "#007A75"))+
   facetted_pos_scales(y = list(ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
                                ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
-                               ASFR = scale_y_continuous(breaks = y_breaks_asfr, limits = c(0, 0.2)),
+                               ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"))) +
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   theme_graphs() +
@@ -1831,7 +1925,8 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
           TFR_anc_gggau %>% rename(Estimate = TFR),
           TFR_anc_ggggau %>% rename(Estimate = TFR),
           TFR_anc_gggggau %>% rename(Estimate = TFR),
-          TFR_anc_ggggggau %>% rename(Estimate = TFR)) %>%  
+          TFR_anc_ggggggau %>% rename(Estimate = TFR),
+          TFR_anc_gggggggau %>% rename(Estimate = TFR)) %>%  
   mutate(sex = "female") %>%  
   bind_rows(lt_whole2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_dir_wod2 %>% rename(Estimate = ex) %>% filter(Age == 0),
@@ -1842,7 +1937,8 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
             lt_anc_gggau2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_anc_ggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0),
             lt_anc_gggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0),
-            lt_anc_ggggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
+            lt_anc_ggggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0),
+            lt_anc_gggggggau2 %>% rename(Estimate = ex) %>% filter(Age == 0)) %>%
   filter(sex == "female") %>%
   group_by(Year, Dataset, Rate, sex) %>% 
   summarise(Estimate = mean(Estimate, na.rm = T)) %>% 
@@ -1852,11 +1948,11 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
          Dataset = ifelse(Dataset == "Direct Ancestors", "0. Direct Ancestors", Dataset),
          Dataset = factor(Dataset, levels =  c("0. Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Great-Aunts/Uncles", "4. + 2x-Great-Aunts/Uncles", 
                                                "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles",
-                                               "Whole Simulation"))) %>%
+                                               "9. + 7x-Great-Aunts/Uncles", "Whole Simulation"))) %>%
   ggplot(aes(x = Year, y = Estimate, group = Dataset, color = Dataset))+
   facet_wrap(. ~ Rate, scales = "free") + 
   geom_line(linewidth = 1.2) +
-  scale_color_manual(values = c("#7A7500", "#FBD724FF", "#FEB82CFF", "#F1804DFF", "#E4695EFF", 
+  scale_color_manual(values = c("#7A7500", "#FBD724FF", "#FEB82CFF", "#FA9B3DFF", "#F1804DFF", "#E4695EFF", 
                                 "#D45270FF", "#C23C81FF", "#AC2694FF", "#75007A", "#007A75"))+
   facetted_pos_scales(y = list("Total Fertility Rate" = scale_y_continuous(breaks = y_breaks_TFR, 
                                                                            limits = c(0, NA)),
