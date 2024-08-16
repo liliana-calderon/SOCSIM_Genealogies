@@ -1184,14 +1184,11 @@ load("Measures/asfr_anc_gggggggau_1.RData")
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
 age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
 
-# Retrieve age_group size
-age_group_fert_1 <- unique(diff(age_breaks_fert_1))
-
 # Whole SOCSIM simulations
 TFR_whole <- asfr_10_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "Whole Simulation",
          Rate = "TFR", 
@@ -1200,8 +1197,10 @@ TFR_whole <- asfr_10_1 %>%
 # Direct ancestors without duplicates
 TFR_dir_wod <- asfr_dir_wod_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors",
          Rate = "TFR", 
@@ -1210,25 +1209,22 @@ TFR_dir_wod <- asfr_dir_wod_1 %>%
 # All direct ancestors and their offspring
 TFR_anc_off <- asfr_anc_off_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors and their Offspring",
          Rate = "TFR",           
          sex = "female")
 
-TFR_anc_off %>% 
-  filter(is.nan(TFR)) %>% 
-  pull(Year) %>% 
-  range()
-# There are NaN 0/0 for 1995-2022, probably because of missing births or women of a certain age 
-# This needs to be corrected
-
 # Direct ancestors and siblings
 TFR_anc_z <- asfr_anc_z_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "1. + Siblings",
          Rate = "TFR",           
@@ -1237,8 +1233,10 @@ TFR_anc_z <- asfr_anc_z_1 %>%
 # direct ancestors, offspring above and aunts/uncles
 TFR_anc_au <- asfr_anc_au_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "2. + Aunts/Uncles",
          Rate = "TFR",           
@@ -1247,8 +1245,10 @@ TFR_anc_au <- asfr_anc_au_1 %>%
 # direct ancestors, offspring above and great-aunts/uncles
 TFR_anc_gau <- asfr_anc_gau_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "3. + Great-Aunts/Uncles",
          Rate = "TFR",           
@@ -1257,8 +1257,10 @@ TFR_anc_gau <- asfr_anc_gau_1 %>%
 # direct ancestors, offspring above and 2x-great-aunts/uncles
 TFR_anc_ggau <- asfr_anc_ggau_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "4. + 2x-Great-Aunts/Uncles",
          Rate = "TFR",           
@@ -1267,8 +1269,10 @@ TFR_anc_ggau <- asfr_anc_ggau_1 %>%
 # direct ancestors, offspring above and 3x-great-aunts/uncles
 TFR_anc_gggau <- asfr_anc_gggau_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "5. + 3x-Great-Aunts/Uncles",
          Rate = "TFR",           
@@ -1277,8 +1281,10 @@ TFR_anc_gggau <- asfr_anc_gggau_1 %>%
 # direct ancestors, offspring above and 4x-great-aunts/uncles
 TFR_anc_ggggau <- asfr_anc_ggggau_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "6. + 4x-Great-Aunts/Uncles",
          Rate = "TFR",           
@@ -1287,8 +1293,10 @@ TFR_anc_ggggau <- asfr_anc_ggggau_1 %>%
 # direct ancestors, offspring above and 5x-great-aunts/uncles
 TFR_anc_gggggau <- asfr_anc_gggggau_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "7. + 5x-Great-Aunts/Uncles",
          Rate = "TFR",           
@@ -1297,8 +1305,10 @@ TFR_anc_gggggau <- asfr_anc_gggggau_1 %>%
 # direct ancestors, offspring above and 6x-great-aunts/uncles
 TFR_anc_ggggggau <- asfr_anc_ggggggau_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "8. + 6x-Great-Aunts/Uncles",
          Rate = "TFR",           
@@ -1307,8 +1317,10 @@ TFR_anc_ggggggau <- asfr_anc_ggggggau_1 %>%
 # direct ancestors, offspring above and 7x-great-aunts/uncles
 TFR_anc_gggggggau <- asfr_anc_gggggggau_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "9. + 7x-Great-Aunts/Uncles",
          Rate = "TFR",           
@@ -1320,8 +1332,6 @@ TFR_anc_gggggggau <- asfr_anc_gggggggau_1 %>%
 bind_rows(TFR_whole, TFR_dir_wod  %>% filter(TFR != 0), 
           TFR_anc_z, TFR_anc_au, TFR_anc_gau, TFR_anc_ggau, TFR_anc_gggau, 
           TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau, TFR_anc_gggggggau) %>%
-  ### CHECK if this should stay or must be modified
-  filter(!is.nan(TFR)) %>% 
   mutate(Dataset = factor(Dataset, levels =  c("Direct Ancestors", "1. + Siblings", "2. + Aunts/Uncles", "3. + Great-Aunts/Uncles", 
                                                "4. + 2x-Great-Aunts/Uncles", "5. + 3x-Great-Aunts/Uncles", "6. + 4x-Great-Aunts/Uncles", 
                                                "7. + 5x-Great-Aunts/Uncles", "8. + 6x-Great-Aunts/Uncles", "9. + 7x-Great-Aunts/Uncles", "Whole Simulation"))) %>%
@@ -1340,6 +1350,7 @@ ggsave(file="Graphs/Socsim_Exp2_TFR.jpeg", width=17, height=9, dpi=300)
 DiM_TFR_Exp2 <- bind_rows(TFR_whole, TFR_dir_wod, TFR_anc_z, TFR_anc_au, TFR_anc_gau, TFR_anc_ggau, TFR_anc_gggau, 
                           TFR_anc_ggggau, TFR_anc_gggggau, TFR_anc_ggggggau, TFR_anc_gggggggau) %>%
   filter(Year > 1750) %>% 
+  ## CHECk
   # There can be rates of 0 and NaN values as the genealogist (most recent generation) are at least 18 years old. 
   # This happens after 2004
   filter(TFR != 0 & !is.nan(TFR)) %>% 

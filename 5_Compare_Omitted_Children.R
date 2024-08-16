@@ -941,14 +941,11 @@ load("Measures/asfr_less_children_5_100_1.RData")
 # Age breaks of fertility rates. Extract all the unique numbers from the intervals 
 age_breaks_fert_1 <- unique(as.numeric(str_extract_all(asfr_10_1$age, "\\d+", simplify = T)))
 
-# Retrieve age_group size
-age_group_fert_1 <- unique(diff(age_breaks_fert_1))
-
 # Whole SOCSIM simulations
 TFR_whole <- asfr_10_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "Whole Simulation",
          Rate = "TFR", 
@@ -957,8 +954,10 @@ TFR_whole <- asfr_10_1 %>%
 # All direct ancestors and their offspring
 TFR_anc_off <- asfr_anc_off_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "Direct Ancestors and their Offspring",
          Rate = "TFR",           
@@ -967,8 +966,10 @@ TFR_anc_off <- asfr_anc_off_1 %>%
 # All direct ancestors and their offspring without 25% children dead below age 1
 TFR_less_children_1_25 <- asfr_less_children_1_25_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "25% Omission",
          Rate = "TFR",           
@@ -977,8 +978,10 @@ TFR_less_children_1_25 <- asfr_less_children_1_25_1 %>%
 # All direct ancestors and their offspring without 50% children dead below age 1
 TFR_less_children_1_50 <- asfr_less_children_1_50_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "50% Omission",
          Rate = "TFR",           
@@ -987,8 +990,10 @@ TFR_less_children_1_50 <- asfr_less_children_1_50_1 %>%
 # All direct ancestors and their offspring without 75% children dead below age 1
 TFR_less_children_1_75 <- asfr_less_children_1_75_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "75% Omission",
          Rate = "TFR",           
@@ -997,8 +1002,10 @@ TFR_less_children_1_75 <- asfr_less_children_1_75_1 %>%
 # All direct ancestors and their offspring without 100% children dead below age 1
 TFR_less_children_1_100 <- asfr_less_children_1_100_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "100% Omission",
          Rate = "TFR",           
@@ -1007,8 +1014,10 @@ TFR_less_children_1_100 <- asfr_less_children_1_100_1 %>%
 # All direct ancestors and their offspring without 25% children dead below age 5
 TFR_less_children_5_25 <- asfr_less_children_5_25_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "25% Omission",
          Rate = "TFR",           
@@ -1017,8 +1026,10 @@ TFR_less_children_5_25 <- asfr_less_children_5_25_1 %>%
 # All direct ancestors and their offspring without 50% children dead below age 5
 TFR_less_children_5_50 <- asfr_less_children_5_50_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "50% Omission",
          Rate = "TFR",           
@@ -1027,8 +1038,10 @@ TFR_less_children_5_50 <- asfr_less_children_5_50_1 %>%
 # All direct ancestors and their offspring without 75% children dead below age 5
 TFR_less_children_5_75 <- asfr_less_children_5_75_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "75% Omission",
          Rate = "TFR",           
@@ -1037,8 +1050,10 @@ TFR_less_children_5_75 <- asfr_less_children_5_75_1 %>%
 # All direct ancestors and their offspring without 100% children dead below age 5
 TFR_less_children_5_100 <- asfr_less_children_5_100_1 %>% 
   mutate(Year = as.numeric(str_extract(year, "\\d+"))) %>% 
+  # Some ages can have infinite (N_Births/0_Pop) and NaN (0_Births/0_Pop) values
+  filter(!is.infinite(socsim)) %>% 
   group_by(Year, Sim_id) %>% 
-  summarise(TFR = sum(socsim)*age_group_fert_1) %>%
+  summarise(TFR = sum(socsim, na.rm = T)) %>%
   ungroup() %>% 
   mutate(Dataset = "100% Omission",
          Rate = "TFR",           
