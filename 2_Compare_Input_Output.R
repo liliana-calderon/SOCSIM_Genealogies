@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created on 18-01-2022
-# Last modified on 08-12-2023
+# Last modified on 02-09-2024
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ ifelse(!dir.exists("Measures"), dir.create("Measures"), FALSE)
 
 # Retrieve age-specific fertility rates
 asfr_10 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
-                                                         final_sim_year = 2022, #[Jan-Dec]
+                                                         final_sim_year = 2072, #[Jan-Dec]
                                                          year_min = 1750, # Closed [
                                                          year_max = 2020, # Open )
                                                          year_group = 5, 
@@ -69,7 +69,7 @@ save(asfr_10, file = "Measures/asfr_10.RData")
 
 # Retrieve age-specific mortality rates
 asmr_10 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
-                                                         final_sim_year = 2022, #[Jan-Dec]
+                                                         final_sim_year = 2072, #[Jan-Dec]
                                                          year_min = 1750, # Closed
                                                          year_max = 2020, # Open )
                                                          year_group = 5,
@@ -319,7 +319,7 @@ ggsave(file="Graphs/Socsim_HFD_HMD1.jpeg", width=17, height=9, dpi=300)
 
 ## Retrieve age-specific fertility rates, by 1 year age group and 1 calendar year
 asfr_10_1 <- map_dfr(sims_opop, ~ estimate_fertility_rates(opop = .x,
-                                                          final_sim_year = 2022 , #[Jan-Dec]
+                                                          final_sim_year = 2072 , #[Jan-Dec]
                                                           year_min = 1750, # Closed [
                                                           year_max = 2023, # Open )
                                                           year_group = 1, 
@@ -411,7 +411,7 @@ ggsave(file="Graphs/HFD_SOCSIM_TFR_Error.jpeg", width=17, height=9, dpi=300)
 
 # Retrieve age-specific mortality rates, by 1 year age group and 1 calendar year
 asmr_10_1 <- map_dfr(sims_opop, ~ estimate_mortality_rates(opop = .x,
-                                                          final_sim_year = 2022, #[Jan-Dec]
+                                                          final_sim_year = 2072, #[Jan-Dec]
                                                           year_min = 1750, # Closed
                                                           year_max = 2023, # Open )
                                                           year_group = 1,
@@ -556,11 +556,11 @@ ifelse(!dir.exists("Final_Graphs"), dir.create("Final_Graphs"), FALSE)
 
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                         x = c(1,2),
-                        y = c(0.22, 0.5),
+                        y = c(0.23, 0.5),
                         labels = c("a","b"))
 plot_labs2 <- data.frame(Rate = as.factor(c("Total Fertility Rate", "Life Expectancy at Birth")),
                         x = c(1755, 1755),
-                        y = c(5.3, 83),
+                        y = c(5.6, 83),
                         labels = c("c","d"))
 
 By_Age + 
