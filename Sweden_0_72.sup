@@ -1,14 +1,14 @@
 ************************************************************************
-* Supervisory file for SWEDEN simulation 1751-2022
+* Supervisory file for SWEDEN simulation 1751-2072
 * Created on 15.09.2022
-* Last modified on 25.05.2023
+* Last modified on 21.08.2024
 ************************************************************************
 ** NB: 
 * Probabilities of death come from HMD for the whole period (1751-2022)
 * Fertility rates come from HFD for the period 1891-2022, 
 * but from the HFC for the period 1751-1890
 ************************************************************************
-segments  273
+segments  274
 input_file presim
 
 marriage_after_childbirth 1 
@@ -1384,6 +1384,13 @@ include rates/SWEmort2021
 run
 
 duration 12
+include rates/SWEfert2022
+include rates/SWEmort2022
+run
+
+* Simulation until 2072 (50 years more) 
+* Using HMD and HFD rates for 2022
+duration 600
 include rates/SWEfert2022
 include rates/SWEmort2022
 run
