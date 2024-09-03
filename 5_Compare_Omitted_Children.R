@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 27-06-2023
-# Last modified on 15-08-2024
+# Last modified on 03-09-2024
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -142,7 +142,7 @@ less_children_1_25 <- less_children_1_25 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 25% children dead below age 1
 asfr_less_children_1_25 <- map_dfr(less_children_1_25, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -154,7 +154,7 @@ save(asfr_less_children_1_25, file = "Measures/asfr_less_children_1_25.RData")
 
 # Estimate age-specific mortality rates from the subset without 25% children dead below age 1
 asmr_less_children_1_25 <- map_dfr(less_children_1_25, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -170,7 +170,7 @@ less_children_1_50 <- less_children_1_50 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 50% children dead below age 1
 asfr_less_children_1_50 <- map_dfr(less_children_1_50, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -182,7 +182,7 @@ save(asfr_less_children_1_50, file = "Measures/asfr_less_children_1_50.RData")
 
 # Estimate age-specific mortality rates from the subset without 50% children dead below age 1
 asmr_less_children_1_50 <- map_dfr(less_children_1_50, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -198,7 +198,7 @@ less_children_1_75 <- less_children_1_75 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 75% children dead below age 1
 asfr_less_children_1_75 <- map_dfr(less_children_1_75, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -210,7 +210,7 @@ save(asfr_less_children_1_75, file = "Measures/asfr_less_children_1_75.RData")
 
 # Estimate age-specific mortality rates from the subset without 75% children dead below age 1
 asmr_less_children_1_75 <- map_dfr(less_children_1_75, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -226,7 +226,7 @@ less_children_1_100 <- less_children_1_100 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 75% children dead below age 1
 asfr_less_children_1_100 <- map_dfr(less_children_1_100, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2020, 
                                                                                         year_group = 5,
@@ -238,7 +238,7 @@ save(asfr_less_children_1_100, file = "Measures/asfr_less_children_1_100.RData")
 
 # Estimate age-specific mortality rates from the subset without 100% children dead below age 1
 asmr_less_children_1_100 <- map_dfr(less_children_1_100, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2020, 
                                                                                         year_group = 5,
@@ -255,7 +255,7 @@ less_children_5_25 <- less_children_5_25 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 25% children dead below age 5
 asfr_less_children_5_25 <- map_dfr(less_children_5_25, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -267,7 +267,7 @@ save(asfr_less_children_5_25, file = "Measures/asfr_less_children_5_25.RData")
 
 # Estimate age-specific mortality rates from the subset without 25% children dead below age 5
 asmr_less_children_5_25 <- map_dfr(less_children_5_25, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -283,7 +283,7 @@ less_children_5_50 <- less_children_5_50 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 50% children dead below age 5
 asfr_less_children_5_50 <- map_dfr(less_children_5_50, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -295,7 +295,7 @@ save(asfr_less_children_5_50, file = "Measures/asfr_less_children_5_50.RData")
 
 # Estimate age-specific mortality rates from the subset without 50% children dead below age 5
 asmr_less_children_5_50 <- map_dfr(less_children_5_50, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -311,7 +311,7 @@ less_children_5_75 <- less_children_5_75 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 75% children dead below age 5
 asfr_less_children_5_75 <- map_dfr(less_children_5_75, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -323,7 +323,7 @@ save(asfr_less_children_5_75, file = "Measures/asfr_less_children_5_75.RData")
 
 # Estimate age-specific mortality rates from the subset without 75% children dead below age 5
 asmr_less_children_5_75 <- map_dfr(less_children_5_75, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                      final_sim_year = 2022, 
+                                                                                      final_sim_year = 2072, 
                                                                                       year_min = 1750, 
                                                                                       year_max = 2020, 
                                                                                       year_group = 5,
@@ -339,7 +339,7 @@ less_children_5_100 <- less_children_5_100 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 100% children dead below age 5
 asfr_less_children_5_100 <- map_dfr(less_children_5_100, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2020, 
                                                                                         year_group = 5,
@@ -351,7 +351,7 @@ save(asfr_less_children_5_100, file = "Measures/asfr_less_children_5_100.RData")
 
 # Estimate age-specific mortality rates from the subset without 100% children dead below age 5
 asmr_less_children_5_100 <- map_dfr(less_children_5_100, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2020, 
                                                                                         year_group = 5,
@@ -732,6 +732,9 @@ By_Age_Exp3A
 # Choose three years to plot
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
+# Get the age levels for fertility to fix them across all plots
+age_levels_asfr <- levels(asfr_whole2$age)
+
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
           asfr_anc_off2 %>% rename(Estimate = ASFR), 
           # asfr_less_children_1_25b %>% rename(Estimate = ASFR), 
@@ -741,7 +744,8 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
           # asfr_less_children_5_50b %>% rename(Estimate = ASFR), 
           # asfr_less_children_5_75b %>% rename(Estimate = ASFR),
           asfr_less_children_5_100b %>% rename(Estimate = ASFR)) %>%  
-  mutate(Sex = "Female") %>%  
+  complete(year, age, Dataset, Rate, fill = list(Estimate = NA)) %>% 
+  mutate(Sex = "Female") %>%
   bind_rows(asmr_whole2 %>% rename(Estimate = mx), 
             asmr_anc_off2 %>% rename(Estimate = mx), 
             # asmr_less_children_1_25b %>% rename(Estimate = mx), 
@@ -772,8 +776,13 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                                ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
                                ASFR = scale_y_continuous(breaks = y_breaks_asfr),
-                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
-  scale_x_discrete(guide = guide_axis(angle = 90)) +
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")), 
+                      x = list(ASFR = scale_x_discrete(limits = age_levels_asfr, guide = guide_axis(angle = 90)),
+                               ASMR =  scale_x_discrete(limits = age_levels, guide = guide_axis(angle = 90)),
+                               ASFR = scale_x_discrete(limits = age_levels_asfr, guide = guide_axis(angle = 90)),
+                               ASMR =  scale_x_discrete(limits = age_levels, guide = guide_axis(angle = 90)),
+                               ASFR = scale_x_discrete(limits = age_levels_asfr, guide = guide_axis(angle = 90)),
+                               ASMR =  scale_x_discrete(limits = age_levels, guide = guide_axis(angle = 90))))+
   theme_graphs() + 
   labs(x = "Age") +
   guides(colour = "none") +
@@ -820,7 +829,7 @@ ggsave(file="Graphs/Socsim_Exp3A_ASMR_years.jpeg", width=24, height=9, dpi=300)
 
 # Estimate age-specific fertility rates 1x1 from the subset without 25% children dead below age 1
 asfr_less_children_1_25_1 <- map_dfr(less_children_1_25, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -832,7 +841,7 @@ save(asfr_less_children_1_25_1, file = "Measures/asfr_less_children_1_25_1.RData
 
 # Estimate age-specific fertility rates 1x1 from the subset without 50% children dead below age 1
 asfr_less_children_1_50_1 <- map_dfr(less_children_1_50, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -844,7 +853,7 @@ save(asfr_less_children_1_50_1, file = "Measures/asfr_less_children_1_50_1.RData
 
 # Estimate age-specific fertility rates 1x1 from the subset without 75% children dead below age 1
 asfr_less_children_1_75_1 <- map_dfr(less_children_1_75, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -856,7 +865,7 @@ save(asfr_less_children_1_75_1, file = "Measures/asfr_less_children_1_75_1.RData
 
 # Estimate age-specific fertility rates 1x1 from the subset without 100% children dead below age 1
 asfr_less_children_1_100_1 <- map_dfr(less_children_1_100, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                          final_sim_year = 2022, 
+                                                                                          final_sim_year = 2072, 
                                                                                           year_min = 1750, 
                                                                                           year_max = 2023, 
                                                                                           year_group = 1,
@@ -869,7 +878,7 @@ save(asfr_less_children_1_100_1, file = "Measures/asfr_less_children_1_100_1.RDa
 
 # Estimate age-specific fertility rates 1x1 from the subset without 25% children dead below age 5
 asfr_less_children_5_25_1 <- map_dfr(less_children_5_25, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -881,7 +890,7 @@ save(asfr_less_children_5_25_1, file = "Measures/asfr_less_children_5_25_1.RData
 
 # Estimate age-specific fertility rates 1x1 from the subset without 50% children dead below age 5
 asfr_less_children_5_50_1 <- map_dfr(less_children_5_50, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -893,7 +902,7 @@ save(asfr_less_children_5_50_1, file = "Measures/asfr_less_children_5_50_1.RData
 
 # Estimate age-specific fertility rates 1x1 from the subset without 75% children dead below age 5
 asfr_less_children_5_75_1 <- map_dfr(less_children_5_75, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -905,7 +914,7 @@ save(asfr_less_children_5_75_1, file = "Measures/asfr_less_children_5_75_1.RData
 
 # Estimate age-specific fertility rates 1x1 from the subset without 100% children dead below age 5
 asfr_less_children_5_100_1 <- map_dfr(less_children_5_100, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                          final_sim_year = 2022, 
+                                                                                          final_sim_year = 2072, 
                                                                                           year_min = 1750, 
                                                                                           year_max = 2023, 
                                                                                           year_group = 1,
@@ -1166,7 +1175,7 @@ error_TFR_exp3A %>%
 
 # Estimate age-specific mortality rates from the subset without 25% children dead below age 1
 asmr_less_children_1_25_1 <- map_dfr(less_children_1_25, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -1182,7 +1191,7 @@ save(lt_less_children_1_25, file = "Measures/lt_less_children_1_25.RData")
 
 # Estimate age-specific mortality rates from the subset without 50% children dead below age 1
 asmr_less_children_1_50_1 <- map_dfr(less_children_1_50, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -1198,7 +1207,7 @@ save(lt_less_children_1_50, file = "Measures/lt_less_children_1_50.RData")
 
 # Estimate age-specific mortality rates from the subset without 75% children dead below age 1
 asmr_less_children_1_75_1 <- map_dfr(less_children_1_75, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -1213,7 +1222,7 @@ save(lt_less_children_1_75, file = "Measures/lt_less_children_1_75.RData")
 
 # Estimate age-specific mortality rates from the subset without 100% children dead below age 1
 asmr_less_children_1_100_1 <- map_dfr(less_children_1_100, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                          final_sim_year = 2022, 
+                                                                                          final_sim_year = 2072, 
                                                                                           year_min = 1750, 
                                                                                           year_max = 2023, 
                                                                                           year_group = 1,
@@ -1229,7 +1238,7 @@ save(lt_less_children_1_100, file = "Measures/lt_less_children_1_100.RData")
 
 # Estimate age-specific mortality rates from the subset without 25% children dead below age 5
 asmr_less_children_5_25_1 <- map_dfr(less_children_5_25, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -1245,7 +1254,7 @@ save(lt_less_children_5_25, file = "Measures/lt_less_children_5_25.RData")
 
 # Estimate age-specific mortality rates from the subset without 50% children dead below age 5
 asmr_less_children_5_50_1 <- map_dfr(less_children_5_50, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -1261,7 +1270,7 @@ save(lt_less_children_5_50, file = "Measures/lt_less_children_5_50.RData")
 
 # Estimate age-specific mortality rates from the subset without 75% children dead below age 5
 asmr_less_children_5_75_1 <- map_dfr(less_children_5_75, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                        final_sim_year = 2022, 
+                                                                                        final_sim_year = 2072, 
                                                                                         year_min = 1750, 
                                                                                         year_max = 2023, 
                                                                                         year_group = 1,
@@ -1276,7 +1285,7 @@ save(lt_less_children_5_75, file = "Measures/lt_less_children_5_75.RData")
 
 # Estimate age-specific mortality rates from the subset without 100% children dead below age 5
 asmr_less_children_5_100_1 <- map_dfr(less_children_5_100, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                          final_sim_year = 2022, 
+                                                                                          final_sim_year = 2072, 
                                                                                           year_min = 1750, 
                                                                                           year_max = 2023, 
                                                                                           year_group = 1,
