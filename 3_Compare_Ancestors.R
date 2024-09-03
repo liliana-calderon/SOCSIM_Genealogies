@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 02-09-2024
+# Last modified on 03-09-2024
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -106,6 +106,12 @@ ancestors_10 %>%
   range() %>% 
   asYr(., last_month, final_sim_year) # 1602-1999
 # So, there might be some female ancestors for births in the last years, but aged at least 22
+
+# The max(dob) is not the last simulated month
+# So, the function in rsocsim will assign incorrectly the last month of the simulation
+# and hence calculate wrongly the years of birth and death
+# We must use the modified rate functions (using dod) to ensure that the last month correctly retrieved
+# With max(dod), in all subsets and simulations, the last month will be properly identified
 
 #----------------------------------------------------------------------------------------------------
 ## Age-Specific Fertility and Mortality rates, 5x5  -----
