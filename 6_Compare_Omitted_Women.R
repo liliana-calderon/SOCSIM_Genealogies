@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 11-07-2023
-# Last modified on 15-08-2024
+# Last modified on 03-09-2024
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -108,7 +108,7 @@ less_women_25 <- less_women_25 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 25% childless women
 asfr_less_women_25 <- map_dfr(less_women_25, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                            final_sim_year = 2022, 
+                                                                            final_sim_year = 2072, 
                                                                             year_min = 1750, 
                                                                             year_max = 2020, 
                                                                             year_group = 5,
@@ -120,7 +120,7 @@ save(asfr_less_women_25, file = "Measures/asfr_less_women_25.RData")
 
 # Estimate age-specific mortality rates from the subset without 25% childless women
 asmr_less_women_25 <- map_dfr(less_women_25, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                            final_sim_year = 2022, 
+                                                                            final_sim_year = 2072, 
                                                                             year_min = 1750, 
                                                                             year_max = 2020, 
                                                                             year_group = 5,
@@ -136,7 +136,7 @@ less_women_50 <- less_women_50 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 25% childless women
 asfr_less_women_50 <- map_dfr(less_women_50, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                            final_sim_year = 2022,
+                                                                            final_sim_year = 2072,
                                                                             year_min = 1750, 
                                                                             year_max = 2020, 
                                                                             year_group = 5,
@@ -148,7 +148,7 @@ save(asfr_less_women_50, file = "Measures/asfr_less_women_50.RData")
 
 # Estimate age-specific mortality rates from the subset without 25% childless women
 asmr_less_women_50 <- map_dfr(less_women_50, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                            final_sim_year = 2022,
+                                                                            final_sim_year = 2072,
                                                                             year_min = 1750, 
                                                                             year_max = 2020, 
                                                                             year_group = 5,
@@ -164,7 +164,7 @@ less_women_75 <- less_women_75 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 75% childless women
 asfr_less_women_75 <- map_dfr(less_women_75, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                            final_sim_year = 2022, 
+                                                                            final_sim_year = 2072, 
                                                                             year_min = 1750, 
                                                                             year_max = 2020,
                                                                             year_group = 5,
@@ -176,7 +176,7 @@ save(asfr_less_women_75, file = "Measures/asfr_less_women_75.RData")
 
 # Estimate age-specific mortality rates from the subset without 75% childless women
 asmr_less_women_75 <- map_dfr(less_women_75, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                            final_sim_year = 2022, 
+                                                                            final_sim_year = 2072, 
                                                                             year_min = 1750, 
                                                                             year_max = 2020, 
                                                                             year_group = 5,
@@ -192,7 +192,7 @@ less_women_100 <- less_women_100 %>% split(.$Sim_id)
 
 # Estimate age-specific fertility rates from the subset without 100% childless women
 asfr_less_women_100 <- map_dfr(less_women_100, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                              final_sim_year = 2022, 
+                                                                              final_sim_year = 2072, 
                                                                               year_min = 1750, 
                                                                               year_max = 2020,
                                                                               year_group = 5,
@@ -204,7 +204,7 @@ save(asfr_less_women_100, file = "Measures/asfr_less_women_100.RData")
 
 # Estimate age-specific mortality rates from the subset without 100% childless women
 asmr_less_women_100 <- map_dfr(less_women_75, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                             final_sim_year = 2022, 
+                                                                             final_sim_year = 2072, 
                                                                              year_min = 1750, 
                                                                              year_max = 2020, 
                                                                              year_group = 5,
@@ -307,7 +307,7 @@ ggsave(file="Graphs/Socsim_Exp3B_ASFR.jpeg", width=17, height=9, dpi=300)
 load("Measures/asmr_10.RData")
 # Load asmr from the subset of All direct ancestors and their offspring, calculated on 3_Compare_Ancestors
 #load("Measures/asmr_anc_off.RData")
-load("Measures/off_denom/asmr_anc_off.RData")
+load("Measures/asmr_anc_off.RData")
 # Load asmr for the genealogical subset without 25% childless women
 load("Measures/asmr_less_women_25.RData")
 # Load asmr for the genealogical subset without 25% childless women
@@ -465,13 +465,17 @@ By_Age_Exp3B
 # Choose three years to plot
 yrs_plot <- c("[1800,1805)", "[1900,1905)", "[2000,2005)") 
 
+# Get the age levels for fertility to fix them across all plots
+age_levels_asfr <- levels(asfr_whole2$age)
+
 bind_rows(asfr_whole2 %>% rename(Estimate = ASFR), 
           asfr_anc_off2 %>% rename(Estimate = ASFR), 
           asfr_less_women_25b %>% rename(Estimate = ASFR),
           # asfr_less_women_50b %>% rename(Estimate = ASFR),
           # asfr_less_women_75b %>% rename(Estimate = ASFR), 
           asfr_less_women_100b %>% rename(Estimate = ASFR)) %>%
-  mutate(Sex = "Female") %>%  
+  complete(year, age, Dataset, Rate, fill = list(Estimate = NA)) %>% 
+  mutate(Sex = "Female") %>%
   bind_rows(asmr_whole2 %>% rename(Estimate = mx), 
             asmr_anc_off2 %>% rename(Estimate = mx), 
             asmr_less_women_25b %>% rename(Estimate = mx),
@@ -499,8 +503,13 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                                ASFR = scale_y_continuous(breaks = y_breaks_asfr),
                                ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10"),
                                ASFR = scale_y_continuous(breaks = y_breaks_asfr),
-                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")))+
-  scale_x_discrete(guide = guide_axis(angle = 90)) +
+                               ASMR =  scale_y_continuous(breaks = y_breaks_asmr, trans = "log10")), 
+                      x = list(ASFR = scale_x_discrete(limits = age_levels_asfr, guide = guide_axis(angle = 90)),
+                               ASMR =  scale_x_discrete(limits = age_levels, guide = guide_axis(angle = 90)),
+                               ASFR = scale_x_discrete(limits = age_levels_asfr, guide = guide_axis(angle = 90)),
+                               ASMR =  scale_x_discrete(limits = age_levels, guide = guide_axis(angle = 90)),
+                               ASFR = scale_x_discrete(limits = age_levels_asfr, guide = guide_axis(angle = 90)),
+                               ASMR =  scale_x_discrete(limits = age_levels, guide = guide_axis(angle = 90))))+
   theme_graphs() + 
   labs(x = "Age") +
   guides(colour = "none") +
@@ -547,7 +556,7 @@ ggsave(file="Graphs/Socsim_Exp3B_ASMR_years.jpeg", width=24, height=9, dpi=300)
 
 # Estimate age-specific fertility rates 1x1 from the subset without 25% childless women
 asfr_less_women_25_1 <- map_dfr(less_women_25, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                              final_sim_year = 2022,
+                                                                              final_sim_year = 2072,
                                                                               year_min = 1750,
                                                                               year_max = 2023,
                                                                               year_group = 1,
@@ -559,7 +568,7 @@ save(asfr_less_women_25_1, file = "Measures/asfr_less_women_25_1.RData")
 
 # Estimate age-specific fertility rates 1x1 from the subset without 25% childless women
 asfr_less_women_50_1 <- map_dfr(less_women_50, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                              final_sim_year = 2022,
+                                                                              final_sim_year = 2072,
                                                                               year_min = 1750, 
                                                                               year_max = 2023, 
                                                                               year_group = 1,
@@ -571,7 +580,7 @@ save(asfr_less_women_50_1, file = "Measures/asfr_less_women_50_1.RData")
 
 # Estimate age-specific fertility rates 1x1 from the subset without 75% childless women
 asfr_less_women_75_1 <- map_dfr(less_women_75, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                              final_sim_year = 2022, 
+                                                                              final_sim_year = 2072, 
                                                                               year_min = 1750, 
                                                                               year_max = 2023, 
                                                                               year_group = 1,
@@ -583,7 +592,7 @@ save(asfr_less_women_75_1, file = "Measures/asfr_less_women_75_1.RData")
 
 # Estimate age-specific fertility rates 1x1 from the subset without 100% childless women
 asfr_less_women_100_1 <- map_dfr(less_women_100, ~ estimate_fertility_rates_mod(opop = .x,
-                                                                                final_sim_year = 2022, 
+                                                                                final_sim_year = 2072, 
                                                                                 year_min = 1750, 
                                                                                 year_max = 2023, 
                                                                                 year_group = 1,
@@ -781,7 +790,7 @@ error_TFR_exp3B %>%
 
 # Estimate age-specific mortality rates from the subset without 25% childless women
 asmr_less_women_25_1 <- map_dfr(less_women_25, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                              final_sim_year = 2022, 
+                                                                              final_sim_year = 2072, 
                                                                               year_min = 1750, 
                                                                               year_max = 2023, 
                                                                               year_group = 1,
@@ -797,7 +806,7 @@ save(lt_less_women_25, file = "Measures/lt_less_women_25.RData")
 
 # Estimate age-specific mortality rates from the subset without 25% childless women
 asmr_less_women_50_1 <- map_dfr(less_women_50, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                              final_sim_year = 2022,
+                                                                              final_sim_year = 2072,
                                                                               year_min = 1750, 
                                                                               year_max = 2023, 
                                                                               year_group = 1,
@@ -813,7 +822,7 @@ save(lt_less_women_50, file = "Measures/lt_less_women_50.RData")
 
 # Estimate age-specific mortality rates from the subset without 75% childless women
 asmr_less_women_75_1 <- map_dfr(less_women_75, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                              final_sim_year = 2022, 
+                                                                              final_sim_year = 2072, 
                                                                               year_min = 1750,
                                                                               year_max = 2023, 
                                                                               year_group = 1,
@@ -829,7 +838,7 @@ save(lt_less_women_75, file = "Measures/lt_less_women_75.RData")
 
 # Estimate age-specific mortality rates from the subset without 100% childless women
 asmr_less_women_100_1 <- map_dfr(less_women_100, ~ estimate_mortality_rates_mod(opop = .x,
-                                                                                final_sim_year = 2022, 
+                                                                                final_sim_year = 2072, 
                                                                                 year_min = 1750,
                                                                                 year_max = 2023, 
                                                                                 year_group = 1,
@@ -848,7 +857,7 @@ save(lt_less_women_100, file = "Measures/lt_less_women_100.RData")
 load("Measures/lt_10.RData")
 # Load life tables from subset of All direct ancestors and their offspring
 #load("Measures/lt_anc_off.RData")
-load("Measures/off_denom/lt_anc_off.RData")
+load("Measures/lt_anc_off.RData")
 # Load life tables from subset without 25% childless women
 load("Measures/lt_less_women_25.RData")
 # Load life tables from subset without 25% childless women
