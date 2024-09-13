@@ -589,13 +589,25 @@ ggplot(aes(x = Year, y = Relative_Error, group = Dataset, colour = Type)) +
 ggsave(file="Graphs/Socsim_Exp1_TFR_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
 
-# Check minimum and maximum values of bias in TFR 
+# Check mean values of bias in TFR before fertility decline
 error_TFR_exp1 %>% 
   filter(!is.na(Error)) %>% # NA after 1997
-  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # -3.9385728 -0.5122089
-  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% # --2.395861 -0.342730
+  filter(Year < 1901) %>% 
+  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # -3.453683 -76.91802
+  # filter(Dataset == "Direct Ancestors (without duplicates)") %>% # -1.899224 -42.37596%
+ # pull(Error) %>% 
+  pull(Relative_Error) %>%
+  mean()
+
+
+# Check mean values of bias in TFR 
+error_TFR_exp1 %>% 
+  filter(!is.na(Error)) %>% # NA after 1997
+  #filter(Dataset == "Direct Ancestors (with duplicates)") %>% # -2.447281 -65.78808
+  filter(Dataset == "Direct Ancestors (without duplicates)") %>% # -1.467246 -41.71113
   pull(Error) %>% 
-  range()
+ # pull(Relative_Error) %>%
+  mean()
 
 
 # Life Expectancy at birth ----
@@ -737,8 +749,8 @@ ggsave(file="Graphs/Socsim_Exp1_e0_Rel_Error.jpeg", width=17, height=9, dpi=300)
 error_e0_exp1 %>% 
   filter(sex == "female" ) %>% 
   filter(!is.na(Error)) %>% # There can be NAs in error due to missing values
-  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 0.4583637 34.1262260
-  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% # 0.6488196 33.0424507
+  # filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 0.6294378 34.0463697
+  filter(Dataset == "Direct Ancestors (without duplicates)") %>% # 0.7335692 32.9182953
   pull(Error) %>%
   range()
 
@@ -746,8 +758,8 @@ error_e0_exp1 %>%
 error_e0_exp1 %>% 
   filter(sex == "female") %>% 
   filter(!is.na(Error)) %>% # There can be NAs in error due to missing values
-  filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 35.65846
-  #filter(Dataset == "Direct Ancestors (without duplicates)") %>% # 34.21708
+  #filter(Dataset == "Direct Ancestors (with duplicates)") %>% # 33.40046
+  filter(Dataset == "Direct Ancestors (without duplicates)") %>% # 34.21708
   pull(Relative_Error) %>% 
   mean()
 

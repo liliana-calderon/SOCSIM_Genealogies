@@ -1428,16 +1428,20 @@ error_TFR_exp2 %>%
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp2_TFR_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
-# Retrieve the year with the smallest error (close to 0)
+# Check mean values of bias in TFR before fertility decline
 error_TFR_exp2 %>%
+  filter(Year < 1901) %>% 
   filter(Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
-  filter(Error == max(Error))
+  pull(Error) %>% # 0.27
+ #  pull(Relative_Error) %>% # 6.009188
+  mean()
 
-# Check minimum and maximum values of bias
+# Check mean values of bias
 error_TFR_exp2 %>%
   filter(Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
-  pull(Error) %>% 
-  range()
+  pull(Error) %>% 0.5
+  # pull(Relative_Error) %>% # 20.88607
+  mean()
 
 # Check bias and relative bias in TFR in 2022 (year with the greatest error)
 error_TFR_exp2 %>%
@@ -1810,23 +1814,18 @@ error_e0_exp2 %>%
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp2_e0_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
-# Check minimum and maximum values of bias in e0 
-error_e0_exp2 %>% 
-  filter(sex == "female" & Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
-  pull(Error) %>%
-  range()
 
 # Check mean values of bias in e0 
 error_e0_exp2 %>% 
   filter(sex == "female" & Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
   pull(Error) %>%
-  mean()
+  mean() # 0.9120806
 
 # Check mean values of relative bias in e0 
 error_e0_exp2 %>% 
   filter(sex == "female" & Dataset == "9. + 7x-Great-Aunts/Uncles") %>% 
   pull(Relative_Error) %>%
-  mean()
+  mean() #1.8
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----

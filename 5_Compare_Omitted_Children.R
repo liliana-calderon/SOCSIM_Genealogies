@@ -1137,13 +1137,13 @@ error_TFR_exp3A %>%
   theme_graphs()
 ggsave(file="Graphs/Socsim_Exp3A_TFR_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
-# Check minimum and maximum values of bias in TFR before 1900
+# Check mean values of bias in TFR before 1900
 error_TFR_exp3A %>% 
   filter(Year < 1900) %>% 
   #filter(Dataset == "25% Omission") %>% 
   filter(Dataset == "100% Omission") %>% 
   pull(Error) %>% 
-  range()
+  mean()
 
 # Check minimum and maximum values of relative bias in TFR before 1900
 error_TFR_exp3A %>% 
@@ -1156,16 +1156,16 @@ error_TFR_exp3A %>%
 # Check mean values of bias in TFR before 1900
 error_TFR_exp3A %>% 
   filter(Year < 1900) %>% 
-  # filter(Dataset == "25% Omission") %>% 
-  filter(Dataset == "100% Omission") %>% 
+  filter(Dataset == "25% Omission") %>% # -0.03593353
+  # filter(Dataset == "100% Omission") %>% # -0.9446202
   pull(Error) %>% 
   mean()
 
 # Check mean values of relative bias in TFR before 1900
 error_TFR_exp3A %>% 
   filter(Year < 1900) %>% 
-  # filter(Dataset == "25% Omission") %>% 
-  filter(Dataset == "100% Omission") %>% 
+  filter(Dataset == "25% Omission") %>% # -0.7332323
+  # filter(Dataset == "100% Omission") %>% # -20.90459
   pull(Relative_Error) %>% 
   mean()
 
@@ -1491,37 +1491,21 @@ error_e0_exp3A %>%
 ggsave(file="Graphs/Socsim_Exp3A_e0_Rel_Error.jpeg", width=17, height=9, dpi=300)
 
 
-# Check minimum and maximum values of bias in e0 over the whole period for 25% omission
-error_e0_exp3A %>% 
-  filter(sex == "female" & Error >0) %>%
-  filter(Dataset == "25% Omission") %>% 
-  #filter(Dataset == "100% Omission") %>% 
-  pull(Error) %>%
-  range()
-
-# Check minimum and maximum values of bias in e0 over the whole period for 100% omission
+# Check minimum and maximum values of bias in e0 over the whole period 
 error_e0_exp3A %>% 
   filter(sex == "female") %>%
-  # filter(Dataset == "25% Omission") %>% 
-  filter(Dataset == "100% Omission") %>% 
+  filter(Dataset == "25% Omission") %>% # 2.600863
+  #filter(Dataset == "100% Omission") %>% # 9.34501
   pull(Error) %>%
-  range()
+  mean()
 
-# Check minimum and maximum values of relative bias in e0 over the whole period for 25% omission
-error_e0_exp3A %>% 
-  filter(sex == "female" & Error >0) %>%
-  filter(Dataset == "25% Omission") %>% 
-  #filter(Dataset == "100% Omission") %>% 
-  pull(Relative_Error) %>%
-  range()
-
-# Check minimum and maximum values of relative bias in e0 over the whole period for 100% omission
+# Check mean values of relative bias in e0 over the whole period for 100% omission
 error_e0_exp3A %>% 
   filter(sex == "female") %>%
-  # filter(Dataset == "25% Omission") %>% 
-  filter(Dataset == "100% Omission") %>% 
-  pull(Relative_Error) %>%
-  range()
+  # filter(Dataset == "25% Omission") %>% # 5.779585
+  filter(Dataset == "100% Omission") %>% # 21.94657
+  pull(Relative_Error) %>% 
+  mean()
 
 #----------------------------------------------------------------------------------------------------
 ## Final plot combining TFR and e0 ----
