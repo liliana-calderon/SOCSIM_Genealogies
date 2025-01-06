@@ -2,10 +2,8 @@ Code for reproducible results for the paper “Analyzing biases in
 genealogies using demographic microsimulation”
 ================
 
-- <a href="#introduction" id="toc-introduction">Introduction</a>
-- <a href="#scripts-for-reproducible-results"
-  id="toc-scripts-for-reproducible-results">Scripts for reproducible
-  results</a>
+- [Introduction](#introduction)
+- [Scripts for reproducible results](#scripts-for-reproducible-results)
 
 # Introduction
 
