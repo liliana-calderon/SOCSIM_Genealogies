@@ -9,7 +9,7 @@
 # c.f. script 1_Run_Simulations.R
 
 # Created on 18-01-2022
-# Last modified on 02-09-2024
+# Last modified on 06-01-2025
 
 # NB: Some functions are adapted from external code specified under each section.
 #----------------------------------------------------------------------------------------------------
@@ -116,7 +116,6 @@ bind_rows(asfr_10 %>%
   scale_x_discrete(guide = guide_axis(angle = 90)) +
   labs(x = "Age", y = "Estimate")
 ggsave(file="Graphs/SOCSIM_10_ASFR_ASMR.jpeg", width=17, height=9, dpi=300)
-
 #----------------------------------------------------------------------------------------------------
 ## Comparison with HFC/HFD and HMD data (used as input) ----
 
@@ -554,6 +553,7 @@ ggsave(file="Graphs/Socsim_HFD_HMD2.jpeg", width=17, height=9, dpi=300)
 # Create a sub-folder called "Final_Graphs" to save the final plots included in the paper
 ifelse(!dir.exists("Final_Graphs"), dir.create("Final_Graphs"), FALSE)
 
+
 plot_labs1 <- data.frame(Rate = c("Age-Specific Fertility Rates", "Age-Specific Mortality Rates"),
                         x = c(1,2),
                         y = c(0.23, 0.5),
@@ -572,4 +572,4 @@ By_Age +
             size = 15, family="serif") +
   plot_layout(ncol = 1)
 
-ggsave(file="Final_Graphs/App_Socsim_HFD_HMD_Combined.jpeg", width=18, height=21, dpi=300)
+ggsave(file="Final_Graphs/Fig5.pdf", width=18, height=21, dpi=300, device = "pdf")

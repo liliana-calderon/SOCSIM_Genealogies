@@ -6,7 +6,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 23-09-2022
-# Last modified on 03-09-2024
+# Last modified on 06-01-2025
 
 ## NB: To run this code, it is necessary to have already run the script 1_Run_Simulations.R
 #------------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ print(end-start) # Time difference of 2.588096 mins
 # Save the data frame with the ancestors of 10 simulations samples
 save(ancestors_10, file = "Subsets/ancestors_10.RData")
 
-#----------------------------------------------------------------------------------------------------
+
 ## Check range of births of egos and female ancestors
 
 last_month <- ancestors_10 %>% 
@@ -407,9 +407,8 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   labs(x = "Age") +
   guides(colour = "none") +
   theme(legend.title = element_text(size = 20),
-        legend.text = element_text(size = 18)) #or 17
-ggsave(file="Final_Graphs/App_Socsim_Exp1_ASFR_ASMR.jpeg", width=18, height=25, dpi=300)
-
+        legend.text = element_text(size = 18))
+ggsave(file="Final_Graphs/Fig6.pdf", width=18, height=25, dpi=300, device = "pdf")
 #----------------------------------------------------------------------------------------------------
 # Figure for EPC presentation
 
@@ -438,8 +437,6 @@ bind_rows(asmr_whole2, asmr_dir_wd2, asmr_dir_wod2) %>%
   theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))+
   guides(colour = "none")
-
-ggsave(file="Graphs/Socsim_Exp1_ASMR_years.jpeg", width=24, height=9, dpi=300)
 
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
@@ -825,4 +822,4 @@ By_Age_Exp1 +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Final_Graphs/Final_Socsim_Exp1_Combined.jpeg", width=18, height=21, dpi=300)
+ggsave(file="Final_Graphs/Fig1.pdf", width=18, height=21, dpi=300, device = "pdf")

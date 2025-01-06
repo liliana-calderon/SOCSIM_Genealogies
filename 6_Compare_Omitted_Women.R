@@ -7,7 +7,7 @@
 # Trace genealogies and compare demographic measures from the whole simulation and the subsets 
 
 # Created on 11-07-2023
-# Last modified on 03-09-2024
+# Last modified on 06-01-2025
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R, 3_Compare_Ancestors.R and 4_Compare_Kin.R
@@ -515,8 +515,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
   guides(colour = "none") +
   theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))
-ggsave(file="Final_Graphs/App_Socsim_Exp3B_ASFR_ASMR.jpeg", width=20, height=25, dpi=300)
-
+ggsave(file="Final_Graphs/Fig10.pdf", width=18, height=23, dpi=300, device = "pdf")
 #----------------------------------------------------------------------------------------------------
 # Figure for EPC presentation
 
@@ -545,8 +544,6 @@ bind_rows(asmr_whole2, asmr_anc_off2, asmr_less_women_25b, asmr_less_women_100b)
   theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))+
   guides(colour = "none")
-
-ggsave(file="Graphs/Socsim_Exp3B_ASMR_years.jpeg", width=24, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
@@ -942,8 +939,6 @@ bind_rows(lt_whole2,  lt_anc_off2, lt_less_women_25b, lt_less_women_100b)  %>%
   facet_wrap(~Sex) +
   theme_graphs() +
   labs(y = "Life expectancy at birth")
-
-ggsave(file="Graphs/Socsim_Exp3B_e0_grp.jpeg", width=17, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
 # Summary measure of error in e0 ----
 
@@ -1084,4 +1079,4 @@ By_Age_Exp3B +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Final_Graphs/Final_Socsim_Exp3B_Combined.jpeg", width=18, height=21, dpi=300)
+ggsave(file="Final_Graphs/Fig4.pdf", width=18, height=21, dpi=300, device = "pdf")

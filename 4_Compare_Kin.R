@@ -7,7 +7,7 @@
 # and compare demographic measures from the whole simulation and the genealogical subsets
 
 # Created on 13-04-2022
-# Last modified on 03-09-2024
+# Last modified on 06-01-2025
 
 ## NB: To run this code, it is necessary to have already run the scripts 
 # 1_Run_Simulations.R and 3_Compare_Ancestors.R
@@ -134,7 +134,6 @@ anc_kin_10 %>%
   prop.table()*100
 
 
-#----------------------------------------------------------------------------------------------------
 ## Check range of births of egos and female kin
 
 last_month <- anc_kin_10 %>% 
@@ -1054,7 +1053,6 @@ bind_rows(asmr_whole2, asmr_dir_wod2, asmr_anc_off2) %>%
   theme(legend.title = element_text(size = 20),
         legend.text = element_text(size = 18))+
   guides(colour = "none")
-ggsave(file="Graphs/Socsim_Exp2_ASMR_years.jpeg", width=24, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
 ## Summary measures: TFR and e0 ----
 # Here, we use the rates by 1 year age group and 1 calendar year
@@ -1762,7 +1760,6 @@ bind_rows(lt_whole2, lt_dir_wod2, lt_anc_off2)  %>%
   facet_wrap(~Sex) +
   theme_graphs() +
   labs(y = "Life expectancy at birth")
-ggsave(file="Graphs/Socsim_Exp2_e0_grp.jpeg", width=17, height=9, dpi=300)
 #----------------------------------------------------------------------------------------------------
 # Summary measure of error in e0 ----
 
@@ -1892,8 +1889,7 @@ By_Age_Exp2 +
   geom_text(data = plot_labs2, mapping = aes(x = x, y = y, label = labels), inherit.aes = F, 
             size = 15, family="serif") +
   plot_layout(ncol = 1)
-ggsave(file="Final_Graphs/Final_Socsim_Exp2_Combined.jpeg", width=18, height=21, dpi=300)
-
+ggsave(file="Final_Graphs/Fig2.pdf", width=18, height=21, dpi=300, device = "pdf")
 #----------------------------------------------------------------------------------------------------
 ## Plots adding kin progressively For appendix ----
 
@@ -1960,7 +1956,7 @@ bind_rows(asfr_whole2 %>% rename(Estimate = ASFR),
                                ASMR =  scale_x_discrete(limits = age_levels, guide = guide_axis(angle = 90))))+
   theme_graphs() +
   labs(x = "Age")
-ggsave(file="Final_Graphs/App_Socsim_Exp2_ASFR_ASMR.jpeg", width=18, height=25, dpi=300)
+ggsave(file="Final_Graphs/Fig7.pdf", width=18, height=25, dpi=300, device = "pdf")
 
 ## TFR and e0 (for females) from whole SOCSIM simulation and subsets of direct ancestors without and with their offspring
 bind_rows(TFR_whole %>% rename(Estimate = TFR),
@@ -2007,4 +2003,4 @@ bind_rows(TFR_whole %>% rename(Estimate = TFR),
                                "Life Expectancy at Birth" =  scale_y_continuous(breaks = y_breaks_e0)))+
   theme_graphs()
 # Save the plot
-ggsave(file="Final_Graphs/App_Socsim_Exp2_TFR_e0.jpeg", width=17, height=11, dpi=300)
+ggsave(file="Final_Graphs/Fig8.pdf", width=17, height=11, dpi=300, device = "pdf")
